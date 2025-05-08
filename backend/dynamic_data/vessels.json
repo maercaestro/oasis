@@ -1,0 +1,60 @@
+{
+    "Vessel_001": {
+      "vessel_id": "Vessel_001",
+      "arrival_day": 7,
+      "cost": 80000,
+      "capacity": 800.0,
+      "cargo": [
+        {
+          "grade": "Brent",
+          "volume": 800.0,
+          "ldr": {"1": 2},
+          "origin": "Terminal2",
+          "vessel_id": "Vessel_001"
+        }
+      ],
+      "original_arrival_day": 7,
+      "days_held": 0
+    },
+    "Vessel_002": {
+      "vessel_id": "Vessel_002",
+      "arrival_day": 12,
+      "cost": 100000,
+      "capacity": 1200.0,
+      "cargo": [
+        {
+          "grade": "Arabian Light",
+          "volume": 700.0,
+          "ldr": {"4": 6},
+          "origin": "Terminal1",
+          "vessel_id": "Vessel_002"
+        },
+        {
+          "grade": "Russian Urals",
+          "volume": 500.0,
+          "ldr": {"6": 7},
+          "origin": "Terminal1",
+          "vessel_id": "Vessel_002"
+        }
+      ],
+      "original_arrival_day": 12,
+      "days_held": 0
+    },
+    "Vessel_003": {
+      "vessel_id": "Vessel_003",
+      "arrival_day": 18,
+      "cost": 60000,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "WTI",
+          "volume": 500.0,
+          "ldr": {"8": 10},
+          "origin": "Terminal3",
+          "vessel_id": "Vessel_003"
+        }
+      ],
+      "original_arrival_day": 18,
+      "days_held": 0
+    }
+  }

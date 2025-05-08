@@ -1,0 +1,29 @@
+{
+    "Requirement_001": {
+      "grade": "Arabian Light",
+      "volume": 1200.0,
+      "origin": "Terminal1",
+      "allowed_ldr": {
+        "15": 25
+      },
+      "required_arrival_by": 30
+    },
+    "Requirement_002": {
+      "grade": "Brent",
+      "volume": 800.0,
+      "origin": "Terminal2",
+      "allowed_ldr": {
+        "10": 18
+      },
+      "required_arrival_by": 25
+    },
+    "Requirement_003": {
+      "grade": "WTI",
+      "volume": 600.0,
+      "origin": "Terminal3",
+      "allowed_ldr": {
+        "20": 30
+      },
+      "required_arrival_by": 35
+    }
+  }

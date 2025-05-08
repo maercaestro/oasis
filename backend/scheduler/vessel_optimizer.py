@@ -7,31 +7,30 @@ Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 
 """
 
-from typing import List, Dict, Optional, Tuple
-import pulp as plt
+from typing import List, Dict, Optional, Tuple, Set
+import pulp as plp
 from .models import Vessel, FeedstockParcel, FeedstockRequirement, Route
 
 class VesselOptimizer:
     """
     Optimizer for vessel scheduling and feedstock delivery.
-    Minimized total vessel cost while ensuring  all feedstock requirements are met.
-
+    Minimizes total vessel cost while ensuring all feedstock requirements are met.
     """
-
+    
     def __init__(self, feedstock_requirements: List[FeedstockRequirement], 
-                 vessels: List[Vessel], 
-                 routes: List[str,Route]):
+                 routes: Dict[str, Route],  # <-- Fixed: Dict instead of List
+                 vessel_types: List[Dict]):
         """
-        Initialize the optimizer with feedstock requirements, vessels, and routes.
-
+        Initialize the vessel optimizer.
+        
         Args:
-            feedstock_requirements: List of feedstock requirements
-            vessels: List of vessels available for scheduling
-            routes: List of routes available for scheduling
+            feedstock_requirements: List of feedstock requirements to be fulfilled
+            routes: Dictionary of routes (key format: "{origin}_{destination}")
+            vessel_types: List of available vessel types with their capacities and costs
         """
-        self.feedstock_requirements = feedstock_requirements
-        self.vessels = vessels
+        self.requirements = feedstock_requirements
         self.routes = routes
+        self.vessel_types = vessel_types
     
     def optimize(self, horizon_days: int =30) -> List[Vessel]:
         """
@@ -45,47 +44,128 @@ class VesselOptimizer:
         vessels = self._extract_solution(model)
         return vessels
     
-    def _build_optimization_model(self, horizon_days: int) -> plt.LpProblem:
+    def _build_optimization_model(self, horizon_days: int) -> plp.LpProblem:
         """
         Build the optimization model for vessel scheduling.
         params horizon_days: int the number of days to optimize for
-        return: plt.LpProblem the optimization model
+        return: plp.LpProblem the optimization model
         """
         # Create a linear programming problem
-        model = plt.LpProblem("Vessel_Scheduling_Optimization", plt.LpMinimize)
+        model = plp.LpProblem("Vessel_Scheduling_Optimization", plp.LpMinimize)
 
-        # Create decision variables for each vessel and feedstock requirement
-        x = plt.LpVariable.dicts("x", 
-                                  ((vessel.name, req.grade) for vessel in self.vessels for req in self.feedstock_requirements), 
-                                  lowBound=0, 
-                                  cat='Continuous')
-
+        # Create decision variables for vessel type selection and loading
+        # y[v_type, day] = 1 if vessel of type v_type is scheduled on day
+        y = {}
+        for v_idx, vessel_type in enumerate(self.vessel_types):
+            for day in range(1, horizon_days+1):
+                y[(v_idx, day)] = plp.LpVariable(f"Use_Vessel_{v_idx}_Day_{day}", 
+                                                cat='Binary')
+        
+        # x[v_idx, day, req_idx] = volume of requirement req_idx loaded on vessel v_idx on day
+        x = {}
+        for v_idx, _ in enumerate(self.vessel_types):
+            for day in range(1, horizon_days+1):
+                for req_idx, req in enumerate(self.requirements):
+                    x[(v_idx, day, req_idx)] = plp.LpVariable(
+                        f"Load_Vessel_{v_idx}_Day_{day}_Req_{req_idx}", 
+                        lowBound=0, 
+                        cat='Continuous')
+        
         # Objective function: Minimize total cost of vessels
-        model += plt.lpSum([vessel.cost * x[(vessel.name, req.grade)] for vessel in self.vessels for req in self.feedstock_requirements]), "Total_Cost"
-
+        model += plp.lpSum([self.vessel_types[v_idx]["cost"] * y[(v_idx, day)] 
+                           for v_idx in range(len(self.vessel_types))
+                           for day in range(1, horizon_days+1)]), "Total_Cost"
+        
         # Constraints: Ensure all feedstock requirements are met
-        for req in self.feedstock_requirements:
-            model += plt.lpSum([x[(vessel.name, req.grade)] for vessel in self.vessels]) >= req.volume, f"Feedstock_Requirement_{req.grade}"
-
+        for req_idx, req in enumerate(self.requirements):
+            model += plp.lpSum([x[(v_idx, day, req_idx)] 
+                               for v_idx in range(len(self.vessel_types))
+                               for day in range(1, horizon_days+1)]) >= req.volume, \
+                    f"Feedstock_Requirement_{req_idx}"
+        
         # Constraints: Ensure vessels do not exceed their capacity
-        for vessel in self.vessels:
-            model += plt.lpSum([x[(vessel.name, req.grade)] for req in self.feedstock_requirements]) <= vessel.capacity, f"Vessel_Capacity_{vessel.name}"
-
+        for v_idx in range(len(self.vessel_types)):
+            for day in range(1, horizon_days+1):
+                model += plp.lpSum([x[(v_idx, day, req_idx)] 
+                                   for req_idx in range(len(self.requirements))]) <= \
+                        self.vessel_types[v_idx]["capacity"] * y[(v_idx, day)], \
+                        f"Vessel_Capacity_{v_idx}_{day}"
+        
+        # Constraints: Only load if vessel is used
+        for v_idx in range(len(self.vessel_types)):
+            for day in range(1, horizon_days+1):
+                for req_idx in range(len(self.requirements)):
+                    model += x[(v_idx, day, req_idx)] <= \
+                            self.vessel_types[v_idx]["capacity"] * y[(v_idx, day)], \
+                            f"Load_If_Used_{v_idx}_{day}_{req_idx}"
+                            
+        # Store decision variables for solution extraction
+        self._y_vars = y
+        self._x_vars = x
+                
         return model
-    def _extract_solution(self, model: plt.LpProblem) -> List[Vessel]:
+
+    def _extract_solution(self, model: plp.LpProblem) -> List[Vessel]:
         """
         Extract the solution from the optimization model.
-        params model: plt.LpProblem the optimization model
+        params model: plp.LpProblem the optimization model
         return: List[Vessel] the list of scheduled vessels with their cargo
         """
         vessels = []
-        for vessel in self.vessels:
-            cargo = []
-            for req in self.feedstock_requirements:
-                volume = model.variablesDict()[f"x_{vessel.name}_{req.grade}"].varValue
-                if volume > 0:
-                    cargo.append(FeedstockParcel(grade=req.grade, volume=volume, ldr=req.ldr, origin=req.origin))
-            vessels.append(Vessel(vessel_id=vessel.vessel_id, arrival_day=vessel.arrival_day, cost=vessel.cost, capacity=vessel.capacity, cargo=cargo))
+        
+        # Check if model was solved successfully
+        if model.status != plp.LpStatusOptimal:
+            print(f"Warning: Optimization did not reach optimal status. Status: {model.status}")
+            return vessels
+            
+        # For each vessel type and day
+        for v_idx, vessel_type in enumerate(self.vessel_types):
+            for day in range(1, model.horizon_days+1 if hasattr(model, 'horizon_days') else 60):
+                # Check if this vessel is used
+                var_name = f"Use_Vessel_{v_idx}_Day_{day}"
+                if var_name in model.variablesDict() and model.variablesDict()[var_name].varValue > 0.5:
+                    # Create cargo for this vessel
+                    cargo = []
+                    
+                    # Check what requirements are loaded on this vessel
+                    for req_idx, req in enumerate(self.requirements):
+                        var_name = f"Load_Vessel_{v_idx}_Day_{day}_Req_{req_idx}"
+                        if var_name in model.variablesDict():
+                            volume = model.variablesDict()[var_name].varValue
+                            if volume > 0.001:  # Small tolerance for numerical issues
+                                # Calculate arrival day based on route travel time
+                                route_key = f"{req.origin}_Refinery"
+                                travel_time = self.routes[route_key].time_travel if route_key in self.routes else 7.0
+                                
+                                # Create feedstock parcel
+                                cargo.append(FeedstockParcel(
+                                    grade=req.grade,
+                                    volume=volume,
+                                    ldr={day: day+1},  # Simple loading window
+                                    origin=req.origin,
+                                    vessel_id=f"Vessel_{v_idx}_{day}"
+                                ))
+                    
+                    # If this vessel has cargo, add it to the list
+                    if cargo:
+                        # Calculate arrival day (use earliest arrival from all routes)
+                        arrival_times = []
+                        for parcel in cargo:
+                            route_key = f"{parcel.origin}_Refinery"
+                            if route_key in self.routes:
+                                arrival_times.append(day + int(self.routes[route_key].time_travel))
+                        
+                        arrival_day = min(arrival_times) if arrival_times else day + 7
+                        
+                        vessels.append(Vessel(
+                            vessel_id=f"Vessel_{v_idx}_{day}",
+                            arrival_day=arrival_day,
+                            cost=vessel_type["cost"],
+                            capacity=vessel_type["capacity"],
+                            cargo=cargo,
+                            days_held=0
+                        ))
+        
         return vessels
     
     def visualize_schedule(self, vessels: List[Vessel]) -> None:

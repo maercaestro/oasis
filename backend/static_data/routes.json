@@ -1,0 +1,17 @@
+{
+    "Terminal1_Refinery": {
+      "origin": "Terminal1",
+      "destination": "Refinery",
+      "time_travel": 6.0
+    },
+    "Terminal2_Refinery": {
+      "origin": "Terminal2",
+      "destination": "Refinery",
+      "time_travel": 8.0
+    },
+    "Terminal3_Refinery": {
+      "origin": "Terminal3",
+      "destination": "Refinery",
+      "time_travel": 10.0
+    }
+  }

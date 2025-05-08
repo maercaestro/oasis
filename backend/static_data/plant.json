@@ -1,0 +1,6 @@
+{
+    "name": "Main Refinery",
+    "capacity": 500.0,
+    "base_crude_capacity": 450.0,
+    "max_inventory": 6000.0
+  }

@@ -1,0 +1,22 @@
+[
+    {
+      "name": "VLCC",
+      "capacity": 2000.0,
+      "cost": 150000
+    },
+    {
+      "name": "Suezmax",
+      "capacity": 1200.0,
+      "cost": 100000
+    },
+    {
+      "name": "Aframax",
+      "capacity": 800.0,
+      "cost": 80000
+    },
+    {
+      "name": "Panamax",
+      "capacity": 500.0,
+      "cost": 60000
+    }
+  ]
