@@ -12,13 +12,14 @@ import json
 import os
 from typing import Dict, List, Any, Optional
 
-from backend.scheduler import (
+from scheduler import (
     Scheduler, VesselOptimizer, SchedulerOptimizer, 
-    Tank, BlendingRecipe, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement
+    Tank, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement
 )
 
+from scheduler.models import BlendingRecipe
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # This enables CORS for all /api/ routes
 
 # Data paths
 STATIC_DATA_DIR = os.path.join(os.path.dirname(__file__), "static_data")
@@ -65,8 +66,8 @@ def load_tanks() -> Dict[str, Tank]:
     
     return tanks
 
-def load_recipes() -> List[BlendingRecipe]:
-    """Load blending recipe data and convert to BlendingRecipe objects"""
+def load_recipes():
+    """Load recipe data and convert to BlendingRecipe objects"""
     recipes_data = load_data_file(RECIPES_FILE)
     recipes = []
     
@@ -74,9 +75,9 @@ def load_recipes() -> List[BlendingRecipe]:
         recipes.append(BlendingRecipe(
             name=recipe_id,
             primary_grade=recipe_info.get("primary_grade", ""),
-            secondary_grade=recipe_info.get("secondary_grade"),
-            max_rate=recipe_info.get("max_rate", 0),
-            primary_fraction=recipe_info.get("primary_fraction", 1.0)
+            secondary_grade=recipe_info.get("secondary_grade", ""),
+            primary_fraction=recipe_info.get("primary_fraction", 0),
+            max_rate=recipe_info.get("max_rate", 0)
         ))
     
     return recipes
@@ -114,28 +115,61 @@ def load_vessels() -> List[Vessel]:
     vessels_data = load_data_file(VESSELS_FILE)
     vessels = []
     
-    for vessel_id, vessel_info in vessels_data.items():
-        cargo = []
-        for parcel_info in vessel_info.get("cargo", []):
-            cargo.append(FeedstockParcel(
-                grade=parcel_info.get("grade", ""),
-                volume=parcel_info.get("volume", 0),
-                origin=parcel_info.get("origin", ""),
-                ldr={
-                    parcel_info.get("loading_start_day", 0): 
-                    parcel_info.get("loading_end_day", 0)
-                },
-                vessel_id=vessel_id
+    # Check if data is a dictionary of vessels or a single vessel
+    if isinstance(vessels_data, dict) and all(isinstance(value, dict) for value in vessels_data.values()):
+        # It's a dictionary of vessels - iterate through each vessel
+        for vessel_id, vessel_info in vessels_data.items():
+            # Process cargo data
+            cargo = []
+            for parcel_info in vessel_info.get("cargo", []):
+                cargo.append(FeedstockParcel(
+                    grade=parcel_info.get("grade", ""),
+                    volume=parcel_info.get("volume", 0),
+                    origin=parcel_info.get("origin", ""),
+                    ldr={
+                        int(parcel_info.get("loading_start_day", 0)): 
+                        int(parcel_info.get("loading_end_day", 0))
+                    },
+                    vessel_id=vessel_id
+                ))
+            
+            vessels.append(Vessel(
+                vessel_id=vessel_id,
+                arrival_day=int(vessel_info.get("arrival_day", 0)),
+                capacity=float(vessel_info.get("capacity", 0)),
+                cost=float(vessel_info.get("cost", 0)),
+                cargo=cargo,
+                days_held=int(vessel_info.get("days_held", 0))
             ))
+    else:
+        # Try to handle the file as a list of vessels or a single vessel object
+        vessel_list = vessels_data if isinstance(vessels_data, list) else [vessels_data]
         
-        vessels.append(Vessel(
-            vessel_id=vessel_id,
-            arrival_day=vessel_info.get("arrival_day", 0),
-            capacity=vessel_info.get("capacity", 0),
-            cost=vessel_info.get("cost", 0),
-            cargo=cargo,
-            days_held=vessel_info.get("days_held", 0)
-        ))
+        for vessel_info in vessel_list:
+            vessel_id = vessel_info.get("vessel_id", f"Unknown_Vessel_{len(vessels)}")
+            
+            # Process cargo data
+            cargo = []
+            for parcel_info in vessel_info.get("cargo", []):
+                cargo.append(FeedstockParcel(
+                    grade=parcel_info.get("grade", ""),
+                    volume=parcel_info.get("volume", 0),
+                    origin=parcel_info.get("origin", ""),
+                    ldr={
+                        int(parcel_info.get("loading_start_day", 0)): 
+                        int(parcel_info.get("loading_end_day", 0))
+                    },
+                    vessel_id=vessel_id
+                ))
+            
+            vessels.append(Vessel(
+                vessel_id=vessel_id,
+                arrival_day=int(vessel_info.get("arrival_day", 0)),
+                capacity=float(vessel_info.get("capacity", 0)),
+                cost=float(vessel_info.get("cost", 0)),
+                cargo=cargo,
+                days_held=int(vessel_info.get("days_held", 0))
+            ))
     
     return vessels
 
@@ -180,6 +214,10 @@ def load_feedstock_parcels() -> List[FeedstockParcel]:
         ))
     
     return parcels
+
+def load_plant():
+    """Load plant configuration data"""
+    return load_data_file(os.path.join(STATIC_DATA_DIR, "plant.json"))
 
 # Helper functions for converting objects back to JSON-serializable format
 def convert_daily_plans_to_json(daily_plans) -> List[Dict]:
@@ -279,13 +317,37 @@ def convert_requirements_to_json(requirements) -> List[Dict]:
 @app.route('/api/data', methods=['GET'])
 def get_data():
     """Get all configuration data"""
+    vessels = load_vessels()
+    
+    # Convert vessels list to dictionary format for frontend compatibility
+    vessels_dict = {}
+    for vessel in vessels:
+        vessels_dict[vessel.vessel_id] = {
+            "vessel_id": vessel.vessel_id,
+            "arrival_day": vessel.arrival_day,
+            "capacity": vessel.capacity,
+            "cost": vessel.cost,
+            "cargo": [
+                {
+                    "grade": parcel.grade,
+                    "volume": parcel.volume,
+                    "origin": parcel.origin,
+                    "loading_start_day": next(iter(parcel.ldr.keys())) if parcel.ldr else 0,
+                    "loading_end_day": next(iter(parcel.ldr.values())) if parcel.ldr else 0
+                }
+                for parcel in vessel.cargo
+            ],
+            "days_held": vessel.days_held
+        }
+    
     return jsonify({
         "tanks": load_tanks(),
         "recipes": load_recipes(),
         "crudes": load_crudes(),
         "routes": load_routes(),
-        "vessels": load_vessels(),
+        "vessels": vessels_dict,  # Return as dictionary instead of list
         "vessel_types": load_vessel_types(),
+        "plants": load_plant(),  # Add this line
         "feedstock_requirements": load_feedstock_requirements(),
         "feedstock_parcels": load_feedstock_parcels()
     })
@@ -534,7 +596,7 @@ def save_data():
                 file_path = ROUTES_FILE
             elif data_type == 'vessel_types':
                 file_path = VESSEL_TYPES_FILE
-            elif data_type == 'plant':
+            elif data_type == 'plants' or data_type == 'plant':
                 file_path = os.path.join(STATIC_DATA_DIR, "plant.json")
             else:
                 return jsonify({"success": False, "error": f"Unknown data type: {data_type}"}), 400
@@ -563,4 +625,4 @@ if __name__ == '__main__':
     os.makedirs(DYNAMIC_DATA_DIR, exist_ok=True)
     
     # Run the Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
