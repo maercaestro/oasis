@@ -1,17 +1,32 @@
 {
-    "Terminal1_Refinery": {
-      "origin": "Terminal1",
-      "destination": "Refinery",
-      "time_travel": 6.0
-    },
-    "Terminal2_Refinery": {
-      "origin": "Terminal2",
-      "destination": "Refinery",
-      "time_travel": 8.0
-    },
-    "Terminal3_Refinery": {
-      "origin": "Terminal3",
-      "destination": "Refinery",
-      "time_travel": 10.0
-    }
+  "PM to refinery": {
+    "destination": "Refinery",
+    "origin": "Peninsular Malaysia",
+    "time_travel": 2
+  },
+  "Sabah to Refinery": {
+    "destination": "Refinery",
+    "origin": "Terminal2",
+    "time_travel": 3.5
+  },
+  "Sabah to PM": {
+    "destination": "Peninsular Malaysia",
+    "origin": "Terminal3",
+    "time_travel": 3
+  },
+  "Sabah to Sarawak": {
+    "origin": "Terminal1",
+    "destination": "Sarawak",
+    "time_travel": 1
+  },
+  "Sarawak to Refinery": {
+    "origin": "Sarawak",
+    "destination": "Refinery",
+    "time_travel": 3
+  },
+  "Sarawak_Peninsular Malaysia": {
+    "origin": "Sarawak",
+    "destination": "Peninsular Malaysia",
+    "time_travel": 2.5
   }
+}

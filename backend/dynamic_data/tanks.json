@@ -1,40 +1,47 @@
 {
-    "Tank1": {
-      "name": "Tank1",
-      "capacity": 1000.0,
-      "content": [
-        {"Arabian Light": 650.0}
-      ]
-    },
-    "Tank2": {
-      "name": "Tank2",
-      "capacity": 1000.0,
-      "content": [
-        {"Brent": 480.0}
-      ]
-    },
-    "Tank3": {
-      "name": "Tank3",
-      "capacity": 800.0,
-      "content": [
-        {"WTI": 320.0}
-      ]
-    },
-    "Tank4": {
-      "name": "Tank4",
-      "capacity": 1200.0,
-      "content": [
-        {"Russian Urals": 750.0}
-      ]
-    },
-    "Tank5": {
-      "name": "Tank5",
-      "capacity": 1500.0,
-      "content": []
-    },
-    "Tank6": {
-      "name": "Tank6",
-      "capacity": 1500.0,
-      "content": []
-    }
+  "Tank1": {
+    "capacity": 250,
+    "content": [
+      {
+        "Base": 250
+      }
+    ],
+    "name": "Tank1"
+  },
+  "Tank2": {
+    "capacity": 250,
+    "content": [
+      {
+        "Base": 100
+      }
+    ],
+    "name": "Tank2"
+  },
+  "Tank3": {
+    "capacity": 250,
+    "content": [
+      {
+        "B": 150
+      }
+    ],
+    "name": "Tank3"
+  },
+  "Tank4": {
+    "capacity": 250,
+    "content": [
+      {
+        "C": 150
+      }
+    ],
+    "name": "Tank4"
+  },
+  "Tank5": {
+    "capacity": 180,
+    "content": [
+      {
+        "D": 100
+      }
+    ],
+    "name": "Tank5"
   }
+}

@@ -35,8 +35,8 @@ function DataEditor({ dataType, data, onSave }) {
         }, {});
       }
       
-      // Save changes via API
-      await axios.post('/api/data', {
+      // Save changes via correct API endpoint
+      await axios.post('/api/save-data', {  // Changed from '/api/data' to '/api/save-data'
         type: dataType,
         content: dataToSave
       })
@@ -64,7 +64,11 @@ function DataEditor({ dataType, data, onSave }) {
   const renderEditor = () => {
     switch (dataType) {
       case 'tanks':
-        return <TankDataEditor tanks={editableData} setTanks={setEditableData} />;
+        return <TankDataEditor 
+          tanks={editableData} 
+          setTanks={setEditableData} 
+          crudes={data.crudes} // Pass crudes data here
+        />;
       case 'vessels':
         return <VesselDataEditor vessels={editableData} setVessels={setEditableData} />;
       case 'plants':
@@ -77,48 +81,108 @@ function DataEditor({ dataType, data, onSave }) {
         return <RouteDataEditor routes={editableData} setRoutes={setEditableData} />;
       case 'vessel_types':
         return <VesselTypeDataEditor vesselTypes={editableData} setVesselTypes={setEditableData} />;
+      case 'feedstock_parcels':
+        return <FeedstockParcelEditor parcels={editableData} setParcels={setEditableData} />;
+      case 'feedstock_requirements':
+        console.log("Rendering FeedstockRequirementEditor with crudes:", data.crudes);
+        return <FeedstockRequirementEditor 
+          requirements={editableData} 
+          setRequirements={setEditableData} 
+          crudes={data.crudes}  // Pass crudes data here
+        />;
       default:
-        return <p>Select a data type to edit</p>;
+        return null;
     }
   };
-  
+
   return (
     <div>
-      
-
       {/* Render the appropriate editor */}
       {renderEditor()}
-      
+
       {/* Action buttons and status */}
       <div className="mt-4 flex items-center">
         <button
           onClick={handleSaveData}
           disabled={isSubmitting}
-          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition"
+          className="px-4 py-2 !bg-emerald-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition"
         >
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>
-        
+
         {successMessage && (
           <span className="ml-3 text-green-600 text-sm">{successMessage}</span>
         )}
-        
+
         {error && (
           <span className="ml-3 text-red-600 text-sm">{error}</span>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Tank Editor Component
-function TankDataEditor({ tanks, setTanks }) {
-  // Add defensive checks for undefined or null data
-  const tanksData = tanks || {};
+function TankDataEditor({ tanks, setTanks, crudes }) {
+    const tanksData = tanks || {};
+  // Force load crude data if not provided
+  const [loadedCrudes, setLoadedCrudes] = useState(crudes || {});
+  const [isLoading, setIsLoading] = useState(!crudes);
+  const [isAddingTank, setIsAddingTank] = useState(false);
+  const [newTankName, setNewTankName] = useState('');
+  const [error, setError] = useState('');
+  
+  useEffect(() => {
+    const fetchCrudes = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('/api/data');
+        console.log("API response:", response.data);
+        if (response.data && response.data.crudes) {
+          setLoadedCrudes(response.data.crudes);
+          console.log("Set loaded crudes:", response.data.crudes);
+        }
+      } catch (err) {
+        console.error("Error loading crude data:", err);
+        setError("Failed to load crude grades");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (!crudes || Object.keys(crudes || {}).length === 0) {
+      fetchCrudes();
+    } else {
+      // If crudes were passed as props, make sure we use them
+      setLoadedCrudes(crudes);
+    }
+  }, [crudes]);
+  
+  // Use loaded crudes or passed crudes
+  const crudesData = Object.keys(loadedCrudes).length > 0 ? loadedCrudes : (crudes || {});
+  const allGrades = Object.keys(crudesData).filter(Boolean);
+  
+  console.log("Available Crude Grades:", allGrades);
+  
+  // Add this right after the dropdown where the options should appear
+  useEffect(() => {
+    // This will force a re-render when loadedCrudes changes
+    console.log("Crude grades updated:", Object.keys(crudesData).length);
+  }, [loadedCrudes]);
   
   // Handle empty tanks object
-  if (Object.keys(tanksData).length === 0) {
-    return <p className="text-slate-500">No tank data available to edit.</p>
+  if (Object.keys(tanksData).length === 0 && !isAddingTank) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-slate-500 mb-4">No tank data available to edit.</p>
+        <button
+          onClick={() => setIsAddingTank(true)}
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+        >
+          + Add First Tank
+        </button>
+      </div>
+    );
   }
 
   const handleTankPropertyChange = (tankName, property, value) => {
@@ -131,6 +195,42 @@ function TankDataEditor({ tanks, setTanks }) {
     }))
   }
   
+  // Add this function to delete a tank
+  const deleteTank = (tankName) => {
+    if (confirm(`Are you sure you want to delete tank "${tankName}"? This action cannot be undone.`)) {
+      setTanks(prev => {
+        const updatedTanks = {...prev};
+        delete updatedTanks[tankName];
+        return updatedTanks;
+      });
+    }
+  }
+  
+  // Add this function to create a new tank
+  const addNewTank = () => {
+    if (!newTankName.trim()) {
+      setError('Tank name cannot be empty');
+      return;
+    }
+    
+    if (tanksData[newTankName]) {
+      setError(`A tank named "${newTankName}" already exists`);
+      return;
+    }
+    
+    setTanks(prev => ({
+      ...prev,
+      [newTankName]: {
+        capacity: 100,
+        content: []
+      }
+    }));
+    
+    setNewTankName('');
+    setIsAddingTank(false);
+    setError('');
+  }
+  
   const handleContentChange = (tankName, contentIndex, grade, value) => {
     // Create a copy of the tanks object
     const updatedTanks = { ...tanks }
@@ -138,9 +238,14 @@ function TankDataEditor({ tanks, setTanks }) {
     // Extract current content array for this tank
     const tankContent = [...updatedTanks[tankName].content]
     
+    // Convert value to number properly, default to 0 if invalid
+    const numValue = grade === "" ? 0 : (parseFloat(value) || 0);
+    
     // If this is adding a new grade that wasn't in the content array before
     if (contentIndex >= tankContent.length) {
-      tankContent.push({ [grade]: parseFloat(value) || 0 })
+      if (grade !== "") {
+        tankContent.push({ [grade]: numValue })
+      }
     } else {
       // Otherwise update existing content
       const existingContent = tankContent[contentIndex]
@@ -148,21 +253,20 @@ function TankDataEditor({ tanks, setTanks }) {
       
       // If grade changed, create new object with new grade
       if (grade !== existingGrade) {
-        tankContent[contentIndex] = { [grade]: parseFloat(value) || 0 }
+        if (grade !== "") {
+          tankContent[contentIndex] = { [grade]: numValue }
+        } else {
+          // If grade cleared, remove this entry
+          tankContent.splice(contentIndex, 1);
+        }
       } else {
         // Just update the value for existing grade
-        tankContent[contentIndex] = { [grade]: parseFloat(value) || 0 }
+        tankContent[contentIndex] = { [grade]: numValue }
       }
     }
     
-    // Filter out any entries with zero or negative volumes
-    const filteredContent = tankContent.filter(item => {
-      const value = Object.values(item)[0]
-      return value > 0
-    })
-    
     // Update the tank with new content
-    updatedTanks[tankName].content = filteredContent
+    updatedTanks[tankName].content = tankContent
     
     setTanks(updatedTanks)
   }
@@ -195,20 +299,56 @@ function TankDataEditor({ tanks, setTanks }) {
     })
   }
   
-  // Fix the allGrades extraction with proper null checks
-  const allGrades = [...new Set(
-    Object.values(tanksData)
-      .filter(tank => tank && tank.content) // Make sure tank and content exist
-      .flatMap(tank => 
-        tank.content
-          .filter(item => item !== null && item !== undefined) // Filter out null/undefined items
-          .flatMap(item => Object.keys(item || {}))
-      )
-  )].filter(Boolean); // Filter out empty strings
-  
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-      {/* Use tanksData instead of tanks here */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
+      {/* Add new tank form */}
+      {isAddingTank && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <h3 className="font-medium text-slate-800 mb-3">Add New Tank</h3>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={newTankName}
+              onChange={(e) => setNewTankName(e.target.value)}
+              placeholder="Enter tank name"
+              className="flex-grow px-3 py-2 border border-slate-300 rounded"
+              autoFocus
+            />
+            <button
+              onClick={addNewTank}
+              className="px-3 py-2 !bg-emerald-600 text-white rounded hover:bg-green-700"
+            >
+              Add Tank
+            </button>
+            <button
+              onClick={() => setIsAddingTank(false)}
+              className="px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Add new tank button */}
+      {!isAddingTank && (
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setIsAddingTank(true)}
+            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+          >
+            + Add New Tank
+          </button>
+        </div>
+      )}
+      
+      {/* Tank list */}
       {Object.entries(tanksData).map(([tankName, tank]) => {
         // Add safety check for tank.content
         const tankContent = tank.content || [];
@@ -216,7 +356,18 @@ function TankDataEditor({ tanks, setTanks }) {
         return (
           <div key={tankName} className="border border-slate-200 rounded-lg p-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-slate-800">{tankName}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-800">{tankName}</h3>
+                <button
+                  onClick={() => deleteTank(tankName)}
+                  className="p-1 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
+                  title="Delete Tank"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+              </div>
               <div className="text-sm text-slate-500">
                 Capacity: 
                 <input
@@ -242,10 +393,13 @@ function TankDataEditor({ tanks, setTanks }) {
                       className="flex-grow px-2 py-1.5 border border-slate-300 rounded text-sm"
                     >
                       <option value="">Select grade...</option>
-                      {allGrades.map(g => (
-                        <option key={g} value={g}>{g}</option>
-                      ))}
-                      <option value="__custom">+ Add new grade</option>
+                      {allGrades.length > 0 ? (
+                        allGrades.map(g => (
+                          <option key={g} value={g}>{g}</option>
+                        ))
+                      ) : (
+                        <option value="" disabled>No crude grades available</option>
+                      )}
                     </select>
                     
                     <input
@@ -471,15 +625,7 @@ function VesselDataEditor({ vessels, setVessels }) {
   };
 
   // Now we can safely use array methods
-  const allOrigins = [...new Set(
-    vesselsData
-      .filter(vessel => vessel && vessel.cargo)
-      .flatMap(vessel => 
-        vessel.cargo
-          .filter(item => item !== null && item !== undefined)
-          .map(item => item.origin)
-      )
-  )].filter(Boolean);
+  const allOrigins = ['Sabah', 'Sarawak', 'Peninsular Malaysia'];
   
   const allGrades = [...new Set(
     vesselsData
@@ -643,6 +789,38 @@ function VesselDataEditor({ vessels, setVessels }) {
   );
 }
 
+// Add new function for adding a new vessel
+function addNewVessel() {
+  const timestamp = Date.now();
+  setVessels(prev => [
+    ...prev,
+    {
+      vessel_id: `Vessel_${timestamp}`, // Use timestamp for uniqueness
+      arrival_day: 0,
+      capacity: 0,
+      cost: 0,
+      cargo: [],
+      days_held: 0
+    }
+  ]);
+}
+
+// Add this check before saving a vessel ID edit:
+
+function saveVesselIdEdit(oldId, newId) {
+  // Check if the new ID already exists in other vessels
+  if (newId !== oldId && vesselsData.some(v => v.vessel_id === newId)) {
+    setError(`A vessel with ID "${newId}" already exists. Please choose another ID.`);
+    return;
+  }
+  
+  // Proceed with the update if ID is unique
+  setVessels(prev => prev.map(v => 
+    v.vessel_id === oldId ? {...v, vessel_id: newId} : v
+  ));
+  setEditingVesselId(null);
+}
+
 // Add new PlantDataEditor component
 function PlantDataEditor({ plants, setPlants }) {
   // Since plants is a single object, not a collection
@@ -750,7 +928,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         <p className="text-slate-500 mb-4">No crude data available.</p>
         <button
           onClick={() => setIsAddingCrude(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
         >
           + Add First Crude
         </button>
@@ -813,7 +991,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
   
   const addNewCrude = () => {
     setIsAddingCrude(true);
-    setNewCrude({ name: '', margin: 0, origin: 'Terminal1' });
+    setNewCrude({ name: '', margin: 0, origin: 'Peninsular Malaysia' });
     setError('');
   };
   
@@ -826,7 +1004,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
   
   const cancelAddCrude = () => {
     setIsAddingCrude(false);
-    setNewCrude({ name: '', margin: 0, origin: 'Terminal1' });
+    setNewCrude({ name: '', margin: 0, origin: 'Peninsular Malaysia' });
     setError('');
   };
   
@@ -865,7 +1043,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
     }
   };
 
-  const terminals = ['Terminal1', 'Terminal2', 'Terminal3'];
+  const terminals = ['Sabah', 'Sarawak', 'Peninsular Malaysia'];
 
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
@@ -879,7 +1057,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         {!isAddingCrude && (
           <button
             onClick={addNewCrude}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
           >
             + Add New Crude
           </button>
@@ -933,7 +1111,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
             </button>
             <button
               onClick={saveNewCrude}
-              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+              className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-blue-700"
             >
               Save Crude
             </button>
@@ -1022,7 +1200,6 @@ function CrudeDataEditor({ crudes, setCrudes }) {
                   onClick={() => deleteCrude(crudeId)}
                   className="text-red-500 hover:text-red-700"
                   title="Delete crude"
-                  disabled={editingName === crudeId}
                 >
                   Delete
                 </button>
@@ -1035,20 +1212,23 @@ function CrudeDataEditor({ crudes, setCrudes }) {
   );
 }
 
-// Replace the current RecipeDataEditor with this one:
+// Replace the current RecipeDataEditor function with this one:
 
 function RecipeDataEditor({ recipes, setRecipes, crudes }) {
   const recipesData = recipes || {};
   const crudesData = crudes || {};
   const [isAddingRecipe, setIsAddingRecipe] = useState(false);
-  const [newRecipe, setNewRecipe] = useState({
-    name: '',
-    primary_grade: '',
-    secondary_grade: null,
-    max_rate: 250.0,
+  const [newRecipe, setNewRecipe] = useState({ 
+    name: '', 
+    primary_grade: '',  // Changed from primaryGrade to match your data structure
+    secondary_grade: null,  // Changed from secondaryGrades array to match data
+    max_rate: 250,
     primary_fraction: 0.7
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  
+  // Define crudeOptions consistently with the proper naming
+  const crudeOptions = Object.keys(crudesData).filter(Boolean);
   
   if (Object.keys(recipesData).length === 0 && !isAddingRecipe) {
     return (
@@ -1056,7 +1236,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
         <p className="text-slate-500 mb-4">No recipe data available.</p>
         <button
           onClick={() => setIsAddingRecipe(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
         >
           + Add First Recipe
         </button>
@@ -1064,68 +1244,33 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
     );
   }
 
-  // Get available crude names from crudes.json
-  const crudeOptions = Object.keys(crudesData);
-
   const handleRecipeChange = (recipeId, property, value) => {
-    // Handle numeric values
-    if (property === 'max_rate') {
-      value = parseFloat(value) || 0;
-    }
-    else if (property === 'primary_fraction') {
-      value = parseFloat(value) || 0;
-      // Constrain to 0-1 range
-      value = Math.max(0, Math.min(1, value));
-    }
-    
     setRecipes(prev => ({
       ...prev,
       [recipeId]: {
         ...prev[recipeId],
-        [property]: value
+        [property]: property === 'max_rate' || property === 'primary_fraction' ? parseFloat(value) : value
       }
     }));
   };
   
   const handleNewRecipeChange = (property, value) => {
-    // Handle numeric values
-    if (property === 'max_rate') {
-      value = parseFloat(value) || 0;
-    }
-    else if (property === 'primary_fraction') {
-      value = parseFloat(value) || 0;
-      // Constrain to 0-1 range
-      value = Math.max(0, Math.min(1, value));
-    }
-    
     setNewRecipe(prev => ({
       ...prev,
-      [property]: value
+      [property]: property === 'max_rate' || property === 'primary_fraction' ? parseFloat(value) : value
     }));
   };
   
   const addNewRecipe = () => {
-    setNewRecipe({
-      name: '',
-      primary_grade: crudeOptions.length > 0 ? crudeOptions[0] : '',
-      secondary_grade: crudeOptions.length > 1 ? crudeOptions[1] : null,
-      max_rate: 250.0,
-      primary_fraction: 0.7
-    });
     setIsAddingRecipe(true);
-    setError('');
+    setNewRecipe({ name: '', primaryGrade: '', secondaryGrades: [] });
+    setError(null);
   };
   
   const cancelAddRecipe = () => {
     setIsAddingRecipe(false);
-    setNewRecipe({
-      name: '',
-      primary_grade: '',
-      secondary_grade: null,
-      max_rate: 250.0,
-      primary_fraction: 0.7
-    });
-    setError('');
+    setNewRecipe({ name: '', primaryGrade: '', secondaryGrades: [] });
+    setError(null);
   };
   
   const saveNewRecipe = () => {
@@ -1133,45 +1278,36 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
       setError('Recipe name cannot be empty');
       return;
     }
-    
-    if (recipesData[newRecipe.name]) {
+
+    if (recipes[newRecipe.name]) {
       setError(`A recipe named "${newRecipe.name}" already exists`);
       return;
     }
-    
-    if (!newRecipe.primary_grade) {
+
+    if (!newRecipe.primaryGrade) {
       setError('Primary grade is required');
       return;
     }
-    
-    setRecipes(prev => ({
+
+    setRecipes((prev) => ({
       ...prev,
       [newRecipe.name]: {
         name: newRecipe.name,
-        primary_grade: newRecipe.primary_grade,
-        secondary_grade: newRecipe.secondary_grade === "" ? null : newRecipe.secondary_grade,
-        max_rate: newRecipe.max_rate,
-        primary_fraction: newRecipe.primary_fraction
-      }
+        primaryGrade: newRecipe.primaryGrade,
+        secondaryGrades: newRecipe.secondaryGrades || [],
+      },
     }));
-    
-    setIsAddingRecipe(false);
-    setNewRecipe({
-      name: '',
-      primary_grade: '',
-      secondary_grade: null,
-      max_rate: 250.0,
-      primary_fraction: 0.7
-    });
-    setError('');
+
+    setNewRecipe({ name: '', primaryGrade: '', secondaryGrades: [] });
+    setError(null);
   };
-  
+
   const deleteRecipe = (recipeId) => {
-    if (confirm(`Are you sure you want to delete ${recipeId}?`)) {
-      setRecipes(prev => {
-        const copy = {...prev};
-        delete copy[recipeId];
-        return copy;
+    if (confirm(`Are you sure you want to delete the recipe "${recipeId}"?`)) {
+      setRecipes((prev) => {
+        const updatedRecipes = { ...prev };
+        delete updatedRecipes[recipeId];
+        return updatedRecipes;
       });
     }
   };
@@ -1188,7 +1324,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
         {!isAddingRecipe && (
           <button
             onClick={addNewRecipe}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
           >
             + Add New Recipe
           </button>
@@ -1278,7 +1414,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
             </button>
             <button
               onClick={saveNewRecipe}
-              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+              className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-blue-700"
             >
               Save Recipe
             </button>
@@ -1368,17 +1504,28 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
   );
 }
 
-// Add new RouteDataEditor component
+// Replace the current RouteDataEditor function with this one:
+
 function RouteDataEditor({ routes, setRoutes }) {
-  const routesData = Array.isArray(routes) ? routes : [];
+  const routesData = routes || {};
+  const [isAddingRoute, setIsAddingRoute] = useState(false);
+  const [newRoute, setNewRoute] = useState({
+    routeId: '',
+    origin: 'Terminal1',
+    destination: 'Refinery',
+    time_travel: 5.0
+  });
+  const [error, setError] = useState('');
+  const [editingRouteId, setEditingRouteId] = useState(null);
+  const [tempRouteId, setTempRouteId] = useState('');
   
-  if (routesData.length === 0) {
+  if (Object.keys(routesData).length === 0 && !isAddingRoute) {
     return (
       <div className="text-center p-8">
         <p className="text-slate-500 mb-4">No route data available.</p>
         <button
-          onClick={addNewRoute}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          onClick={() => setIsAddingRoute(true)}
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
         >
           + Add First Route
         </button>
@@ -1386,68 +1533,285 @@ function RouteDataEditor({ routes, setRoutes }) {
     );
   }
 
-  function handleRouteChange(index, property, value) {
-    setRoutes(prev => {
-      const updatedRoutes = [...prev];
-      updatedRoutes[index] = {
-        ...updatedRoutes[index],
-        [property]: property === 'cost' ? parseFloat(value) : value
-      };
-      return updatedRoutes;
-    });
+  function handleRouteChange(routeId, property, value) {
+    setRoutes(prev => ({
+      ...prev,
+      [routeId]: {
+        ...prev[routeId],
+        [property]: property === 'time_travel' ? parseFloat(value) : value
+      }
+    }));
+  }
+  
+  function handleNewRouteChange(property, value) {
+    setNewRoute(prev => ({
+      ...prev,
+      [property]: property === 'time_travel' ? parseFloat(value) : value
+    }));
   }
   
   function addNewRoute() {
-    setRoutes(prev => [
-      ...prev,
-      {
-        origin: 'Terminal1',
-        destination: '',
-        cost: 0
-      }
-    ]);
+    const suggestedRouteId = `${newRoute.origin}_${newRoute.destination}`;
+    setIsAddingRoute(true);
+    setNewRoute({
+      routeId: suggestedRouteId,
+      origin: 'Terminal1',
+      destination: 'Refinery',
+      time_travel: 5.0
+    });
+    setError('');
   }
   
-  function deleteRoute(index) {
-    if (confirm('Are you sure you want to delete this route?')) {
+  function saveNewRoute() {
+    if (!newRoute.routeId.trim()) {
+      setError('Route ID is required');
+      return;
+    }
+    
+    if (!newRoute.origin || !newRoute.destination) {
+      setError('Origin and destination are required');
+      return;
+    }
+    
+    // Check if route already exists
+    if (routesData[newRoute.routeId]) {
+      setError(`A route with ID "${newRoute.routeId}" already exists`);
+      return;
+    }
+    
+    setRoutes(prev => ({
+      ...prev,
+      [newRoute.routeId]: {
+        origin: newRoute.origin,
+        destination: newRoute.destination,
+        time_travel: newRoute.time_travel
+      }
+    }));
+    
+    setIsAddingRoute(false);
+    setError('');
+  }
+  
+  function cancelAddRoute() {
+    setIsAddingRoute(false);
+    setError('');
+  }
+  
+  function deleteRoute(routeId) {
+    if (confirm(`Are you sure you want to delete route ${routeId}?`)) {
       setRoutes(prev => {
-        const updatedRoutes = [...prev];
-        updatedRoutes.splice(index, 1);
-        return updatedRoutes;
+        const copy = {...prev};
+        delete copy[routeId];
+        return copy;
       });
     }
   }
+  
+  function startEditRouteId(routeId) {
+    setEditingRouteId(routeId);
+    setTempRouteId(routeId);
+    setError('');
+  }
+  
+  function cancelEditRouteId() {
+    setEditingRouteId(null);
+    setTempRouteId('');
+    setError('');
+  }
+  
+  function saveEditRouteId(oldRouteId) {
+    // Check if route ID is empty
+    if (!tempRouteId.trim()) {
+      setError('Route ID cannot be empty');
+      return;
+    }
+    
+    // Check if new ID already exists and is not the same as the current one
+    if (tempRouteId !== oldRouteId && routesData[tempRouteId]) {
+      setError(`A route with ID "${tempRouteId}" already exists`);
+      return;
+    }
+    
+    // Create new object with updated key
+    const updatedRoutes = { ...routesData };
+    updatedRoutes[tempRouteId] = { 
+      ...updatedRoutes[oldRouteId]
+    };
+    
+    // Delete old key if ID changed
+    if (tempRouteId !== oldRouteId) {
+      delete updatedRoutes[oldRouteId];
+    }
+    
+    setRoutes(updatedRoutes);
+    setEditingRouteId(null);
+    setTempRouteId('');
+    setError('');
+  }
 
-  const terminals = ['Terminal1', 'Terminal2', 'Terminal3'];
+  const terminals = ['Sabah', 'Sarawak', 'Peninsular Malaysia', 'Refinery'];
 
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
       <div className="flex justify-end mb-4">
-        <button
-          onClick={addNewRoute}
-          className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-        >
-          + Add New Route
-        </button>
+        {!isAddingRoute && (
+          <button
+            onClick={addNewRoute}
+            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+          >
+            + Add New Route
+          </button>
+        )}
       </div>
+      
+      {isAddingRoute && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <h3 className="font-bold text-slate-800 mb-3">Add New Route</h3>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Route ID</label>
+              <input
+                type="text"
+                value={newRoute.routeId}
+                onChange={(e) => handleNewRouteChange('routeId', e.target.value)}
+                className="w-full px-2 py-1 border border-slate-300 rounded"
+                placeholder="Route identifier"
+                autoFocus
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Origin</label>
+              <select
+                value={newRoute.origin}
+                onChange={(e) => {
+                  const origin = e.target.value;
+                  handleNewRouteChange('origin', origin);
+                  // Optionally suggest updating the route ID
+                  const suggestedRouteId = `${origin}_${newRoute.destination}`;
+                  handleNewRouteChange('routeId', suggestedRouteId);
+                }}
+                className="w-full px-2 py-1 border border-slate-300 rounded"
+              >
+                {terminals.map(terminal => (
+                  <option key={terminal} value={terminal}>{terminal}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Destination</label>
+              <input
+                type="text"
+                value={newRoute.destination}
+                onChange={(e) => {
+                  const destination = e.target.value;
+                  handleNewRouteChange('destination', destination);
+                  // Optionally suggest updating the route ID
+                  const suggestedRouteId = `${newRoute.origin}_${destination}`;
+                  handleNewRouteChange('routeId', suggestedRouteId);
+                }}
+                className="w-full px-2 py-1 border border-slate-300 rounded"
+                placeholder="e.g. Refinery"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Travel Time (days)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                value={newRoute.time_travel}
+                onChange={(e) => handleNewRouteChange('time_travel', e.target.value)}
+                className="w-full px-2 py-1 border border-slate-300 rounded"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={cancelAddRoute}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={saveNewRoute}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              Save Route
+            </button>
+          </div>
+        </div>
+      )}
       
       <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
         <thead className="bg-slate-50">
           <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Route ID</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Destination</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cost ($)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Travel Time (days)</th>
             <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-slate-100">
-          {routesData.map((route, index) => (
-            <tr key={index}>
+          {Object.entries(routesData).map(([routeId, route]) => (
+            <tr key={routeId}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {editingRouteId === routeId ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={tempRouteId}
+                      onChange={(e) => setTempRouteId(e.target.value)}
+                      className="w-full px-2 py-1 border border-blue-300 rounded"
+                      autoFocus
+                    />
+                    <button 
+                      onClick={() => saveEditRouteId(routeId)}
+                      className="text-green-600 hover:text-green-800"
+                      title="Save ID"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={cancelEditRouteId}
+                      className="text-red-600 hover:text-red-800"
+                      title="Cancel"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-slate-700">{routeId}</span>
+                    <button
+                      onClick={() => startEditRouteId(routeId)}
+                      className="ml-2 text-blue-500 hover:text-blue-700"
+                      title="Edit ID"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <select
                   value={route.origin || ''}
-                  onChange={(e) => handleRouteChange(index, 'origin', e.target.value)}
-                  className="px-2 py-1 border border-slate-300 rounded"
+                  onChange={(e) => handleRouteChange(routeId, 'origin', e.target.value)}
+                  className="px-2 py-1 border border-slate-300 rounded w-32"
                 >
                   {terminals.map(terminal => (
                     <option key={terminal} value={terminal}>{terminal}</option>
@@ -1458,23 +1822,26 @@ function RouteDataEditor({ routes, setRoutes }) {
                 <input
                   type="text"
                   value={route.destination || ''}
-                  onChange={(e) => handleRouteChange(index, 'destination', e.target.value)}
+                  onChange={(e) => handleRouteChange(routeId, 'destination', e.target.value)}
                   className="px-2 py-1 border border-slate-300 rounded w-40"
                 />
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <input
                   type="number"
-                  value={route.cost || 0}
-                  onChange={(e) => handleRouteChange(index, 'cost', e.target.value)}
-                  className="px-2 py-1 border border-slate-300 rounded w-32"
+                  step="0.1"
+                  min="0"
+                  value={route.time_travel || 0}
+                  onChange={(e) => handleRouteChange(routeId, 'time_travel', e.target.value)}
+                  className="px-2 py-1 border border-slate-300 rounded w-24"
                 />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right">
                 <button
-                  onClick={() => deleteRoute(index)}
+                  onClick={() => deleteRoute(routeId)}
                   className="text-red-500 hover:text-red-700"
                   title="Delete route"
+                  disabled={editingRouteId === routeId}
                 >
                   Delete
                 </button>
@@ -1483,6 +1850,18 @@ function RouteDataEditor({ routes, setRoutes }) {
           ))}
         </tbody>
       </table>
+      
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+        <div className="flex items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className="font-medium mb-1">About Route IDs</p>
+            <p>You can now directly edit route IDs. By default, the system suggests IDs in the format "Origin_Destination" but you can customize them as needed.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1497,7 +1876,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
         <p className="text-slate-500 mb-4">No vessel type data available.</p>
         <button
           onClick={addNewVesselType}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
         >
           + Add First Vessel Type
         </button>
@@ -1542,7 +1921,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={addNewVesselType}
-          className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
         >
           + Add New Vessel Type
         </button>
@@ -1601,4 +1980,455 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
   );
 }
 
+// Add these new editor components
+
+// Feedstock Parcels Editor
+function FeedstockParcelEditor({ parcels, setParcels }) {
+  // Handle either array or object format
+  let parcelsData = [];
+  
+  if (parcels) {
+    if (Array.isArray(parcels)) {
+      parcelsData = parcels;
+    } else if (typeof parcels === 'object') {
+      // Convert object to array
+      parcelsData = Object.values(parcels);
+    }
+  }
+  
+  if (parcelsData.length === 0) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-slate-500 mb-4">No feedstock parcel data available.</p>
+        <button
+          onClick={() => addNewParcel()}
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+        >
+          + Add First Parcel
+        </button>
+      </div>
+    );
+  }
+  
+  function handleParcelChange(index, property, value) {
+    setParcels(prev => {
+      const updatedParcels = [...prev];
+      updatedParcels[index] = {
+        ...updatedParcels[index],
+        [property]: property === 'volume' ? parseFloat(value) : value
+      };
+      return updatedParcels;
+    });
+  }
+  
+  function addNewParcel() {
+    setParcels(prev => [
+      ...prev,
+      {
+        grade: "",
+        volume: 0,
+        origin: "Peninsular Malaysia",
+        available_from: 0,
+        expiry: 30
+      }
+    ]);
+  }
+  
+  function deleteParcel(index) {
+    if (confirm('Are you sure you want to delete this parcel?')) {
+      setParcels(prev => {
+        const updatedParcels = [...prev];
+        updatedParcels.splice(index, 1);
+        return updatedParcels;
+      });
+    }
+  }
+  
+  // Get all unique grades and origins for dropdown options
+  const allGrades = [...new Set(parcelsData.map(parcel => parcel.grade))].filter(Boolean);
+  const origins = ['Peninsular Malaysia', 'Sabah', 'Sarawak'];
+
+  return (
+    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={addNewParcel}
+          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+        >
+          + Add New Parcel
+        </button>
+      </div>
+      
+      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Volume (kbbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Available From (day)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Expiry (day)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-slate-100">
+          {parcelsData.map((parcel, index) => (
+            <tr key={index}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="text"
+                  list="grades-list"
+                  value={parcel.grade || ''}
+                  onChange={(e) => handleParcelChange(index, 'grade', e.target.value)}
+                  className="px-2 py-1 border border-slate-300 rounded w-40"
+                />
+                <datalist id="grades-list">
+                  {allGrades.map(grade => (
+                    <option key={grade} value={grade} />
+                  ))}
+                </datalist>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={parcel.volume || 0}
+                  onChange={(e) => handleParcelChange(index, 'volume', e.target.value)}
+                  className="px-2 py-1 border border-slate-300 rounded w-32"
+                />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <select
+                  value={parcel.origin || ''}
+                  onChange={(e) => handleParcelChange(index, 'origin', e.target.value)}
+                  className="px-2 py-1 border border-slate-300 rounded w-40"
+                >
+                  {origins.map(origin => (
+                    <option key={origin} value={origin}>{origin}</option>
+                  ))}
+                </select>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="number"
+                  value={parcel.available_from || 0}
+                  onChange={(e) => handleParcelChange(index, 'available_from', parseInt(e.target.value) || 0)}
+                  className="px-2 py-1 border border-slate-300 rounded w-24"
+                />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <input
+                  type="number"
+                  value={parcel.expiry || 30}
+                  onChange={(e) => handleParcelChange(index, 'expiry', parseInt(e.target.value) || 30)}
+                  className="px-2 py-1 border border-slate-300 rounded w-24"
+                />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right">
+                <button
+                  onClick={() => deleteParcel(index)}
+                  className="text-red-500 hover:text-red-700"
+                  title="Delete parcel"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+        <div className="flex items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className="font-medium mb-1">About Feedstock Parcels</p>
+            <p>Feedstock parcels represent available crude supplies that can be purchased for refining operations. Available From indicates the earliest day the parcel can be used, and Expiry indicates when the offer expires.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Feedstock Requirements Editor
+function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
+  // Handle either array or object format
+  let requirementsData = [];
+  const [loadedCrudes, setLoadedCrudes] = useState(crudes || {});
+  const [isLoading, setIsLoading] = useState(!crudes);
+  
+  useEffect(() => {
+    const fetchCrudes = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('/api/data');
+        console.log("API response for crudes:", response.data);
+        if (response.data && response.data.crudes) {
+          setLoadedCrudes(response.data.crudes);
+          console.log("Set loaded crudes:", response.data.crudes);
+        }
+      } catch (err) {
+        console.error("Error loading crude data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (!crudes || Object.keys(crudes || {}).length === 0) {
+      console.log("No crudes provided, fetching from API");
+      fetchCrudes();
+    } else {
+      console.log("Using provided crudes:", crudes);
+      setLoadedCrudes(crudes);
+    }
+  }, [crudes]);
+  
+  // Use loaded crudes or passed crudes
+  const crudesData = Object.keys(loadedCrudes).length > 0 ? loadedCrudes : (crudes || {});
+  
+  // Extract crudes options from the crudes prop
+  const crudeOptions = Object.keys(crudesData).filter(Boolean);
+  console.log("Available crude options:", crudeOptions);
+  
+  // Convert requirements to array if it's an object
+  if (requirements) {
+    if (Array.isArray(requirements)) {
+      requirementsData = requirements;
+    } else if (typeof requirements === 'object') {
+      // Convert object to array with ID included
+      requirementsData = Object.entries(requirements).map(([id, req]) => ({
+        id,
+        ...req
+      }));
+    }
+  }
+  
+  if (requirementsData.length === 0) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-slate-500 mb-4">No feedstock requirement data available.</p>
+        <button
+          onClick={() => addNewRequirement()}
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+        >
+          + Add First Requirement
+        </button>
+      </div>
+    );
+  }
+  
+  function handleRequirementChange(index, property, value) {
+    setRequirements(prev => {
+      const updatedRequirements = [...prev];
+      updatedRequirements[index] = {
+        ...updatedRequirements[index],
+        [property]: property === 'volume' ? parseFloat(value) : value
+      };
+      return updatedRequirements;
+    });
+  }
+  
+  // New function to handle allowed_ldr changes
+  function handleLdrChange(index, startDay, endDay) {
+    setRequirements(prev => {
+      const updatedRequirements = [...prev];
+      updatedRequirements[index] = {
+        ...updatedRequirements[index],
+        allowed_ldr: { [startDay]: endDay }
+      };
+      return updatedRequirements;
+    });
+  }
+  
+  function addNewRequirement() {
+    const nextId = `Requirement_${(requirementsData.length + 1).toString().padStart(3, '0')}`;
+    
+    if (Array.isArray(requirements)) {
+      setRequirements(prev => [
+        ...prev,
+        {
+          id: nextId,
+          grade: crudeOptions.length > 0 ? crudeOptions[0] : "",
+          volume: 0,
+          origin: "Peninsular Malaysia",
+          allowed_ldr: { "15": 25 },
+          required_arrival_by: 30
+        }
+      ]);
+    } else {
+      // Handle object format
+      setRequirements(prev => ({
+        ...prev,
+        [nextId]: {
+          grade: crudeOptions.length > 0 ? crudeOptions[0] : "",
+          volume: 0,
+          origin: "Peninsular Malaysia",
+          allowed_ldr: { "15": 25 },
+          required_arrival_by: 30
+        }
+      }));
+    }
+  }
+  
+  function deleteRequirement(index) {
+    if (confirm('Are you sure you want to delete this requirement?')) {
+      if (Array.isArray(requirements)) {
+        setRequirements(prev => {
+          const updatedRequirements = [...prev];
+          updatedRequirements.splice(index, 1);
+          return updatedRequirements;
+        });
+      } else {
+        // Handle object format
+        setRequirements(prev => {
+          const updatedRequirements = {...prev};
+          const keyToDelete = Object.keys(prev)[index];
+          if (keyToDelete) {
+            delete updatedRequirements[keyToDelete];
+          }
+          return updatedRequirements;
+        });
+      }
+    }
+  }
+  
+  const origins = ['Peninsular Malaysia', 'Sabah', 'Sarawak'];
+
+  return (
+    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={addNewRequirement}
+          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+        >
+          + Add New Requirement
+        </button>
+      </div>
+      
+      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Volume (kbbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Allowed Loading (Start-End)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Required By (day)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-slate-100">
+          {requirementsData.map((requirement, index) => {
+            // Extract allowed_ldr values safely
+            const ldrStartDay = requirement.allowed_ldr ? parseInt(Object.keys(requirement.allowed_ldr)[0]) || 0 : 0;
+            const ldrEndDay = requirement.allowed_ldr ? parseInt(Object.values(requirement.allowed_ldr)[0]) || 0 : 0;
+            console.log(`Rendering requirement ${index}:`, requirement);
+            
+            return (
+              <tr key={index}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className="text-sm text-slate-700">
+                    {requirement.id || `Req_${index+1}`}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <select
+                    value={requirement.grade || ''}
+                    onChange={(e) => handleRequirementChange(index, 'grade', e.target.value)}
+                    className="px-2 py-1 border border-slate-300 rounded w-40"
+                    disabled={isLoading}
+                  >
+                    <option value="">
+                      {isLoading ? "Loading crude grades..." : "Select a grade..."}
+                    </option>
+                    {crudeOptions.length > 0 ? 
+                      crudeOptions.map(grade => (
+                        <option key={grade} value={grade}>{grade}</option>
+                      ))
+                      :
+                      !isLoading && <option value="" disabled>No grades available</option>
+                    }
+                  </select>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={requirement.volume || 0}
+                    onChange={(e) => handleRequirementChange(index, 'volume', e.target.value)}
+                    className="px-2 py-1 border border-slate-300 rounded w-32"
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <select
+                    value={requirement.origin || ''}
+                    onChange={(e) => handleRequirementChange(index, 'origin', e.target.value)}
+                    className="px-2 py-1 border border-slate-300 rounded w-40"
+                  >
+                    {origins.map(origin => (
+                      <option key={origin} value={origin}>{origin}</option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <input
+                      type="number"
+                      min="0"
+                      value={ldrStartDay}
+                      onChange={(e) => handleLdrChange(index, parseInt(e.target.value) || 0, ldrEndDay)}
+                      className="w-16 px-2 py-1.5 border border-slate-300 rounded-l"
+                    />
+                    <span className="px-2 text-slate-400">-</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={ldrEndDay}
+                      onChange={(e) => handleLdrChange(index, ldrStartDay, parseInt(e.target.value) || 0)}
+                      className="w-16 px-2 py-1.5 border border-slate-300 rounded-r"
+                    />
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="number"
+                    min="0"
+                    value={requirement.required_arrival_by || 30}
+                    onChange={(e) => handleRequirementChange(index, 'required_arrival_by', parseInt(e.target.value) || 30)}
+                    className="px-2 py-1 border border-slate-300 rounded w-24"
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <button
+                    onClick={() => deleteRequirement(index)}
+                    className="text-red-500 hover:text-red-700"
+                    title="Delete requirement"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+        <div className="flex items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className="font-medium mb-1">About Feedstock Requirements</p>
+            <p>Feedstock requirements represent crude volumes that must be delivered by the specified day to meet refinery processing demands. The "Allowed Loading" range indicates when the crude can be loaded at the origin.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// Export the DataEditor component
 export default DataEditor

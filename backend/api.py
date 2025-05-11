@@ -361,6 +361,8 @@ def run_scheduler():
         # Get parameters
         days = data.get('days', 30)
         max_processing_rate = data.get('max_processing_rate', 500)
+        save_output = data.get('save_output', False)  # Add this parameter
+        output_dir = data.get('output_dir')  # Optional custom output directory
         
         # Load data
         tanks = load_tanks()
@@ -377,14 +379,21 @@ def run_scheduler():
             vessels=vessels
         )
         
-        schedule = scheduler.run(days)
+        # Run scheduler with save_output option
+        schedule = scheduler.run(days, save_output, output_dir)
+        
+        # Get output file paths if saving was requested
+        output_files = {}
+        if save_output:
+            output_files = scheduler.get_output_paths()
         
         # Convert schedule to JSON format
         schedule_json = convert_daily_plans_to_json(schedule)
         
         return jsonify({
             "success": True,
-            "schedule": schedule_json
+            "schedule": schedule_json,
+            "output_files": output_files if save_output else {}
         })
         
     except Exception as e:
@@ -524,24 +533,29 @@ def optimize_vessels():
         # Get parameters
         requirements_data = data.get('requirements', [])
         horizon_days = data.get('horizon_days', 60)
+        use_file_requirements = data.get('use_file_requirements', False)
         
         # Load data
         routes = load_routes()
         vessel_types = load_vessel_types()
         
-        # Convert requirements from JSON
-        requirements = []
-        for req_data in requirements_data:
-            requirements.append(FeedstockRequirement(
-                grade=req_data.get('grade', ''),
-                volume=req_data.get('volume', 0),
-                origin=req_data.get('origin', ''),
-                allowed_ldr={
-                    req_data.get('loading_start_day', 0): 
-                    req_data.get('loading_end_day', 0)
-                },
-                required_arrival_by=req_data.get('required_arrival_by', 0)
-            ))
+        # Either use requirements from request or load from file
+        if use_file_requirements:
+            requirements = load_feedstock_requirements()
+        else:
+            # Convert requirements from JSON
+            requirements = []
+            for req_data in requirements_data:
+                requirements.append(FeedstockRequirement(
+                    grade=req_data.get('grade', ''),
+                    volume=req_data.get('volume', 0),
+                    origin=req_data.get('origin', ''),
+                    allowed_ldr={
+                        req_data.get('loading_start_day', 0): 
+                        req_data.get('loading_end_day', 0)
+                    },
+                    required_arrival_by=req_data.get('required_arrival_by', 0)
+                ))
         
         # Create vessel optimizer
         vessel_optimizer = VesselOptimizer(
@@ -555,6 +569,35 @@ def optimize_vessels():
         
         # Convert vessels to JSON
         vessels_json = convert_vessels_to_json(vessels)
+        
+        # Save to vessels.json
+        vessels_dict = {}
+        for i, vessel in enumerate(vessels):
+            vessel_id = vessel.vessel_id if vessel.vessel_id else f"Vessel_{i:03d}"
+            vessels_dict[vessel_id] = {
+                "vessel_id": vessel_id,
+                "arrival_day": vessel.arrival_day,
+                "capacity": vessel.capacity,
+                "cost": vessel.cost,
+                "days_held": vessel.days_held,
+                "cargo": [
+                    {
+                        "grade": cargo.grade,
+                        "volume": cargo.volume,
+                        "origin": cargo.origin,
+                        "loading_start_day": next(iter(cargo.ldr.keys())) if cargo.ldr else 0,
+                        "loading_end_day": next(iter(cargo.ldr.values())) if cargo.ldr else 0
+                    }
+                    for cargo in vessel.cargo
+                ]
+            }
+        
+        # Save to file
+        with open(VESSELS_FILE, 'w') as f:
+            json.dump(vessels_dict, f, indent=2)
+            
+        # Update the cache
+        data_cache[VESSELS_FILE] = vessels_dict
         
         return jsonify({
             "success": True,

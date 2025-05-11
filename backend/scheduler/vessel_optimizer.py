@@ -7,6 +7,8 @@ Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 
 """
 
+import json
+import os
 from typing import List, Dict, Optional, Tuple, Set
 import pulp as plp
 from .models import Vessel, FeedstockParcel, FeedstockRequirement, Route
@@ -42,6 +44,50 @@ class VesselOptimizer:
         model.solve()
 
         vessels = self._extract_solution(model)
+        return vessels
+    
+    def optimize_and_save(self, horizon_days: int = 30) -> List[Vessel]:
+        """
+        Optimize vessel scheduling and save results to vessels.json
+        
+        Args:
+            horizon_days: Planning horizon in days
+            
+        Returns:
+            List of scheduled vessels
+        """
+        vessels = self.optimize(horizon_days)
+        
+        # Plan optimal routes for multi-cargo vessels
+        vessels = self._plan_vessel_routes(vessels)
+        
+        # Convert to JSON format
+        vessels_dict = {}
+        for vessel in vessels:
+            vessels_dict[vessel.vessel_id] = {
+                "vessel_id": vessel.vessel_id,
+                "arrival_day": vessel.arrival_day,
+                "capacity": vessel.capacity,
+                "cost": vessel.cost,
+                "days_held": vessel.days_held,
+                "cargo": [
+                    {
+                        "grade": cargo_item.grade,
+                        "volume": cargo_item.volume,
+                        "origin": cargo_item.origin,
+                        "loading_start_day": cargo_item.loading_start_day,
+                        "loading_end_day": cargo_item.loading_end_day
+                    }
+                    for cargo_item in vessel.cargo
+                ],
+                "route": vessel.route if hasattr(vessel, "route") else []
+            }
+        
+        # Save to vessels.json
+        save_path = os.path.join(os.path.dirname(__file__), "..", "dynamic_data", "vessels.json")
+        with open(save_path, 'w') as f:
+            json.dump(vessels_dict, f, indent=2)
+            
         return vessels
     
     def _build_optimization_model(self, horizon_days: int) -> plp.LpProblem:
@@ -165,6 +211,139 @@ class VesselOptimizer:
                             cargo=cargo,
                             days_held=0
                         ))
+        
+        return vessels
+    
+    def _plan_vessel_routes(self, vessels: List[Vessel]) -> List[Vessel]:
+        """
+        Plan optimal routes for vessels with multiple cargo items
+        
+        Args:
+            vessels: List of vessels from the optimizer
+            
+        Returns:
+            Vessels with updated routes and loading days
+        """
+        for vessel in vessels:
+            # If vessel has multiple cargo items from different origins
+            if len(set(cargo.origin for cargo in vessel.cargo)) > 1:
+                # Start at refinery (day 0)
+                current_location = "Refinery"
+                current_day = 0
+                
+                # Collect all origins needed
+                origins_to_visit = set(cargo.origin for cargo in vessel.cargo)
+                route_plan = []
+                
+                # Keep track of where we've been
+                visited = set()
+                
+                # While we still have places to visit
+                while origins_to_visit:
+                    best_next = None
+                    best_time = float('inf')
+                    
+                    # Find closest unvisited origin
+                    for origin in origins_to_visit:
+                        route_key = f"{current_location}_{origin}"
+                        alt_route_key = f"{origin}_{current_location}"
+                        
+                        if route_key in self.routes:
+                            travel_time = self.routes[route_key].time_travel
+                            if travel_time < best_time:
+                                best_time = travel_time
+                                best_next = origin
+                        elif alt_route_key in self.routes:
+                            travel_time = self.routes[alt_route_key].time_travel
+                            if travel_time < best_time:
+                                best_time = travel_time
+                                best_next = origin
+                    
+                    if best_next:
+                        # Update current location and day
+                        current_day += best_time
+                        route_plan.append({
+                            "from": current_location,
+                            "to": best_next,
+                            "day": current_day,
+                            "travel_days": best_time
+                        })
+                        
+                        # Update cargo loading days for this origin
+                        for cargo in vessel.cargo:
+                            if cargo.origin == best_next:
+                                cargo.loading_start_day = int(current_day)
+                                cargo.loading_end_day = int(current_day) + 1  # 1 day for loading
+                        
+                        # Spend a day loading
+                        current_day += 1
+                        
+                        current_location = best_next
+                        origins_to_visit.remove(best_next)
+                        visited.add(best_next)
+                    else:
+                        # No route found, break the loop
+                        break
+                
+                # Finally, return to refinery
+                route_key = f"{current_location}_Refinery"
+                alt_route_key = f"Refinery_{current_location}"
+                
+                if route_key in self.routes:
+                    travel_time = self.routes[route_key].time_travel
+                elif alt_route_key in self.routes:
+                    travel_time = self.routes[alt_route_key].time_travel
+                else:
+                    # Default if no route found
+                    travel_time = 7
+                
+                current_day += travel_time
+                route_plan.append({
+                    "from": current_location,
+                    "to": "Refinery",
+                    "day": current_day,
+                    "travel_days": travel_time
+                })
+                
+                # Update vessel arrival day and route
+                vessel.arrival_day = int(current_day)
+                vessel.route = route_plan
+            else:
+                # Single origin - simpler route calculation
+                origin = vessel.cargo[0].origin if vessel.cargo else None
+                if origin:
+                    route_key = f"{origin}_Refinery"
+                    alt_route_key = f"Refinery_{origin}"
+                    
+                    if route_key in self.routes:
+                        travel_time = self.routes[route_key].time_travel
+                    elif alt_route_key in self.routes:
+                        travel_time = self.routes[alt_route_key].time_travel
+                    else:
+                        travel_time = 7
+                    
+                    # Calculate loading days
+                    loading_start = int(vessel.arrival_day - travel_time - 1)
+                    loading_end = loading_start + 1
+                    
+                    for cargo in vessel.cargo:
+                        cargo.loading_start_day = loading_start
+                        cargo.loading_end_day = loading_end
+                    
+                    vessel.route = [
+                        {
+                            "from": "Refinery",
+                            "to": origin,
+                            "day": 0,
+                            "travel_days": travel_time
+                        },
+                        {
+                            "from": origin,
+                            "to": "Refinery",
+                            "day": loading_end + 1,
+                            "travel_days": travel_time
+                        }
+                    ]
         
         return vessels
     

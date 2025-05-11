@@ -16,6 +16,7 @@ function App() {
   const [isOptimizingVessels, setIsOptimizingVessels] = useState(false)
   const [isOptimizingSchedule, setIsOptimizingSchedule] = useState(false)
   const [optimizationMessage, setOptimizationMessage] = useState(null)
+  const [isRunningScheduler, setIsRunningScheduler] = useState(false);
   
   const [data, setData] = useState({
     schedule: [],
@@ -25,7 +26,9 @@ function App() {
     recipes: {},
     plants: {}, // Add plants
     routes: [],  // Add routes
-    vessel_types: [] // Add vessel types
+    vessel_types: [], // Add vessel types
+    feedstock_parcels: [],
+    feedstock_requirements: []
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -36,16 +39,18 @@ function App() {
         setIsLoading(true)
         const response = await axios.get('/api/data')
         
-        // Initialize missing data with defaults to prevent errors
+        // Initialize with all data types, including dynamic data
         setData({
           schedule: response.data.schedule || [],
           tanks: response.data.tanks || {},
           vessels: response.data.vessels || [],
           crudes: response.data.crudes || {},
           recipes: response.data.recipes || {},
-          plants: response.data.plants || {},
-          routes: response.data.routes || [],
-          vessel_types: response.data.vessel_types || []
+          plants: response.data.plants || {},  // Fix potential name mismatch
+          routes: response.data.routes || {},
+          vessel_types: response.data.vessel_types || [],
+          feedstock_parcels: response.data.feedstock_parcels || [],
+          feedstock_requirements: response.data.feedstock_requirements || []
         })
         
         setIsLoading(false)
@@ -60,34 +65,119 @@ function App() {
   }, [])
 
   const handleOptimizeVessels = async () => {
-    setIsOptimizing(true)
-    setIsOptimizingVessels(true)
+    setIsOptimizing(true);
+    setIsOptimizingVessels(true);
     try {
-      // Add your optimization logic here
-      setOptimizationMessage({ type: 'success', text: 'Vessels optimized successfully!' })
+      // Call the vessel optimizer API endpoint with use_file_requirements set to true
+      const response = await axios.post('/api/vessel-optimizer/optimize', {
+        horizon_days: 30,
+        use_file_requirements: true  // This will make it use feedstock_requirements.json
+      });
+      
+      if (response.data.success) {
+        // Update vessels data with optimized results
+        setData(prev => ({
+          ...prev,
+          vessels: response.data.vessels
+        }));
+        
+        setOptimizationMessage({ 
+          type: 'success', 
+          text: 'Vessels optimized successfully!' 
+        });
+      } else {
+        throw new Error(response.data.error || 'Unknown error');
+      }
     } catch (error) {
-      console.error('Failed to optimize vessels:', error)
-      setOptimizationMessage({ type: 'error', text: 'Failed to optimize vessels.' })
+      console.error('Failed to optimize vessels:', error);
+      setOptimizationMessage({ 
+        type: 'error', 
+        text: `Failed to optimize vessels: ${error.message || 'Unknown error'}` 
+      });
     } finally {
-      setIsOptimizing(false)
-      setIsOptimizingVessels(false)
+      setIsOptimizing(false);
+      setIsOptimizingVessels(false);
     }
-  }
+  };
 
   const handleOptimizeSchedule = async () => {
-    setIsOptimizing(true)
-    setIsOptimizingSchedule(true)
+    setIsOptimizing(true);
+    setIsOptimizingSchedule(true);
     try {
-      // Add your optimization logic here
-      setOptimizationMessage({ type: 'success', text: 'Schedule optimized successfully!' })
+      // Call the schedule optimizer API endpoint
+      const response = await axios.post('/api/optimizer/schedule', {
+        days: 30
+      });
+      
+      if (response.data.success) {
+        // Update schedule data with optimized results
+        setData(prev => ({
+          ...prev,
+          schedule: response.data.schedule
+        }));
+        
+        setOptimizationMessage({ 
+          type: 'success', 
+          text: 'Schedule optimized successfully!' 
+        });
+        
+        // Switch to view mode to show the optimized schedule
+        setAppMode('view');
+        setVisualizationView('dailyPlan');
+      } else {
+        throw new Error(response.data.error || 'Unknown error');
+      }
     } catch (error) {
-      console.error('Failed to optimize schedule:', error)
-      setOptimizationMessage({ type: 'error', text: 'Failed to optimize schedule.' })
+      console.error('Failed to optimize schedule:', error);
+      setOptimizationMessage({ 
+        type: 'error', 
+        text: `Failed to optimize schedule: ${error.message || 'Unknown error'}` 
+      });
     } finally {
-      setIsOptimizing(false)
-      setIsOptimizingSchedule(false)
+      setIsOptimizing(false);
+      setIsOptimizingSchedule(false);
     }
-  }
+  };
+
+  const handleRunScheduler = async () => {
+    setIsOptimizing(true);
+    setIsRunningScheduler(true);
+    try {
+      // Call the scheduler API endpoint
+      const response = await axios.post('/api/scheduler/run', {
+        days: 30,  // Default to 30 days
+        save_output: true,  // Save results to output files
+      });
+      
+      if (response.data.success) {
+        // Update schedule data with the returned schedule
+        setData(prev => ({
+          ...prev,
+          schedule: response.data.schedule
+        }));
+        
+        setOptimizationMessage({ 
+          type: 'success', 
+          text: 'Scheduler ran successfully! Schedule has been updated.' 
+        });
+        
+        // Switch to view mode to show the results
+        setAppMode('view');
+        setVisualizationView('dailyPlan');
+      } else {
+        throw new Error(response.data.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Failed to run scheduler:', error);
+      setOptimizationMessage({ 
+        type: 'error', 
+        text: `Failed to run scheduler: ${error.message || 'Unknown error'}` 
+      });
+    } finally {
+      setIsOptimizing(false);
+      setIsRunningScheduler(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -136,6 +226,20 @@ function App() {
               )}
               Optimize Schedule
             </button>
+            <button
+              onClick={handleRunScheduler}
+              className="px-4 py-2 !bg-amber-600 rounded-md text-sm font-medium text-white border border-amber-600/50 hover:!bg-amber-700 transition-colors flex items-center gap-1.5"
+              disabled={isOptimizing}
+            >
+              {isRunningScheduler ? (
+                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                </svg>
+              )}
+              Run Scheduler
+            </button>
           </div>
         </div>
       </div>
@@ -180,7 +284,7 @@ function App() {
               onClick={() => setAppMode('view')}
               className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
                 appMode === 'view' 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
                   : 'bg-white text-blue-950 hover:bg-blue-50 shadow-sm'
               }`}
             >
@@ -196,7 +300,7 @@ function App() {
               onClick={() => setAppMode('edit')}
               className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
                 appMode === 'edit' 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
                   : 'bg-white text-blue-950 hover:bg-blue-50 shadow-sm'
               }`}
             >
@@ -243,8 +347,8 @@ function App() {
                   onClick={() => setEditorMode('input')}
                   className={`px-4 py-2 rounded-tl-lg rounded-tr-lg text-sm font-medium transition-all duration-200 ${
                     editorMode === 'input' 
-                      ? 'bg-white text-blue-700 border-t border-l border-r border-slate-200' 
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-100/80 hover:text-slate-700'
+                      ? 'bg-gray-400 text-emerald-700 border-t border-l border-r border-slate-200' 
+                      : 'bg-slate-100 text-slate-300 hover:bg-slate-100/80 hover:text-slate-700'
                   }`}
                 >
                   Input Data
@@ -253,8 +357,8 @@ function App() {
                   onClick={() => setEditorMode('plant')}
                   className={`px-4 py-2 rounded-tl-lg rounded-tr-lg text-sm font-medium transition-all duration-200 ${
                     editorMode === 'plant' 
-                      ? 'bg-white text-blue-700 border-t border-l border-r border-slate-200' 
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-100/80 hover:text-slate-700'
+                      ? 'bg-gray-400 text-emerald-700 border-t border-l border-r border-slate-200' 
+                      : 'bg-slate-100 text-slate-300 hover:bg-slate-100/80 hover:text-slate-700'
                   }`}
                 >
                   Plant Data
@@ -263,12 +367,12 @@ function App() {
 
               {/* Input data editor sub-tabs */}
               {editorMode === 'input' && (
-                <div className="flex gap-2 px-2 py-2">
+                <div className="flex gap-2 px-2 py-2 flex-wrap">
                   <button 
                     onClick={() => setActiveEditor('tanks')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'tanks' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -278,11 +382,31 @@ function App() {
                     onClick={() => setActiveEditor('vessels')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'vessels' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
                     Vessel Data
+                  </button>
+                  <button 
+                    onClick={() => setActiveEditor('feedstock_parcels')}
+                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                      activeEditor === 'feedstock_parcels' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
+                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    }`}
+                  >
+                    Feedstock Parcels
+                  </button>
+                  <button 
+                    onClick={() => setActiveEditor('feedstock_requirements')}
+                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                      activeEditor === 'feedstock_requirements' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
+                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    }`}
+                  >
+                    Feedstock Requirements
                   </button>
                 </div>
               )}
@@ -294,7 +418,7 @@ function App() {
                     onClick={() => setActiveEditor('plants')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'plants' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -304,7 +428,7 @@ function App() {
                     onClick={() => setActiveEditor('crudes')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'crudes' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -314,7 +438,7 @@ function App() {
                     onClick={() => setActiveEditor('recipes')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'recipes' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -324,7 +448,7 @@ function App() {
                     onClick={() => setActiveEditor('routes')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'routes' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -334,7 +458,7 @@ function App() {
                     onClick={() => setActiveEditor('vessel_types')}
                     className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                       activeEditor === 'vessel_types' 
-                        ? 'bg-blue-600 text-white shadow-sm' 
+                        ? '!bg-emerald-600 text-white shadow-sm' 
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
@@ -454,7 +578,7 @@ function App() {
           <div className="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200 p-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 !bg-emerald-600 rounded-full"></div>
                 <h3 className="text-sm font-medium text-slate-700">OASIS Assistant</h3>
               </div>
               <button 

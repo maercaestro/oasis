@@ -1,22 +1,37 @@
 {
-    "Arabian Light": {
-      "name": "Arabian Light",
-      "margin": 10.5,
-      "origin": "Terminal1"
-    },
-    "Brent": {
-      "name": "Brent",
-      "margin": 12.8,
-      "origin": "Terminal2"
-    },
-    "Russian Urals": {
-      "name": "Russian Urals",
-      "margin": 8.6,
-      "origin": "Terminal1"
-    },
-    "WTI": {
-      "name": "WTI",
-      "margin": 13.2,
-      "origin": "Terminal3"
-    }
+  "Base": {
+    "margin": 15.85,
+    "name": "Base",
+    "origin": "Peninsular Malaysia"
+  },
+  "A": {
+    "margin": 18.47,
+    "name": "A",
+    "origin": "Peninsular Malaysia"
+  },
+  "B": {
+    "margin": 15.71,
+    "name": "B",
+    "origin": "Peninsular Malaysia"
+  },
+  "C": {
+    "margin": 19.24,
+    "name": "C",
+    "origin": "Terminal3"
+  },
+  "D": {
+    "name": "D",
+    "margin": 11.19,
+    "origin": "Sabah"
+  },
+  "E": {
+    "name": "E",
+    "margin": 9.98,
+    "origin": "Sabah"
+  },
+  "F": {
+    "name": "F",
+    "margin": 9.97,
+    "origin": "Sarawak"
   }
+}

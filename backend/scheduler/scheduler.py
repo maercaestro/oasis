@@ -8,6 +8,10 @@ from typing import List, Dict, Optional, Tuple, Any
 from .models import Tank, BlendingRecipe, FeedstockParcel, Vessel, DailyPlan, Crude
 from .blending import BlendingEngine
 from .tanks import TankManager
+# Add imports for output functionality
+from .utils import generate_summary_report, export_schedule_to_excel
+import os
+import datetime
 
 
 class Scheduler:
@@ -38,12 +42,14 @@ class Scheduler:
         self.max_processing_rate = max_processing_rate
         self.daily_plans = {}
         
-    def run(self, days: int) -> Dict[int, DailyPlan]:
+    def run(self, days: int, save_output: bool = False, output_dir: str = None) -> Dict[int, DailyPlan]:
         """
         Run the scheduler for a specified number of days.
         
         Args:
             days: Number of days to schedule
+            save_output: Whether to save results to output files
+            output_dir: Directory to save output files (default: "../output")
             
         Returns:
             Dictionary of daily plans indexed by day
@@ -58,7 +64,50 @@ class Scheduler:
             # Create daily plan and update tank inventory
             self._create_daily_plan(day, optimal_blends)
             
+        # Save output if requested
+        if save_output:
+            self.save_results(output_dir)
+            
         return self.daily_plans
+    
+    def save_results(self, output_dir: str = None) -> Dict[str, str]:
+        """
+        Save scheduling results to output files.
+        
+        Args:
+            output_dir: Directory to save output files (default: "../output")
+            
+        Returns:
+            Dictionary with paths to the saved files
+        """
+        # Set default output directory if not provided
+        if output_dir is None:
+            output_dir = os.path.join(os.path.dirname(__file__), "../output")
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Generate timestamp for filenames
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Save results to files
+        output_files = {}
+        
+        # Generate and save summary report
+        report_path = os.path.join(output_dir, f"schedule_summary_{timestamp}.txt")
+        generate_summary_report(self.daily_plans, report_path)
+        output_files['summary'] = report_path
+        
+        # Export to Excel
+        excel_path = os.path.join(output_dir, f"schedule_results_{timestamp}.xlsx")
+        export_schedule_to_excel(self.daily_plans, excel_path)
+        output_files['excel'] = excel_path
+        
+        print(f"Results saved to {output_dir}")
+        print(f"- Summary report: {os.path.basename(report_path)}")
+        print(f"- Excel file: {os.path.basename(excel_path)}")
+        
+        return output_files
     
     def _update_inventory(self, day: int) -> None:
         """
