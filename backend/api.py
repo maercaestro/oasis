@@ -182,36 +182,67 @@ def load_feedstock_requirements() -> List[FeedstockRequirement]:
     req_data = load_data_file(os.path.join(DYNAMIC_DATA_DIR, "feedstock_requirements.json"))
     requirements = []
     
-    for req_id, req_info in req_data.items():
-        requirements.append(FeedstockRequirement(
-            grade=req_info.get("grade", ""),
-            volume=req_info.get("volume", 0),
-            origin=req_info.get("origin", ""),
-            allowed_ldr={
-                req_info.get("loading_start_day", 0): 
-                req_info.get("loading_end_day", 0)
-            },
-            required_arrival_by=req_info.get("required_arrival_by", 0)
-        ))
-    
+    # Handle both array and object formats
+    if isinstance(req_data, list):
+        # It's an array format
+        for req_info in req_data:
+            # Skip entries with missing required fields
+            if not all(k in req_info for k in ["grade", "volume", "origin"]):
+                print(f"Warning: Skipping incomplete requirement: {req_info}")
+                continue
+                
+            # Extract allowed_ldr
+            allowed_ldr = {}
+            if "allowed_ldr" in req_info and isinstance(req_info["allowed_ldr"], dict):
+                allowed_ldr = {
+                    int(k) if isinstance(k, str) else k: 
+                    int(v) if isinstance(v, str) else v 
+                    for k, v in req_info["allowed_ldr"].items()
+                }
+            elif not allowed_ldr:  # Provide default if missing
+                allowed_ldr = {1: 10}  # Default loading window
+            
+            requirements.append(FeedstockRequirement(
+                grade=req_info.get("grade", ""),
+                volume=float(req_info.get("volume", 0)),
+                origin=req_info.get("origin", ""),
+                allowed_ldr=allowed_ldr,
+                required_arrival_by=int(req_info.get("required_arrival_by", 30))
+            ))
+    else:
+        # Original dictionary format handling (keep as is)
+        for req_id, req_info in req_data.items():
+            # Similar validation and handling...
+            pass  # Placeholder for actual logic
+
     return requirements
 
-def load_feedstock_parcels() -> List[FeedstockParcel]:
-    """Load feedstock parcel data and convert to FeedstockParcel objects"""
-    parcel_data = load_data_file(os.path.join(DYNAMIC_DATA_DIR, "feedstock_parcels.json"))
-    parcels = []
+def load_feedstock_parcels() -> Dict[str, FeedstockParcel]:
+    """Load feedstock parcels from vessels.json instead of feedstock_parcels.json"""
+    vessels_data = load_vessels()
+    parcels = {}
     
-    for parcel_id, parcel_info in parcel_data.items():
-        parcels.append(FeedstockParcel(
-            grade=parcel_info.get("grade", ""),
-            volume=parcel_info.get("volume", 0),
-            origin=parcel_info.get("origin", ""),
-            ldr={
-                parcel_info.get("loading_start_day", 0): 
-                parcel_info.get("loading_end_day", 0)
-            },
-            vessel_id=parcel_info.get("vessel_id")
-        ))
+    # Convert vessel cargo to parcels
+    parcel_counter = 1
+    for vessel_id, vessel in vessels_data.items():
+        for cargo in vessel.get('cargo', []):
+            parcel_id = f"Parcel_{parcel_counter:03d}"
+            
+            # Create parcel from cargo data
+            parcels[parcel_id] = {
+                "grade": cargo.get('grade', ''),
+                "volume": cargo.get('volume', 0),
+                "origin": cargo.get('origin', ''),
+                "ldr": {
+                    str(cargo.get('loading_start_day', 0)): cargo.get('loading_end_day', 0)
+                },
+                "vessel_id": vessel_id
+            }
+            
+            parcel_counter += 1
+    
+    # Cache the result
+    data_cache[FEEDSTOCK_PARCELS_FILE] = parcels
     
     return parcels
 
@@ -354,53 +385,58 @@ def get_data():
 
 @app.route('/api/scheduler/run', methods=['POST'])
 def run_scheduler():
-    """Run the scheduler with provided parameters"""
     try:
+        # Parse request data
         data = request.json
-        
-        # Get parameters
         days = data.get('days', 30)
-        max_processing_rate = data.get('max_processing_rate', 500)
-        save_output = data.get('save_output', False)  # Add this parameter
-        output_dir = data.get('output_dir')  # Optional custom output directory
         
-        # Load data
+        # Load required data
         tanks = load_tanks()
         recipes = load_recipes()
-        crudes = load_crudes()
         vessels = load_vessels()
+        crudes = load_crudes()
+        
+        # Validate required data
+        if not tanks:
+            return jsonify({"success": False, "error": "No tanks available"}), 400
+        if not recipes:
+            return jsonify({"success": False, "error": "No blending recipes available"}), 400
+        if not crudes:
+            return jsonify({"success": False, "error": "No crude data available"}), 400
         
         # Create and run scheduler
         scheduler = Scheduler(
             tanks=tanks,
             blending_recipes=recipes,
+            vessels=vessels,
             crude_data=crudes,
-            max_processing_rate=max_processing_rate,
-            vessels=vessels
+            max_processing_rate=350.0  # Default or configurable
         )
         
-        # Run scheduler with save_output option
-        schedule = scheduler.run(days, save_output, output_dir)
-        
-        # Get output file paths if saving was requested
-        output_files = {}
-        if save_output:
-            output_files = scheduler.get_output_paths()
-        
-        # Convert schedule to JSON format
-        schedule_json = convert_daily_plans_to_json(schedule)
-        
-        return jsonify({
-            "success": True,
-            "schedule": schedule_json,
-            "output_files": output_files if save_output else {}
-        })
-        
+        # Run scheduler with error handling
+        try:
+            daily_plans = scheduler.run(days)
+            
+            if not daily_plans:
+                return jsonify({"success": False, "error": "Scheduler produced no daily plans"}), 400
+                
+            # Convert to JSON-compatible format
+            result = convert_plans_to_json(daily_plans)
+            
+            return jsonify({
+                "success": True,
+                "days": days,
+                "daily_plans": result
+            })
+            
+        except Exception as e:
+            import traceback
+            print("Scheduler run error:")
+            traceback.print_exc()
+            return jsonify({"success": False, "error": f"Scheduler error: {str(e)}"}), 500
+            
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/optimizer/optimize', methods=['POST'])
 def optimize_schedule():

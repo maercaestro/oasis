@@ -1,23 +1,168 @@
 {
-  "arrival_day": 12,
-  "capacity": 1200,
-  "cargo": [
-    {
-      "grade": "Arabian Light",
-      "loading_end_day": 0,
-      "loading_start_day": 0,
-      "origin": "Terminal1",
-      "volume": 700
-    },
-    {
-      "grade": "Russian Urals",
-      "loading_end_day": 0,
-      "loading_start_day": 0,
-      "origin": "Terminal1",
-      "volume": 500
-    }
-  ],
-  "cost": 100000,
-  "days_held": 3,
-  "vessel_id": "Vessel_002"
+  "Vessel_1_7": {
+    "vessel_id": "Vessel_1_7",
+    "arrival_day": 10,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "D",
+        "volume": 150.0,
+        "origin": "Sabah",
+        "loading_start_day": 7,
+        "loading_end_day": 8
+      },
+      {
+        "grade": "F",
+        "volume": 260.0,
+        "origin": "Sarawak",
+        "loading_start_day": 7,
+        "loading_end_day": 8
+      }
+    ]
+  },
+  "Vessel_1_15": {
+    "vessel_id": "Vessel_1_15",
+    "arrival_day": 18,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "E",
+        "volume": 250.0,
+        "origin": "Sabah",
+        "loading_start_day": 15,
+        "loading_end_day": 16
+      },
+      {
+        "grade": "F",
+        "volume": 250.0,
+        "origin": "Sarawak",
+        "loading_start_day": 15,
+        "loading_end_day": 16
+      }
+    ]
+  },
+  "Vessel_1_26": {
+    "vessel_id": "Vessel_1_26",
+    "arrival_day": 33,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "Base",
+        "volume": 400.0,
+        "origin": "Terminal1",
+        "loading_start_day": 26,
+        "loading_end_day": 27
+      },
+      {
+        "grade": "B",
+        "volume": 100.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 26,
+        "loading_end_day": 27
+      }
+    ]
+  },
+  "Vessel_1_27": {
+    "vessel_id": "Vessel_1_27",
+    "arrival_day": 30,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "E",
+        "volume": 500.0,
+        "origin": "Sabah",
+        "loading_start_day": 27,
+        "loading_end_day": 28
+      }
+    ]
+  },
+  "Vessel_1_29": {
+    "vessel_id": "Vessel_1_29",
+    "arrival_day": 32,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "Base",
+        "volume": 360.0,
+        "origin": "Terminal2",
+        "loading_start_day": 29,
+        "loading_end_day": 30
+      },
+      {
+        "grade": "E",
+        "volume": 40.0,
+        "origin": "Sabah",
+        "loading_start_day": 29,
+        "loading_end_day": 30
+      },
+      {
+        "grade": "E",
+        "volume": 100.0,
+        "origin": "Sabah",
+        "loading_start_day": 29,
+        "loading_end_day": 30
+      }
+    ]
+  },
+  "Vessel_1_30": {
+    "vessel_id": "Vessel_1_30",
+    "arrival_day": 33,
+    "capacity": 500,
+    "cost": 60000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "A",
+        "volume": 150.0,
+        "origin": "Terminal3",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      },
+      {
+        "grade": "B",
+        "volume": 50.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      },
+      {
+        "grade": "C",
+        "volume": 200.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      },
+      {
+        "grade": "E",
+        "volume": 10.0,
+        "origin": "Sabah",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      },
+      {
+        "grade": "F",
+        "volume": 60.0,
+        "origin": "Sarawak",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      },
+      {
+        "grade": "F",
+        "volume": 30.0,
+        "origin": "Sarawak",
+        "loading_start_day": 30,
+        "loading_end_day": 31
+      }
+    ]
+  }
 }

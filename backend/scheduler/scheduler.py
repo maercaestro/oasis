@@ -42,33 +42,53 @@ class Scheduler:
         self.max_processing_rate = max_processing_rate
         self.daily_plans = {}
         
+    # Add better error handling to run method
     def run(self, days: int, save_output: bool = False, output_dir: str = None) -> Dict[int, DailyPlan]:
         """
         Run the scheduler for a specified number of days.
-        
-        Args:
-            days: Number of days to schedule
-            save_output: Whether to save results to output files
-            output_dir: Directory to save output files (default: "../output")
-            
-        Returns:
-            Dictionary of daily plans indexed by day
         """
-        for day in range(1, days+1):
-            # Check for vessel arrivals and update inventory
-            self._update_inventory(day)
+        try:
+            # Validate required data
+            if not self.tank_manager.tanks:
+                raise ValueError("No tanks available for scheduling")
+                
+            if not self.blending_recipes:
+                raise ValueError("No blending recipes provided for scheduling")
             
-            # Pick optimal blending recipes for the day
-            optimal_blends = self._select_blends(day)
+            # Check if we have crude data for the recipes
+            recipe_grades = {recipe.primary_grade for recipe in self.blending_recipes}
+            recipe_grades.update({recipe.secondary_grade for recipe in self.blending_recipes if recipe.secondary_grade})
+            missing_grades = recipe_grades - set(self.crude_data.keys())
+            if missing_grades:
+                raise ValueError(f"Missing crude data for grades: {', '.join(missing_grades)}")
             
-            # Create daily plan and update tank inventory
-            self._create_daily_plan(day, optimal_blends)
+            # Rest of your existing run code
+            for day in range(1, days+1):
+                # Check for vessel arrivals and update inventory
+                self._update_inventory(day)
+                
+                # Pick optimal blending recipes for the day
+                try:
+                    optimal_blends = self._select_blends(day)
+                except Exception as e:
+                    print(f"Error selecting blends for day {day}: {e}")
+                    optimal_blends = []  # Continue with empty blends
+                
+                # Create daily plan and update tank inventory
+                self._create_daily_plan(day, optimal_blends)
+                
+            # Save output if requested
+            if save_output:
+                self.save_results(output_dir)
+                
+            return self.daily_plans
             
-        # Save output if requested
-        if save_output:
-            self.save_results(output_dir)
-            
-        return self.daily_plans
+        except Exception as e:
+            print(f"Scheduler error: {e}")
+            import traceback
+            traceback.print_exc()
+            # Return partial results if available
+            return self.daily_plans or {}
     
     def save_results(self, output_dir: str = None) -> Dict[str, str]:
         """
@@ -112,17 +132,23 @@ class Scheduler:
     def _update_inventory(self, day: int) -> None:
         """
         Check for vessel arrivals and update tank inventory.
-        
-        Args:
-            day: Current day
         """
         # Find vessels arriving on this day
         arriving_vessels = [v for v in self.vessels if v.arrival_day == day]
         
+        if not arriving_vessels:
+            return  # Nothing to do
+            
+        print(f"Day {day}: Processing {len(arriving_vessels)} arriving vessels")
+        
         for vessel in arriving_vessels:
             # Process each cargo parcel
+            unloaded_all = True  # Track if all cargo was unloaded
+            
             for parcel in vessel.cargo:
                 # Find a suitable tank with enough capacity
+                unloaded = False
+                
                 for tank_name, tank in self.tank_manager.tanks.items():
                     # Calculate current tank volume
                     current_volume = sum(sum(content.values()) for content in tank.content)
@@ -132,11 +158,19 @@ class Scheduler:
                         # Add parcel to tank
                         success = self.tank_manager.add(tank_name, parcel)
                         if success:
+                            unloaded = True
+                            print(f"  Unloaded {parcel.volume} of {parcel.grade} into tank {tank_name}")
                             break
-                else:
-                    # If we couldn't find a tank with enough space, delay the vessel
-                    vessel.days_held += 1
-                    vessel.arrival_day = day + 1
+                
+                if not unloaded:
+                    unloaded_all = False
+                    print(f"  WARNING: Couldn't unload {parcel.volume} of {parcel.grade} - insufficient tank capacity")
+                    
+            # If not all cargo was unloaded, delay the vessel
+            if not unloaded_all:
+                vessel.days_held += 1
+                vessel.arrival_day = day + 1
+                print(f"  Vessel {vessel.vessel_id} delayed to day {vessel.arrival_day}")
     
     def _select_blends(self, day: int) -> List[Tuple[BlendingRecipe, float, float]]:
         """

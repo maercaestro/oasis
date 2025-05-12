@@ -98,6 +98,9 @@ class VesselOptimizer:
         """
         # Create a linear programming problem
         model = plp.LpProblem("Vessel_Scheduling_Optimization", plp.LpMinimize)
+        
+        # Store horizon days for later use
+        model.horizon_days = horizon_days  # Add this line
 
         # Create decision variables for vessel type selection and loading
         # y[v_type, day] = 1 if vessel of type v_type is scheduled on day
@@ -180,8 +183,10 @@ class VesselOptimizer:
                             volume = model.variablesDict()[var_name].varValue
                             if volume > 0.001:  # Small tolerance for numerical issues
                                 # Calculate arrival day based on route travel time
-                                route_key = f"{req.origin}_Refinery"
-                                travel_time = self.routes[route_key].time_travel if route_key in self.routes else 7.0
+                                route_key = self._get_route_key(req.origin, "Refinery")
+                                travel_time = 7.0  # Default fallback
+                                if route_key and route_key in self.routes:
+                                    travel_time = self.routes[route_key].time_travel
                                 
                                 # Create feedstock parcel
                                 cargo.append(FeedstockParcel(
@@ -197,8 +202,8 @@ class VesselOptimizer:
                         # Calculate arrival day (use earliest arrival from all routes)
                         arrival_times = []
                         for parcel in cargo:
-                            route_key = f"{parcel.origin}_Refinery"
-                            if route_key in self.routes:
+                            route_key = self._get_route_key(parcel.origin, "Refinery")
+                            if route_key:
                                 arrival_times.append(day + int(self.routes[route_key].time_travel))
                         
                         arrival_day = min(arrival_times) if arrival_times else day + 7
@@ -245,16 +250,10 @@ class VesselOptimizer:
                     
                     # Find closest unvisited origin
                     for origin in origins_to_visit:
-                        route_key = f"{current_location}_{origin}"
-                        alt_route_key = f"{origin}_{current_location}"
+                        route_key = self._get_route_key(current_location, origin)
                         
-                        if route_key in self.routes:
+                        if route_key:
                             travel_time = self.routes[route_key].time_travel
-                            if travel_time < best_time:
-                                best_time = travel_time
-                                best_next = origin
-                        elif alt_route_key in self.routes:
-                            travel_time = self.routes[alt_route_key].time_travel
                             if travel_time < best_time:
                                 best_time = travel_time
                                 best_next = origin
@@ -286,13 +285,10 @@ class VesselOptimizer:
                         break
                 
                 # Finally, return to refinery
-                route_key = f"{current_location}_Refinery"
-                alt_route_key = f"Refinery_{current_location}"
+                route_key = self._get_route_key(current_location, "Refinery")
                 
-                if route_key in self.routes:
+                if route_key:
                     travel_time = self.routes[route_key].time_travel
-                elif alt_route_key in self.routes:
-                    travel_time = self.routes[alt_route_key].time_travel
                 else:
                     # Default if no route found
                     travel_time = 7
@@ -312,13 +308,10 @@ class VesselOptimizer:
                 # Single origin - simpler route calculation
                 origin = vessel.cargo[0].origin if vessel.cargo else None
                 if origin:
-                    route_key = f"{origin}_Refinery"
-                    alt_route_key = f"Refinery_{origin}"
+                    route_key = self._get_route_key(origin, "Refinery")
                     
-                    if route_key in self.routes:
+                    if route_key:
                         travel_time = self.routes[route_key].time_travel
-                    elif alt_route_key in self.routes:
-                        travel_time = self.routes[alt_route_key].time_travel
                     else:
                         travel_time = 7
                     
@@ -383,3 +376,24 @@ class VesselOptimizer:
             plt.show()
         except ImportError:
             print("Matplotlib is not installed. Cannot visualize schedule.")
+
+    # Add this helper method to VesselOptimizer class
+    def _get_route_key(self, origin, destination):
+        """Find the appropriate route key format that exists in the routes dictionary"""
+        # Try various formats
+        possible_keys = [
+            f"{origin}_{destination}",
+            f"{origin} to {destination}",
+            f"{origin}-{destination}"
+        ]
+        
+        for key in possible_keys:
+            if key in self.routes:
+                return key
+                
+        # If no exact match, try case-insensitive matching
+        for route_key in self.routes.keys():
+            if origin.lower() in route_key.lower() and destination.lower() in route_key.lower():
+                return route_key
+        
+        return None  # No matching route found

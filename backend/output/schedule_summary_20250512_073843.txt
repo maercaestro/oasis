@@ -1,0 +1,257 @@
+=== OASIS SCHEDULER SUMMARY REPORT ===
+Generated on: 2025-05-12 07:38:43
+Schedule duration: 30 days
+
+Total volume processed: 746.00 kb
+Average daily throughput: 24.87 kb/day
+
+=== DAILY SUMMARY ===
+Day 1:
+  Total inventory: 377.00 kb
+  Inventory by grade:
+    Base: 124.30 kb
+    B: 66.75 kb
+    C: 124.35 kb
+    D: 61.60 kb
+  Total processing: 373.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+    0: 87.00 kb/day
+    2: 95.00 kb/day
+    3: 96.00 kb/day
+
+Day 2:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 373.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+    0: 87.00 kb/day
+    2: 95.00 kb/day
+    3: 96.00 kb/day
+
+Day 3:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 4:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 5:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 6:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 7:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 8:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 9:
+  Total inventory: 121.90 kb
+  Inventory by grade:
+    C: 98.70 kb
+    D: 23.20 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 10:
+  Total inventory: 271.90 kb
+  Inventory by grade:
+    D: 173.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 11:
+  Total inventory: 421.90 kb
+  Inventory by grade:
+    D: 323.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 12:
+  Total inventory: 571.90 kb
+  Inventory by grade:
+    D: 473.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 13:
+  Total inventory: 721.90 kb
+  Inventory by grade:
+    D: 623.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 14:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 15:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 16:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 17:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 18:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 19:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 20:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 21:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 22:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 23:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 24:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 25:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 26:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 27:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 28:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 29:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 30:
+  Total inventory: 871.90 kb
+  Inventory by grade:
+    D: 773.20 kb
+    C: 98.70 kb
+  Total processing: 0.00 kb/day
+  Processing rates:

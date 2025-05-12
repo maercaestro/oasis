@@ -1,15 +1,5 @@
 [
   {
-    "capacity": 2000,
-    "cost": 150000,
-    "name": "VLCC"
-  },
-  {
-    "capacity": 1200,
-    "cost": 100000,
-    "name": "Suezmax"
-  },
-  {
     "capacity": 700,
     "cost": 80000,
     "name": "Aframax"
