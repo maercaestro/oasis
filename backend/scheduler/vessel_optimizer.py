@@ -58,12 +58,48 @@ class VesselOptimizer:
         """
         vessels = self.optimize(horizon_days)
         
-        # Plan optimal routes for multi-cargo vessels
+        # Plan optimal routes for multi-cargo vessels - ADD LOGGING
+        print(f"Planning routes for {len(vessels)} vessels...")
         vessels = self._plan_vessel_routes(vessels)
+        
+        # Check if routes were created
+        vessels_with_routes = sum(1 for v in vessels if hasattr(v, "route") and v.route)
+        print(f"Routes created for {vessels_with_routes} out of {len(vessels)} vessels")
         
         # Convert to JSON format
         vessels_dict = {}
         for vessel in vessels:
+            # If vessel somehow doesn't have a route, create a basic one
+            if not hasattr(vessel, "route") or not vessel.route:
+                # Find the cargo origin(s)
+                origins = set(cargo.origin for cargo in vessel.cargo)
+                if origins:
+                    route = []
+                    # Create a simple direct route for each origin
+                    for origin in origins:
+                        route_key = self._get_route_key(origin, "Refinery")
+                        travel_days = self.routes[route_key].time_travel if route_key and route_key in self.routes else 3
+                        
+                        # Add refinery to origin leg
+                        route.append({
+                            "from": "Refinery",
+                            "to": origin,
+                            "day": vessel.arrival_day - travel_days - 1,
+                            "travel_days": travel_days
+                        })
+                        
+                        # Add origin to refinery leg
+                        route.append({
+                            "from": origin,
+                            "to": "Refinery",
+                            "day": vessel.arrival_day,
+                            "travel_days": travel_days
+                        })
+                    
+                    vessel.route = route
+                    print(f"Created fallback route for {vessel.vessel_id}")
+            
+            # Convert to JSON format with route data
             vessels_dict[vessel.vessel_id] = {
                 "vessel_id": vessel.vessel_id,
                 "arrival_day": vessel.arrival_day,
@@ -83,11 +119,20 @@ class VesselOptimizer:
                 "route": vessel.route if hasattr(vessel, "route") else []
             }
         
+        # Log route data to help debug
+        for vessel_id, vessel_data in vessels_dict.items():
+            route_count = len(vessel_data.get("route", []))
+            print(f"Vessel {vessel_id}: {route_count} route segments")
+            if route_count > 0:
+                for i, segment in enumerate(vessel_data["route"]):
+                    print(f"  Segment {i}: {segment['from']} to {segment['to']} (Day {segment['day']} - travel: {segment['travel_days']})")
+        
         # Save to vessels.json
         save_path = os.path.join(os.path.dirname(__file__), "..", "dynamic_data", "vessels.json")
+        print(f"Saving vessels data to {save_path}")
         with open(save_path, 'w') as f:
             json.dump(vessels_dict, f, indent=2)
-            
+        
         return vessels
     
     def _build_optimization_model(self, horizon_days: int) -> plp.LpProblem:
@@ -222,13 +267,30 @@ class VesselOptimizer:
     def _plan_vessel_routes(self, vessels: List[Vessel]) -> List[Vessel]:
         """
         Plan optimal routes for vessels with multiple cargo items
-        
-        Args:
-            vessels: List of vessels from the optimizer
-            
-        Returns:
-            Vessels with updated routes and loading days
         """
+        # Add debug code to understand the structure of routes dictionary
+        print("\n=== ROUTE PLANNING DEBUG ===")
+        print(f"Available routes: {list(self.routes.keys())}")
+        
+        # Check for missing origins in routes
+        all_origins = set()
+        for vessel in vessels:
+            for cargo in vessel.cargo:
+                all_origins.add(cargo.origin)
+        
+        print(f"All cargo origins: {all_origins}")
+        
+        # Check which routes are missing
+        missing_routes = []
+        for origin in all_origins:
+            route_key = self._get_route_key(origin, "Refinery") 
+            if not route_key:
+                missing_routes.append(f"{origin}-Refinery")
+        
+        if missing_routes:
+            print(f"WARNING: Missing routes: {missing_routes}")
+            print("Will use default travel times for these routes")
+
         for vessel in vessels:
             # If vessel has multiple cargo items from different origins
             if len(set(cargo.origin for cargo in vessel.cargo)) > 1:
@@ -308,35 +370,42 @@ class VesselOptimizer:
                 # Single origin - simpler route calculation
                 origin = vessel.cargo[0].origin if vessel.cargo else None
                 if origin:
-                    route_key = self._get_route_key(origin, "Refinery")
+                    # Calculate route from refinery to origin
+                    refinery_to_origin_key = self._get_route_key("Refinery", origin)
+                    origin_to_refinery_key = self._get_route_key(origin, "Refinery")
                     
-                    if route_key:
-                        travel_time = self.routes[route_key].time_travel
-                    else:
-                        travel_time = 7
+                    # Calculate travel times (now always have valid keys)
+                    to_origin_time = self.routes[refinery_to_origin_key].time_travel 
+                    from_origin_time = self.routes[origin_to_refinery_key].time_travel
                     
                     # Calculate loading days
-                    loading_start = int(vessel.arrival_day - travel_time - 1)
+                    loading_start = max(0, vessel.arrival_day - from_origin_time - 1)
                     loading_end = loading_start + 1
                     
+                    # Update cargo loading days
                     for cargo in vessel.cargo:
                         cargo.loading_start_day = loading_start
                         cargo.loading_end_day = loading_end
                     
+                    # Create full route
                     vessel.route = [
                         {
                             "from": "Refinery",
                             "to": origin,
-                            "day": 0,
-                            "travel_days": travel_time
+                            "day": loading_start - to_origin_time,
+                            "travel_days": to_origin_time
                         },
                         {
                             "from": origin,
                             "to": "Refinery",
-                            "day": loading_end + 1,
-                            "travel_days": travel_time
+                            "day": vessel.arrival_day,
+                            "travel_days": from_origin_time
                         }
                     ]
+                    
+                    # Fix negative days if they occur
+                    if vessel.route[0]["day"] < 0:
+                        vessel.route[0]["day"] = 0
         
         return vessels
     
@@ -384,16 +453,62 @@ class VesselOptimizer:
         possible_keys = [
             f"{origin}_{destination}",
             f"{origin} to {destination}",
-            f"{origin}-{destination}"
+            f"{origin}-{destination}",
+            # Add case variations
+            f"{origin.lower()} to {destination.lower()}",
+            f"{origin} to {destination.lower()}",
+            f"{origin.lower()} to {destination}"
         ]
+        
+        # Debug info
+        print(f"Looking for route: {origin} to {destination}")
+        print(f"Available routes: {list(self.routes.keys())}")
         
         for key in possible_keys:
             if key in self.routes:
+                print(f"Found exact match: {key}")
                 return key
-                
+        
+        # Check common abbreviations (like PM -> Peninsular Malaysia)        
+        if origin == "PM":
+            alt_origin = "Peninsular Malaysia"
+            for route_key in self.routes.keys():
+                if alt_origin.lower() in route_key.lower() and destination.lower() in route_key.lower():
+                    print(f"Found match with PM expansion: {route_key}")
+                    return route_key
+                    
         # If no exact match, try case-insensitive matching
         for route_key in self.routes.keys():
-            if origin.lower() in route_key.lower() and destination.lower() in route_key.lower():
+            # Try more flexible matching
+            orig_part = origin.lower().replace(" ", "")
+            dest_part = destination.lower().replace(" ", "")
+            route_key_simple = route_key.lower().replace(" ", "")
+            
+            if orig_part in route_key_simple and dest_part in route_key_simple:
+                print(f"Found fuzzy match: {route_key}")
                 return route_key
         
-        return None  # No matching route found
+        # For Terminal1, Terminal2, etc. that might not be in routes.json
+        if "Terminal" in origin or "Terminal" in destination:
+            print(f"Creating dummy route for terminal: {origin} to {destination}")
+            default_travel_time = 5  # Longer default for terminals
+        else:
+            print(f"Creating dummy route: {origin} to {destination}")
+            default_travel_time = 3
+        
+        # Create a new key and add it to routes
+        new_key = f"{origin} to {destination}"
+        try:
+            self.routes[new_key] = Route(
+                origin=origin,
+                destination=destination,
+                time_travel=default_travel_time,
+                cost=10000  # Default cost
+            )
+            print(f"Created new route: {new_key}")
+            return new_key
+        except Exception as e:
+            print(f"ERROR creating route: {e}")
+            # Last resort fallback - return a key to avoid crashes
+            # even if the route doesn't exist
+            return list(self.routes.keys())[0] if self.routes else "fallback_route"

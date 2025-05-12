@@ -12,6 +12,7 @@ from .tanks import TankManager
 from .utils import generate_summary_report, export_schedule_to_excel
 import os
 import datetime
+import json
 
 
 class Scheduler:
@@ -40,12 +41,20 @@ class Scheduler:
         self.vessels = vessels
         self.crude_data = crude_data
         self.max_processing_rate = max_processing_rate
-        self.daily_plans = {}
+        self.daily_plans = {}  # Dictionary with day (int) as key and DailyPlan as value
         
-    # Add better error handling to run method
-    def run(self, days: int, save_output: bool = False, output_dir: str = None) -> Dict[int, DailyPlan]:
+    # Enhanced run method with better error handling and automatic output saving
+    def run(self, days: int, save_output: bool = True, output_dir: str = None) -> List[Dict]:
         """
         Run the scheduler for a specified number of days.
+        
+        Args:
+            days: Number of days to run the scheduler for
+            save_output: Whether to save output files (default: True)
+            output_dir: Directory to save output files (default: "../output")
+            
+        Returns:
+            List of daily plans in JSON-serializable format
         """
         try:
             # Validate required data
@@ -62,7 +71,7 @@ class Scheduler:
             if missing_grades:
                 raise ValueError(f"Missing crude data for grades: {', '.join(missing_grades)}")
             
-            # Rest of your existing run code
+            # Process each day
             for day in range(1, days+1):
                 # Check for vessel arrivals and update inventory
                 self._update_inventory(day)
@@ -77,18 +86,91 @@ class Scheduler:
                 # Create daily plan and update tank inventory
                 self._create_daily_plan(day, optimal_blends)
                 
-            # Save output if requested
+            # Save output if requested (default is True)
+            output_files = {}
             if save_output:
-                self.save_results(output_dir)
+                output_files = self.save_results(output_dir)
                 
-            return self.daily_plans
+            # Convert daily_plans from dictionary to list of JSON-serializable objects
+            result = []
+            for day in sorted(self.daily_plans.keys()):
+                plan = self.daily_plans[day]
+                
+                # Convert tank objects to serializable format
+                tanks_json = {}
+                for tank_name, tank in plan.tanks.items():
+                    content_json = []
+                    for content in tank.content:
+                        content_json.append(content)
+                    
+                    tanks_json[tank_name] = {
+                        "name": tank.name,
+                        "capacity": tank.capacity,
+                        "content": content_json
+                    }
+                
+                # Create serializable plan
+                plan_json = {
+                    "day": plan.day,
+                    "processing_rates": plan.processing_rates,
+                    "inventory": plan.inventory,
+                    "inventory_by_grade": plan.inventory_by_grade,
+                    "tanks": tanks_json,
+                    "blending_details": [
+                        {
+                            "name": recipe.name,
+                            "primary_grade": recipe.primary_grade,
+                            "secondary_grade": recipe.secondary_grade,
+                            "primary_fraction": recipe.primary_fraction,
+                            "max_rate": recipe.max_rate
+                        }
+                        for recipe in plan.blending_details
+                    ]
+                }
+                
+                result.append(plan_json)
+            
+            return result
             
         except Exception as e:
             print(f"Scheduler error: {e}")
             import traceback
             traceback.print_exc()
+            
             # Return partial results if available
-            return self.daily_plans or {}
+            if self.daily_plans:
+                # Convert partial daily_plans to JSON format
+                partial_results = []
+                for day in sorted(self.daily_plans.keys()):
+                    plan = self.daily_plans[day]
+                    
+                    # Create a minimal JSON-serializable plan with error handling
+                    try:
+                        tanks_json = {}
+                        for tank_name, tank in plan.tanks.items():
+                            tanks_json[tank_name] = {
+                                "name": tank.name,
+                                "capacity": tank.capacity,
+                                "content": [content for content in tank.content]
+                            }
+                        
+                        plan_json = {
+                            "day": plan.day,
+                            "processing_rates": plan.processing_rates,
+                            "inventory": plan.inventory,
+                            "inventory_by_grade": plan.inventory_by_grade,
+                            "tanks": tanks_json,
+                            "blending_details": []  # Simplified for error case
+                        }
+                        
+                        partial_results.append(plan_json)
+                    except Exception as conversion_error:
+                        print(f"Error converting day {day} plan: {conversion_error}")
+                        partial_results.append({"day": day, "error": str(conversion_error)})
+                
+                return partial_results
+                
+            return []
     
     def save_results(self, output_dir: str = None) -> Dict[str, str]:
         """
@@ -107,25 +189,35 @@ class Scheduler:
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
         
-        # Generate timestamp for filenames
+        # Generate timestamp for text and Excel files (these can have timestamps)
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Save results to files
+        # Dictionary to store output file paths
         output_files = {}
         
-        # Generate and save summary report
-        report_path = os.path.join(output_dir, f"schedule_summary_{timestamp}.txt")
-        generate_summary_report(self.daily_plans, report_path)
-        output_files['summary'] = report_path
+        # Generate summary report (text format) - keep timestamp for this
+        summary_path = os.path.join(output_dir, f"schedule_summary_{timestamp}.txt")
+        with open(summary_path, "w") as f:
+            f.write(generate_summary_report(self.daily_plans))
+        output_files['summary'] = summary_path
         
-        # Export to Excel
-        excel_path = os.path.join(output_dir, f"schedule_results_{timestamp}.xlsx")
-        export_schedule_to_excel(self.daily_plans, excel_path)
-        output_files['excel'] = excel_path
+        # Try to export to Excel - keep timestamp for this
+        try:
+            excel_path = os.path.join(output_dir, f"schedule_{timestamp}.xlsx")
+            export_schedule_to_excel(self.daily_plans, excel_path)
+            output_files['excel'] = excel_path
+        except ImportError:
+            print("Warning: Excel export skipped - xlsxwriter module not installed")
+            print("To enable Excel export, run: pip install xlsxwriter")
+        
+        # Save as JSON using a FIXED filename (no timestamp) for easier frontend access
+        json_path = os.path.join(output_dir, "schedule_results.json")
+        self.export_to_json(json_path)
+        output_files['json'] = json_path
         
         print(f"Results saved to {output_dir}")
-        print(f"- Summary report: {os.path.basename(report_path)}")
-        print(f"- Excel file: {os.path.basename(excel_path)}")
+        for output_type, path in output_files.items():
+            print(f" - {output_type}: {os.path.basename(path)}")
         
         return output_files
     
@@ -268,3 +360,62 @@ class Scheduler:
                 to_withdraw = min(available, remaining)
                 self.tank_manager.withdraw(tank_name, grade, to_withdraw)
                 remaining -= to_withdraw
+
+    def export_to_json(self, file_path: str) -> None:
+        """
+        Export daily plans to JSON format that is compatible with the API.
+        
+        Args:
+            file_path: Path to save the JSON file
+        """
+        try:
+            # Convert daily plans to JSON-serializable format
+            daily_plans_json = []
+            
+            for day in sorted(self.daily_plans.keys()):
+                plan = self.daily_plans[day]
+                
+                # Convert tank objects to serializable format
+                tanks_json = {}
+                for tank_name, tank in plan.tanks.items():
+                    content_json = []
+                    for content in tank.content:
+                        content_json.append(content)
+                    
+                    tanks_json[tank_name] = {
+                        "name": tank.name,
+                        "capacity": tank.capacity,
+                        "content": content_json
+                    }
+                
+                # Create serializable plan
+                plan_json = {
+                    "day": plan.day,
+                    "processing_rates": plan.processing_rates,
+                    "inventory": plan.inventory,
+                    "inventory_by_grade": plan.inventory_by_grade,
+                    "tanks": tanks_json,
+                    "blending_details": [
+                        {
+                            "name": recipe.name,
+                            "primary_grade": recipe.primary_grade,
+                            "secondary_grade": recipe.secondary_grade,
+                            "primary_fraction": recipe.primary_fraction,
+                            "max_rate": recipe.max_rate
+                        }
+                        for recipe in plan.blending_details
+                    ]
+                }
+                
+                daily_plans_json.append(plan_json)
+            
+            # Write to file with proper formatting
+            with open(file_path, 'w') as f:
+                json.dump({"daily_plans": daily_plans_json}, f, indent=2)
+                
+            print(f"JSON export successful: {file_path}")
+            
+        except Exception as e:
+            print(f"Error exporting to JSON: {e}")
+            import traceback
+            traceback.print_exc()

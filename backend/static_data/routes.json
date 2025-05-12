@@ -6,16 +6,16 @@
   },
   "Sabah to Refinery": {
     "destination": "Refinery",
-    "origin": "Terminal2",
+    "origin": "Sabah",
     "time_travel": 3.5
   },
   "Sabah to PM": {
     "destination": "Peninsular Malaysia",
-    "origin": "Terminal3",
+    "origin": "Sabah",
     "time_travel": 3
   },
   "Sabah to Sarawak": {
-    "origin": "Terminal1",
+    "origin": "Sabah",
     "destination": "Sarawak",
     "time_travel": 1
   },

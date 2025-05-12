@@ -637,6 +637,25 @@ function VesselDataEditor({ vessels, setVessels }) {
       )
   )].filter(Boolean);
 
+  // Add at the start of VesselDataEditor component
+  const getLocationColor = (location) => {
+    const locationColors = {
+      'Refinery': '#4ade80',
+      'Sabah': '#60a5fa',
+      'Sarawak': '#c084fc',
+      'Peninsular Malaysia': '#f97316'
+    };
+    return locationColors[location] || '#94a3b8';
+  };
+
+  // Add these near the top of your VesselDataEditor function
+  useEffect(() => {
+    // Log vessels with routes to check if routes exist
+    console.log("Vessels with routes:", 
+      vesselsData.filter(v => v.route && v.route.length > 0)
+        .map(v => `${v.vessel_id} (${v.route?.length || 0} segments)`));
+  }, [vesselsData]);
+
   // Return the component JSX with proper error handling
   return (
     <div className="space-y-6 max-h-96 overflow-y-auto pr-2">
@@ -783,6 +802,119 @@ function VesselDataEditor({ vessels, setVessels }) {
               />
             </div>
           </div>
+          {vessel.route && vessel.route.length > 0 && (
+            <div className="mt-4">
+              <div className="text-sm font-medium text-slate-700 mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                Route Information:
+              </div>
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                {/* Route timeline visualization - make taller and add border */}
+                <div className="h-5 relative w-full bg-gray-100 rounded-full overflow-hidden mb-3 border border-gray-300">
+                  {/* First determine the maximum day in the route for scaling */}
+                  {(() => {
+                    // Find last day in route for scaling
+                    const lastDay = vessel.route.length > 0 ? 
+                      Math.max(...vessel.route.map(segment => segment.day)) :
+                      vessel.arrival_day || 30;
+                    
+                    return vessel.route.map((segment, index) => {
+                      // Calculate position based on actual days
+                      const startDay = segment.day - segment.travel_days;
+                      const endDay = segment.day;
+                      const startPercent = (startDay / lastDay) * 100;
+                      const widthPercent = ((endDay - startDay) / lastDay) * 100;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className="absolute h-full"
+                          style={{ 
+                            left: `${startPercent}%`, 
+                            width: `${widthPercent}%`,
+                            background: `linear-gradient(to right, ${getLocationColor(segment.from)}, ${getLocationColor(segment.to)})`
+                          }}
+                          title={`${segment.from} to ${segment.to} (Day ${startDay} - Day ${endDay})`}
+                        />
+                      );
+                    })
+                  })()}
+                  
+                  {/* Stop markers - also based on actual days */}
+                  {(() => {
+                    const lastDay = vessel.route.length > 0 ? 
+                      Math.max(...vessel.route.map(segment => segment.day)) :
+                      vessel.arrival_day || 30;
+                    
+                    return vessel.route.map((segment, index) => {
+                      if (index === 0) return null;
+                      const stopDay = segment.day - segment.travel_days;
+                      const stopPosition = (stopDay / lastDay) * 100;
+                      
+                      return (
+                        <div 
+                          key={`stop-${index}`}
+                          className="absolute w-4 h-4 rounded-full border-2 border-white shadow-sm transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
+                          style={{ 
+                            left: `${stopPosition}%`, 
+                            top: '50%',
+                            backgroundColor: getLocationColor(segment.from)
+                          }}
+                          title={`Stop at ${segment.from} on Day ${stopDay}`}
+                        >
+                          <div className="w-2 h-2 rounded-full bg-white"></div>
+                        </div>
+                      );
+                    });
+                  })()}
+                  
+                  {/* Show final arrival */}
+                  {vessel.arrival_day && (
+                    <div
+                      className="absolute w-4 h-4 rounded-full bg-green-500 border-2 border-white transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center"
+                      style={{
+                        left: `100%`,
+                        top: '50%'
+                      }}
+                      title={`Arrival at Refinery on Day ${vessel.arrival_day}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                {/* Day markers */}
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Day 0</span>
+                  <span>Day {vessel.arrival_day || 30}</span>
+                </div>
+                
+                {/* Route details as text */}
+                <div className="space-y-2 mt-3 pt-2 border-t border-slate-200">
+                  {vessel.route.map((segment, index) => (
+                    <div key={`detail-${index}`} className="flex items-center">
+                      <div 
+                        className="w-3 h-3 rounded-full mr-2 flex-shrink-0 border border-white shadow-sm" 
+                        style={{ backgroundColor: getLocationColor(segment.from) }}
+                      ></div>
+                      <span className="font-medium">{segment.from} → {segment.to}</span>
+                      <span className="ml-2 text-slate-500">
+                        (Days {segment.day - segment.travel_days} - {segment.day})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-2 text-xs text-slate-500 italic">
+                  Route information is generated by the vessel optimizer.
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>

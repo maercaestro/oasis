@@ -20,7 +20,8 @@
         "loading_start_day": 7,
         "loading_end_day": 8
       }
-    ]
+    ],
+    "route": []
   },
   "Vessel_1_15": {
     "vessel_id": "Vessel_1_15",
@@ -43,7 +44,8 @@
         "loading_start_day": 15,
         "loading_end_day": 16
       }
-    ]
+    ],
+    "route": []
   },
   "Vessel_1_26": {
     "vessel_id": "Vessel_1_26",
@@ -66,7 +68,8 @@
         "loading_start_day": 26,
         "loading_end_day": 27
       }
-    ]
+    ],
+    "route": []
   },
   "Vessel_1_27": {
     "vessel_id": "Vessel_1_27",
@@ -82,7 +85,8 @@
         "loading_start_day": 27,
         "loading_end_day": 28
       }
-    ]
+    ],
+    "route": []
   },
   "Vessel_1_29": {
     "vessel_id": "Vessel_1_29",
@@ -112,7 +116,8 @@
         "loading_start_day": 29,
         "loading_end_day": 30
       }
-    ]
+    ],
+    "route": []
   },
   "Vessel_1_30": {
     "vessel_id": "Vessel_1_30",
@@ -163,6 +168,7 @@
         "loading_start_day": 30,
         "loading_end_day": 31
       }
-    ]
+    ],
+    "route": []
   }
 }

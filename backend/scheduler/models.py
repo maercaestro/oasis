@@ -88,14 +88,12 @@ class Vessel:
 
 
 
-@dataclass
 class Route:
-    """
-    A class representing a route in the OASIS system.
-    """
-    origin: str
-    destination: str
-    time_travel: float
+    def __init__(self, origin, destination, time_travel, cost=None):
+        self.origin = origin
+        self.destination = destination
+        self.time_travel = float(time_travel)  # Convert to float for safety
+        self.cost = cost if cost is not None else 10000.0
 
 
 @dataclass

@@ -219,30 +219,45 @@ def load_feedstock_requirements() -> List[FeedstockRequirement]:
 
 def load_feedstock_parcels() -> Dict[str, FeedstockParcel]:
     """Load feedstock parcels from vessels.json instead of feedstock_parcels.json"""
-    vessels_data = load_vessels()
+    
+    # Define feedstock parcels file path
+    feedstock_parcels_file = os.path.join(DYNAMIC_DATA_DIR, "feedstock_parcels.json")
+    
+    # Get vessel data from the raw JSON file to avoid conversion issues
+    vessels_raw_data = load_data_file(VESSELS_FILE)
     parcels = {}
     
     # Convert vessel cargo to parcels
     parcel_counter = 1
-    for vessel_id, vessel in vessels_data.items():
-        for cargo in vessel.get('cargo', []):
-            parcel_id = f"Parcel_{parcel_counter:03d}"
-            
-            # Create parcel from cargo data
-            parcels[parcel_id] = {
-                "grade": cargo.get('grade', ''),
-                "volume": cargo.get('volume', 0),
-                "origin": cargo.get('origin', ''),
-                "ldr": {
-                    str(cargo.get('loading_start_day', 0)): cargo.get('loading_end_day', 0)
-                },
-                "vessel_id": vessel_id
-            }
-            
-            parcel_counter += 1
+    
+    if isinstance(vessels_raw_data, dict):
+        # Process dictionary format
+        for vessel_id, vessel_info in vessels_raw_data.items():
+            for cargo in vessel_info.get("cargo", []):
+                if "grade" not in cargo or "volume" not in cargo:
+                    continue
+                    
+                parcel_id = f"Parcel_{parcel_counter:03d}"
+                loading_start_day = cargo.get("loading_start_day", 0)
+                loading_end_day = cargo.get("loading_end_day", 0)
+                
+                # Create parcel from cargo data
+                parcels[parcel_id] = {
+                    "grade": cargo.get("grade", ""),
+                    "volume": cargo.get("volume", 0),
+                    "origin": cargo.get("origin", ""),
+                    "ldr": {
+                        str(loading_start_day): loading_end_day
+                    },
+                    "vessel_id": vessel_id
+                }
+                
+                parcel_counter += 1
     
     # Cache the result
-    data_cache[FEEDSTOCK_PARCELS_FILE] = parcels
+    data_cache[feedstock_parcels_file] = parcels
+    
+    return parcels
     
     return parcels
 
@@ -255,42 +270,83 @@ def convert_daily_plans_to_json(daily_plans) -> List[Dict]:
     """Convert daily plans to JSON-serializable format"""
     result = []
     
-    for plan in daily_plans:
-        # Convert tank objects to serializable format
-        tanks_json = {}
-        for tank_name, tank in plan.tanks.items():
-            content_json = []
-            for content in tank.content:
-                content_json.append(content)
+    # Validate input type
+    if not daily_plans:
+        print("Warning: No daily plans to convert")
+        return []
+    
+    # Handle different formats of daily_plans
+    if isinstance(daily_plans, int):
+        print(f"Error: Expected daily plans object but got integer: {daily_plans}")
+        return [{"error": f"Invalid data format: {daily_plans}"}]
+        
+    # If it's a dictionary (keyed by day), convert to list
+    if isinstance(daily_plans, dict):
+        print(f"Converting daily_plans from dict to list format")
+        plans_list = []
+        for day in sorted(daily_plans.keys()):
+            plans_list.append(daily_plans[day])
+        daily_plans = plans_list
+    
+    # Process each plan
+    for plan_index, plan in enumerate(daily_plans):
+        try:
+            # Check if plan is valid
+            if not hasattr(plan, 'tanks'):
+                print(f"Error: Plan at index {plan_index} is not a valid DailyPlan object: {type(plan)}")
+                result.append({
+                    "day": plan_index,
+                    "error": f"Invalid plan format: {type(plan).__name__}",
+                    "data": str(plan)[:100]  # Include truncated data for debugging
+                })
+                continue
             
-            tanks_json[tank_name] = {
-                "name": tank.name,
-                "capacity": tank.capacity,
-                "content": content_json
-            }
-        
-        # Create serializable plan
-        plan_json = {
-            "day": plan.day,
-            "processing_rates": plan.processing_rates,
-            "inventory": plan.inventory,
-            "inventory_by_grade": plan.inventory_by_grade,
-            "tanks": tanks_json,
-            "blending_details": [
-                {
-                    "name": recipe.name,
-                    "primary_grade": recipe.primary_grade,
-                    "secondary_grade": recipe.secondary_grade,
-                    "primary_fraction": recipe.primary_fraction,
-                    "max_rate": recipe.max_rate
+            # Convert tank objects to serializable format
+            tanks_json = {}
+            for tank_name, tank in plan.tanks.items():
+                content_json = []
+                for content in tank.content:
+                    content_json.append(content)
+                
+                tanks_json[tank_name] = {
+                    "name": tank.name,
+                    "capacity": tank.capacity,
+                    "content": content_json
                 }
-                for recipe in plan.blending_details
-            ]
-        }
-        
-        result.append(plan_json)
+            
+            # Create serializable plan
+            plan_json = {
+                "day": plan.day,
+                "processing_rates": plan.processing_rates,
+                "inventory": plan.inventory,
+                "inventory_by_grade": plan.inventory_by_grade,
+                "tanks": tanks_json,
+                "blending_details": [
+                    {
+                        "name": recipe.name,
+                        "primary_grade": recipe.primary_grade,
+                        "secondary_grade": recipe.secondary_grade,
+                        "primary_fraction": recipe.primary_fraction,
+                        "max_rate": recipe.max_rate
+                    }
+                    for recipe in plan.blending_details
+                ]
+            }
+            
+            result.append(plan_json)
+        except Exception as e:
+            print(f"Error converting plan at index {plan_index}: {e}")
+            # Add error info to result instead of failing
+            result.append({
+                "day": plan_index,
+                "error": f"Conversion error: {str(e)}",
+                "type": str(type(plan))
+            })
     
     return result
+
+# Alias for backward compatibility
+convert_plans_to_json = convert_daily_plans_to_json
 
 def convert_vessels_to_json(vessels) -> List[Dict]:
     """Convert vessel objects to JSON-serializable format"""
@@ -316,7 +372,9 @@ def convert_vessels_to_json(vessels) -> List[Dict]:
             "capacity": vessel.capacity,
             "cost": vessel.cost,
             "cargo": cargo_json,
-            "days_held": vessel.days_held
+            "days_held": vessel.days_held,
+            # Add route information
+            "route": vessel.route if hasattr(vessel, "route") else []
         }
         
         result.append(vessel_json)
@@ -404,30 +462,61 @@ def run_scheduler():
         if not crudes:
             return jsonify({"success": False, "error": "No crude data available"}), 400
         
-        # Create and run scheduler
-        scheduler = Scheduler(
-            tanks=tanks,
-            blending_recipes=recipes,
-            vessels=vessels,
-            crude_data=crudes,
-            max_processing_rate=350.0  # Default or configurable
-        )
+        # Add at the top of run_scheduler function, right before creating the scheduler
+        print("Available crude grades in crude data:", list(crudes.keys()))
+        print("Available tanks:", list(tanks.keys()))
+
+        # Debug tank contents
+        for tank_name, tank in tanks.items():
+            print(f"Tank {tank_name} contents:")
+            for content in tank.content:
+                print(f"  {content}")
         
-        # Run scheduler with error handling
+        # Add this after loading vessels, before creating scheduler
+        vessel_grades = set()
+        for vessel in vessels:
+            for cargo in vessel.cargo:
+                vessel_grades.add(cargo.grade)
+
+        print(f"Grades from vessels: {vessel_grades}")
+        print(f"Crude data grades: {set(crudes.keys())}")
+        missing = vessel_grades - set(crudes.keys())
+        if missing:
+            print(f"WARNING: Vessels contain grades that are not in crudes.json: {missing}")
+        
+        # Create and run scheduler with debug logging
+        print(f"Creating scheduler with {len(tanks)} tanks, {len(recipes)} recipes, {len(vessels)} vessels")
+        
         try:
-            daily_plans = scheduler.run(days)
+            scheduler = Scheduler(
+                tanks=tanks,
+                blending_recipes=recipes,
+                vessels=vessels,
+                crude_data=crudes,
+                max_processing_rate=350.0  # Default or configurable
+            )
             
-            if not daily_plans:
-                return jsonify({"success": False, "error": "Scheduler produced no daily plans"}), 400
+            # Run scheduler with save_output=True
+            print(f"Running scheduler for {days} days")
+            scheduler.run(days, save_output=True)
+            
+            # Load the standardized JSON file (always same name)
+            json_file = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+            print(f"Loading schedule data from {json_file}")
+            
+            try:
+                with open(json_file, 'r') as f:
+                    schedule_data = json.load(f)
+                    
+                return jsonify({
+                    "success": True,
+                    "days": days,
+                    "daily_plans": schedule_data.get("daily_plans", [])
+                })
                 
-            # Convert to JSON-compatible format
-            result = convert_plans_to_json(daily_plans)
-            
-            return jsonify({
-                "success": True,
-                "days": days,
-                "daily_plans": result
-            })
+            except Exception as file_error:
+                print(f"Error loading JSON file: {file_error}")
+                return jsonify({"success": False, "error": f"Failed to load schedule results: {str(file_error)}"}), 500
             
         except Exception as e:
             import traceback
@@ -436,6 +525,8 @@ def run_scheduler():
             return jsonify({"success": False, "error": f"Scheduler error: {str(e)}"}), 500
             
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/optimizer/optimize', methods=['POST'])
@@ -625,7 +716,9 @@ def optimize_vessels():
                         "loading_end_day": next(iter(cargo.ldr.values())) if cargo.ldr else 0
                     }
                     for cargo in vessel.cargo
-                ]
+                ],
+                # Add route information
+                "route": vessel.route if hasattr(vessel, "route") else []
             }
         
         # Save to file
