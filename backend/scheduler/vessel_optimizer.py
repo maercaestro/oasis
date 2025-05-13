@@ -58,7 +58,7 @@ class VesselOptimizer:
         """
         vessels = self.optimize(horizon_days)
         
-        # Plan optimal routes for multi-cargo vessels - ADD LOGGING
+        # Plan optimal routes for multi-cargo vessels
         print(f"Planning routes for {len(vessels)} vessels...")
         vessels = self._plan_vessel_routes(vessels)
         
@@ -68,8 +68,12 @@ class VesselOptimizer:
         
         # Convert to JSON format
         vessels_dict = {}
+        
+        # Initialize vessel_routes dictionary - all vessels start from PM
+        vessel_routes = {}
+        
         for vessel in vessels:
-            # If vessel somehow doesn't have a route, create a basic one
+            # Ensure vessel has a route property
             if not hasattr(vessel, "route") or not vessel.route:
                 # Find the cargo origin(s)
                 origins = set(cargo.origin for cargo in vessel.cargo)
@@ -118,6 +122,52 @@ class VesselOptimizer:
                 ],
                 "route": vessel.route if hasattr(vessel, "route") else []
             }
+            
+            # Generate day-by-day vessel routes
+            days_dict = {}
+            current_location = "Peninsular Malaysia"  # All vessels start at PM
+            max_day = max(segment["day"] for segment in vessel.route) if vessel.route else vessel.arrival_day
+            
+            # Initialize vessel_routes entry
+            vessel_routes[vessel.vessel_id] = {
+                "start_location": "Peninsular Malaysia",
+                "days": {}
+            }
+            
+            # For each day, determine where the vessel is
+            for day in range(int(max_day + 1)):
+                # Check if we're at the beginning of a route segment
+                location_found = False
+                
+                if vessel.route:
+                    for segment in vessel.route:
+                        # If this is the start day of a route segment
+                        start_day = segment["day"] - segment["travel_days"]
+                        end_day = segment["day"]
+                        
+                        # If we're at exactly the start day - vessel is at "from" location
+                        if day == start_day:
+                            current_location = segment["from"]
+                            location_found = True
+                            break
+                        
+                        # If we're at exactly the end day - vessel is at "to" location
+                        elif day == end_day:
+                            current_location = segment["to"]
+                            location_found = True
+                            break
+                            
+                        # If we're in transit between locations
+                        elif start_day < day < end_day:
+                            current_location = f"en_route_to_{segment['to']}"
+                            location_found = True
+                            break
+                
+                # If no segment matched this day, vessel stays in the last known location
+                days_dict[str(day)] = current_location
+            
+            # Add days dictionary to vessel_routes
+            vessel_routes[vessel.vessel_id]["days"] = days_dict
         
         # Log route data to help debug
         for vessel_id, vessel_data in vessels_dict.items():
@@ -132,6 +182,12 @@ class VesselOptimizer:
         print(f"Saving vessels data to {save_path}")
         with open(save_path, 'w') as f:
             json.dump(vessels_dict, f, indent=2)
+        
+        # Save to vessel_routes.json
+        routes_save_path = os.path.join(os.path.dirname(__file__), "..", "dynamic_data", "vessel_routes.json")
+        print(f"Saving vessel routes data to {routes_save_path}")
+        with open(routes_save_path, 'w') as f:
+            json.dump(vessel_routes, f, indent=2)
         
         return vessels
     
@@ -488,10 +544,10 @@ class VesselOptimizer:
                 print(f"Found fuzzy match: {route_key}")
                 return route_key
         
-        # For Terminal1, Terminal2, etc. that might not be in routes.json
-        if "Terminal" in origin or "Terminal" in destination:
-            print(f"Creating dummy route for terminal: {origin} to {destination}")
-            default_travel_time = 5  # Longer default for terminals
+        # For legacy or custom locations that might not be in routes.json
+        if origin not in ["Sabah", "Sarawak", "Peninsular Malaysia", "Refinery"] or destination not in ["Sabah", "Sarawak", "Peninsular Malaysia", "Refinery"]:
+            print(f"Creating dummy route for custom location: {origin} to {destination}")
+            default_travel_time = 5  # Longer default for custom locations
         else:
             print(f"Creating dummy route: {origin} to {destination}")
             default_travel_time = 3
@@ -509,6 +565,12 @@ class VesselOptimizer:
             return new_key
         except Exception as e:
             print(f"ERROR creating route: {e}")
+            # Fall back to creating a dictionary route if Route object fails
+            self.routes[new_key] = {
+                "origin": origin,
+                "destination": destination,
+                "time_travel": default_travel_time
+            }
             # Last resort fallback - return a key to avoid crashes
             # even if the route doesn't exist
             return list(self.routes.keys())[0] if self.routes else "fallback_route"

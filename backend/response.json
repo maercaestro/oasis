@@ -1,0 +1,602 @@
+{
+  "crudes": {
+    "A": {
+      "margin": 18.47,
+      "name": "A",
+      "origin": "Peninsular Malaysia"
+    },
+    "B": {
+      "margin": 15.71,
+      "name": "B",
+      "origin": "Peninsular Malaysia"
+    },
+    "Base": {
+      "margin": 15.85,
+      "name": "Base",
+      "origin": "Peninsular Malaysia"
+    },
+    "C": {
+      "margin": 19.24,
+      "name": "C",
+      "origin": "Terminal3"
+    },
+    "D": {
+      "margin": 11.19,
+      "name": "D",
+      "origin": "Sabah"
+    },
+    "E": {
+      "margin": 9.98,
+      "name": "E",
+      "origin": "Sabah"
+    },
+    "F": {
+      "margin": 9.97,
+      "name": "F",
+      "origin": "Sarawak"
+    }
+  },
+  "feedstock_parcels": {
+    "Parcel_001": {
+      "grade": "D",
+      "ldr": {
+        "7": 8
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_7",
+      "volume": 150.0
+    },
+    "Parcel_002": {
+      "grade": "F",
+      "ldr": {
+        "7": 8
+      },
+      "origin": "Sarawak",
+      "vessel_id": "Vessel_1_7",
+      "volume": 260.0
+    },
+    "Parcel_003": {
+      "grade": "E",
+      "ldr": {
+        "15": 16
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_15",
+      "volume": 250.0
+    },
+    "Parcel_004": {
+      "grade": "F",
+      "ldr": {
+        "15": 16
+      },
+      "origin": "Sarawak",
+      "vessel_id": "Vessel_1_15",
+      "volume": 250.0
+    },
+    "Parcel_005": {
+      "grade": "Base",
+      "ldr": {
+        "26": 27
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_26",
+      "volume": 400.0
+    },
+    "Parcel_006": {
+      "grade": "B",
+      "ldr": {
+        "26": 27
+      },
+      "origin": "Peninsular Malaysia",
+      "vessel_id": "Vessel_1_26",
+      "volume": 100.0
+    },
+    "Parcel_007": {
+      "grade": "E",
+      "ldr": {
+        "27": 28
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_27",
+      "volume": 500.0
+    },
+    "Parcel_008": {
+      "grade": "Base",
+      "ldr": {
+        "29": 30
+      },
+      "origin": "Sarawak",
+      "vessel_id": "Vessel_1_29",
+      "volume": 360.0
+    },
+    "Parcel_009": {
+      "grade": "E",
+      "ldr": {
+        "29": 30
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_29",
+      "volume": 40.0
+    },
+    "Parcel_010": {
+      "grade": "E",
+      "ldr": {
+        "29": 30
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_29",
+      "volume": 100.0
+    },
+    "Parcel_011": {
+      "grade": "A",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Peninsular Malaysia",
+      "vessel_id": "Vessel_1_30",
+      "volume": 150.0
+    },
+    "Parcel_012": {
+      "grade": "B",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Peninsular Malaysia",
+      "vessel_id": "Vessel_1_30",
+      "volume": 50.0
+    },
+    "Parcel_013": {
+      "grade": "C",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Peninsular Malaysia",
+      "vessel_id": "Vessel_1_30",
+      "volume": 200.0
+    },
+    "Parcel_014": {
+      "grade": "E",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Sabah",
+      "vessel_id": "Vessel_1_30",
+      "volume": 10.0
+    },
+    "Parcel_015": {
+      "grade": "F",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Sarawak",
+      "vessel_id": "Vessel_1_30",
+      "volume": 60.0
+    },
+    "Parcel_016": {
+      "grade": "F",
+      "ldr": {
+        "30": 31
+      },
+      "origin": "Sarawak",
+      "vessel_id": "Vessel_1_30",
+      "volume": 30.0
+    }
+  },
+  "feedstock_requirements": [
+    {
+      "allowed_ldr": {
+        "1": 3
+      },
+      "grade": "Base",
+      "origin": "Terminal1",
+      "required_arrival_by": 10,
+      "volume": 400.0
+    },
+    {
+      "allowed_ldr": {
+        "17": 19
+      },
+      "grade": "Base",
+      "origin": "Terminal2",
+      "required_arrival_by": 23,
+      "volume": 360.0
+    },
+    {
+      "allowed_ldr": {
+        "1": 3
+      },
+      "grade": "A",
+      "origin": "Terminal3",
+      "required_arrival_by": 10,
+      "volume": 150.0
+    },
+    {
+      "allowed_ldr": {
+        "8": 10
+      },
+      "grade": "B",
+      "origin": "Peninsular Malaysia",
+      "required_arrival_by": 16,
+      "volume": 150.0
+    },
+    {
+      "allowed_ldr": {
+        "17": 19
+      },
+      "grade": "C",
+      "origin": "Peninsular Malaysia",
+      "required_arrival_by": 23,
+      "volume": 200.0
+    },
+    {
+      "allowed_ldr": {
+        "23": 24
+      },
+      "grade": "D",
+      "origin": "Sabah",
+      "required_arrival_by": 30,
+      "volume": 150.0
+    },
+    {
+      "allowed_ldr": {
+        "5": 7
+      },
+      "grade": "E",
+      "origin": "Sabah",
+      "required_arrival_by": 13,
+      "volume": 250.0
+    },
+    {
+      "allowed_ldr": {
+        "10": 11
+      },
+      "grade": "E",
+      "origin": "Sabah",
+      "required_arrival_by": 16,
+      "volume": 550.0
+    },
+    {
+      "allowed_ldr": {
+        "23": 24
+      },
+      "grade": "E",
+      "origin": "Sabah",
+      "required_arrival_by": 30,
+      "volume": 100.0
+    },
+    {
+      "allowed_ldr": {
+        "5": 7
+      },
+      "grade": "F",
+      "origin": "Sarawak",
+      "required_arrival_by": 13,
+      "volume": 320.0
+    },
+    {
+      "allowed_ldr": {
+        "19": 22
+      },
+      "grade": "F",
+      "origin": "Sarawak",
+      "required_arrival_by": 26,
+      "volume": 280.0
+    }
+  ],
+  "plants": {
+    "base_crude_capacity": 87,
+    "capacity": 100,
+    "max_inventory": 1180,
+    "name": "PSR1"
+  },
+  "recipes": [
+    {
+      "max_rate": 87,
+      "name": "0",
+      "primary_fraction": 1,
+      "primary_grade": "Base",
+      "secondary_grade": null
+    },
+    {
+      "max_rate": 96,
+      "name": "1",
+      "primary_fraction": 0.73,
+      "primary_grade": "Base",
+      "secondary_grade": "A"
+    },
+    {
+      "max_rate": 95,
+      "name": "2",
+      "primary_fraction": 0.73,
+      "primary_grade": "Base",
+      "secondary_grade": "B"
+    },
+    {
+      "max_rate": 96,
+      "name": "3",
+      "primary_fraction": 0.6,
+      "primary_grade": "B",
+      "secondary_grade": "D"
+    },
+    {
+      "max_rate": 95,
+      "name": "4",
+      "primary_fraction": 0.73,
+      "primary_grade": "Base",
+      "secondary_grade": "C"
+    },
+    {
+      "max_rate": 95,
+      "name": "5",
+      "primary_fraction": 1,
+      "primary_grade": "E",
+      "secondary_grade": null
+    },
+    {
+      "max_rate": 95,
+      "name": "6",
+      "primary_fraction": 1,
+      "primary_grade": "F",
+      "secondary_grade": null
+    }
+  ],
+  "routes": {
+    "PM to refinery": {
+      "destination": "Refinery",
+      "origin": "Peninsular Malaysia",
+      "time_travel": 2
+    },
+    "Sabah to PM": {
+      "destination": "Peninsular Malaysia",
+      "origin": "Sabah",
+      "time_travel": 3
+    },
+    "Sabah to Refinery": {
+      "destination": "Refinery",
+      "origin": "Sabah",
+      "time_travel": 3.5
+    },
+    "Sabah to Sarawak": {
+      "destination": "Sarawak",
+      "origin": "Sabah",
+      "time_travel": 1
+    },
+    "Sarawak to Refinery": {
+      "destination": "Refinery",
+      "origin": "Sarawak",
+      "time_travel": 3
+    },
+    "Sarawak_Peninsular Malaysia": {
+      "destination": "Peninsular Malaysia",
+      "origin": "Sarawak",
+      "time_travel": 2.5
+    }
+  },
+  "tanks": {
+    "Tank1": {
+      "capacity": 250,
+      "content": [
+        {
+          "Base": 250
+        }
+      ],
+      "name": "Tank1"
+    },
+    "Tank2": {
+      "capacity": 250,
+      "content": [
+        {
+          "Base": 100
+        }
+      ],
+      "name": "Tank2"
+    },
+    "Tank3": {
+      "capacity": 250,
+      "content": [
+        {
+          "B": 150
+        }
+      ],
+      "name": "Tank3"
+    },
+    "Tank4": {
+      "capacity": 250,
+      "content": [
+        {
+          "C": 150
+        }
+      ],
+      "name": "Tank4"
+    },
+    "Tank5": {
+      "capacity": 180,
+      "content": [
+        {
+          "D": 100
+        }
+      ],
+      "name": "Tank5"
+    }
+  },
+  "vessel_types": [
+    {
+      "capacity": 700,
+      "cost": 80000,
+      "name": "Aframax"
+    },
+    {
+      "capacity": 500,
+      "cost": 60000,
+      "name": "Panamax"
+    }
+  ],
+  "vessels": {
+    "Vessel_1_15": {
+      "arrival_day": 18,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "E",
+          "loading_end_day": 16,
+          "loading_start_day": 15,
+          "origin": "Sabah",
+          "volume": 250.0
+        },
+        {
+          "grade": "F",
+          "loading_end_day": 16,
+          "loading_start_day": 15,
+          "origin": "Sarawak",
+          "volume": 250.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_15"
+    },
+    "Vessel_1_26": {
+      "arrival_day": 33,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "Base",
+          "loading_end_day": 27,
+          "loading_start_day": 26,
+          "origin": "Sabah",
+          "volume": 400.0
+        },
+        {
+          "grade": "B",
+          "loading_end_day": 27,
+          "loading_start_day": 26,
+          "origin": "Peninsular Malaysia",
+          "volume": 100.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_26"
+    },
+    "Vessel_1_27": {
+      "arrival_day": 30,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "E",
+          "loading_end_day": 28,
+          "loading_start_day": 27,
+          "origin": "Sabah",
+          "volume": 500.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_27"
+    },
+    "Vessel_1_29": {
+      "arrival_day": 32,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "Base",
+          "loading_end_day": 30,
+          "loading_start_day": 29,
+          "origin": "Sarawak",
+          "volume": 360.0
+        },
+        {
+          "grade": "E",
+          "loading_end_day": 30,
+          "loading_start_day": 29,
+          "origin": "Sabah",
+          "volume": 40.0
+        },
+        {
+          "grade": "E",
+          "loading_end_day": 30,
+          "loading_start_day": 29,
+          "origin": "Sabah",
+          "volume": 100.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_29"
+    },
+    "Vessel_1_30": {
+      "arrival_day": 33,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "A",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Peninsular Malaysia",
+          "volume": 150.0
+        },
+        {
+          "grade": "B",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Peninsular Malaysia",
+          "volume": 50.0
+        },
+        {
+          "grade": "C",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Peninsular Malaysia",
+          "volume": 200.0
+        },
+        {
+          "grade": "E",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Sabah",
+          "volume": 10.0
+        },
+        {
+          "grade": "F",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Sarawak",
+          "volume": 60.0
+        },
+        {
+          "grade": "F",
+          "loading_end_day": 31,
+          "loading_start_day": 30,
+          "origin": "Sarawak",
+          "volume": 30.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_30"
+    },
+    "Vessel_1_7": {
+      "arrival_day": 10,
+      "capacity": 500.0,
+      "cargo": [
+        {
+          "grade": "D",
+          "loading_end_day": 8,
+          "loading_start_day": 7,
+          "origin": "Sabah",
+          "volume": 150.0
+        },
+        {
+          "grade": "F",
+          "loading_end_day": 8,
+          "loading_start_day": 7,
+          "origin": "Sarawak",
+          "volume": 260.0
+        }
+      ],
+      "cost": 60000.0,
+      "days_held": 0,
+      "vessel_id": "Vessel_1_7"
+    }
+  }
+}

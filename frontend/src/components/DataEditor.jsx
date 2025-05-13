@@ -1049,7 +1049,7 @@ function PlantDataEditor({ plants, setPlants }) {
 function CrudeDataEditor({ crudes, setCrudes }) {
   const crudesData = crudes || {};
   const [isAddingCrude, setIsAddingCrude] = useState(false);
-  const [newCrude, setNewCrude] = useState({ name: '', margin: 0, origin: 'Terminal1' });
+  const [newCrude, setNewCrude] = useState({ name: '', margin: 0, origin: 'Sabah' });
   const [editingName, setEditingName] = useState(null);
   const [tempName, setTempName] = useState('');
   const [error, setError] = useState('');
@@ -1161,7 +1161,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
     }));
     
     setIsAddingCrude(false);
-    setNewCrude({ name: '', margin: 0, origin: 'Terminal1' });
+    setNewCrude({ name: '', margin: 0, origin: 'Sabah' });
     setError('');
   };
   
@@ -1643,9 +1643,9 @@ function RouteDataEditor({ routes, setRoutes }) {
   const [isAddingRoute, setIsAddingRoute] = useState(false);
   const [newRoute, setNewRoute] = useState({
     routeId: '',
-    origin: 'Terminal1',
+    origin: 'Sabah',
     destination: 'Refinery',
-    time_travel: 5.0
+    time_travel: 3.5
   });
   const [error, setError] = useState('');
   const [editingRouteId, setEditingRouteId] = useState(null);

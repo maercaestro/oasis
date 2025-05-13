@@ -178,7 +178,7 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
         arrival_day: timelineConfig.startDay + 7,
         capacity: 1200, // Default capacity
         cost: 100000, // Default cost
-        cargo: [{ grade: 'Arabian Light', volume: 0, origin: 'Terminal1' }],
+        cargo: [{ grade: 'Arabian Light', volume: 0, origin: 'Sabah' }],
         days_held: 0
       }
     };
@@ -214,7 +214,7 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
       days_held: parseInt(editFormData.departure_day) - parseInt(editFormData.arrival_day),
       cargo: editFormData.cargo.map(item => ({
         ...item,
-        origin: item.origin || 'Terminal1',
+        origin: item.origin || 'Sabah',
         loading_start_day: 0,
         loading_end_day: 0
       }))

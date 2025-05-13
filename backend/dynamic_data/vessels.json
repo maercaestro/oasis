@@ -1,7 +1,7 @@
 {
   "Vessel_1_7": {
     "vessel_id": "Vessel_1_7",
-    "arrival_day": 10,
+    "arrival_day": 9,
     "capacity": 500,
     "cost": 60000,
     "days_held": 0,
@@ -21,11 +21,30 @@
         "loading_end_day": 8
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Sarawak",
+        "day": 3.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Sarawak",
+        "to": "Sabah",
+        "day": 5.0,
+        "travel_days": 1.0
+      },
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day": 9.5,
+        "travel_days": 3.5
+      }
+    ]
   },
   "Vessel_1_15": {
     "vessel_id": "Vessel_1_15",
-    "arrival_day": 18,
+    "arrival_day": 9,
     "capacity": 500,
     "cost": 60000,
     "days_held": 0,
@@ -45,11 +64,30 @@
         "loading_end_day": 16
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Sarawak",
+        "day": 3.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Sarawak",
+        "to": "Sabah",
+        "day": 5.0,
+        "travel_days": 1.0
+      },
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day": 9.5,
+        "travel_days": 3.5
+      }
+    ]
   },
   "Vessel_1_26": {
     "vessel_id": "Vessel_1_26",
-    "arrival_day": 33,
+    "arrival_day": 11,
     "capacity": 500,
     "cost": 60000,
     "days_held": 0,
@@ -57,7 +95,7 @@
       {
         "grade": "Base",
         "volume": 400.0,
-        "origin": "Terminal1",
+        "origin": "Sabah",
         "loading_start_day": 26,
         "loading_end_day": 27
       },
@@ -69,7 +107,26 @@
         "loading_end_day": 27
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Peninsular Malaysia",
+        "day": 3.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Sabah",
+        "day": 7.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day": 11.5,
+        "travel_days": 3.5
+      }
+    ]
   },
   "Vessel_1_27": {
     "vessel_id": "Vessel_1_27",
@@ -86,11 +143,24 @@
         "loading_end_day": 28
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Sabah",
+        "day": 22.0,
+        "travel_days": 3.5
+      },
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day": 30,
+        "travel_days": 3.5
+      }
+    ]
   },
   "Vessel_1_29": {
     "vessel_id": "Vessel_1_29",
-    "arrival_day": 32,
+    "arrival_day": 9,
     "capacity": 500,
     "cost": 60000,
     "days_held": 0,
@@ -98,7 +168,7 @@
       {
         "grade": "Base",
         "volume": 360.0,
-        "origin": "Terminal2",
+        "origin": "Sarawak",
         "loading_start_day": 29,
         "loading_end_day": 30
       },
@@ -117,11 +187,30 @@
         "loading_end_day": 30
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Sarawak",
+        "day": 3.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Sarawak",
+        "to": "Sabah",
+        "day": 5.0,
+        "travel_days": 1.0
+      },
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day": 9.5,
+        "travel_days": 3.5
+      }
+    ]
   },
   "Vessel_1_30": {
     "vessel_id": "Vessel_1_30",
-    "arrival_day": 33,
+    "arrival_day": 13,
     "capacity": 500,
     "cost": 60000,
     "days_held": 0,
@@ -129,7 +218,7 @@
       {
         "grade": "A",
         "volume": 150.0,
-        "origin": "Terminal3",
+        "origin": "Peninsular Malaysia",
         "loading_start_day": 30,
         "loading_end_day": 31
       },
@@ -169,6 +258,31 @@
         "loading_end_day": 31
       }
     ],
-    "route": []
+    "route": [
+      {
+        "from": "Refinery",
+        "to": "Sarawak",
+        "day": 3.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Sarawak",
+        "to": "Sabah",
+        "day": 5.0,
+        "travel_days": 1.0
+      },
+      {
+        "from": "Sabah",
+        "to": "Peninsular Malaysia",
+        "day": 9.0,
+        "travel_days": 3.0
+      },
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Refinery",
+        "day": 13.0,
+        "travel_days": 3.0
+      }
+    ]
   }
 }

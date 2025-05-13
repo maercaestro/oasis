@@ -30,6 +30,7 @@ CRUDES_FILE = os.path.join(STATIC_DATA_DIR, "crudes.json")
 ROUTES_FILE = os.path.join(STATIC_DATA_DIR, "routes.json")
 VESSELS_FILE = os.path.join(DYNAMIC_DATA_DIR, "vessels.json")
 VESSEL_TYPES_FILE = os.path.join(STATIC_DATA_DIR, "vessel_types.json")
+VESSEL_ROUTES_FILE = os.path.join(DYNAMIC_DATA_DIR, "vessel_routes.json")
 
 # Global cache for loaded data
 data_cache = {}
@@ -96,15 +97,15 @@ def load_crudes() -> Dict[str, Crude]:
     
     return crudes
 
-def load_routes() -> Dict[str, Route]:
+def load_routes():
     """Load route data and convert to Route objects"""
     routes_data = load_data_file(ROUTES_FILE)
     routes = {}
     
     for route_id, route_info in routes_data.items():
         routes[route_id] = Route(
-            origin=route_info.get("origin", ""),
-            destination=route_info.get("destination", ""),
+            origin=route_info.get("from", ""),
+            destination=route_info.get("to", ""),
             time_travel=route_info.get("time_travel", 0)
         )
     
@@ -217,53 +218,71 @@ def load_feedstock_requirements() -> List[FeedstockRequirement]:
 
     return requirements
 
-def load_feedstock_parcels() -> Dict[str, FeedstockParcel]:
-    """Load feedstock parcels from vessels.json instead of feedstock_parcels.json"""
+def load_feedstock_parcels():
+    """Load feedstock parcels from vessels.json"""
+    vessels_data = load_data_file(VESSELS_FILE)
+    parcels = []
     
-    # Define feedstock parcels file path
-    feedstock_parcels_file = os.path.join(DYNAMIC_DATA_DIR, "feedstock_parcels.json")
-    
-    # Get vessel data from the raw JSON file to avoid conversion issues
-    vessels_raw_data = load_data_file(VESSELS_FILE)
-    parcels = {}
-    
-    # Convert vessel cargo to parcels
-    parcel_counter = 1
-    
-    if isinstance(vessels_raw_data, dict):
-        # Process dictionary format
-        for vessel_id, vessel_info in vessels_raw_data.items():
-            for cargo in vessel_info.get("cargo", []):
-                if "grade" not in cargo or "volume" not in cargo:
-                    continue
-                    
-                parcel_id = f"Parcel_{parcel_counter:03d}"
-                loading_start_day = cargo.get("loading_start_day", 0)
-                loading_end_day = cargo.get("loading_end_day", 0)
-                
-                # Create parcel from cargo data
-                parcels[parcel_id] = {
-                    "grade": cargo.get("grade", ""),
-                    "volume": cargo.get("volume", 0),
-                    "origin": cargo.get("origin", ""),
-                    "ldr": {
-                        str(loading_start_day): loading_end_day
-                    },
-                    "vessel_id": vessel_id
-                }
-                
-                parcel_counter += 1
-    
-    # Cache the result
-    data_cache[feedstock_parcels_file] = parcels
-    
-    return parcels
+    # Add at the beginning of load_feedstock_parcels function
+    print("DEBUG: Vessel data keys:", list(vessels_data.keys()))
+    for vessel_id, vessel_info in vessels_data.items():
+        if not isinstance(vessel_info, dict):
+            print(f"DEBUG: Invalid vessel format: {vessel_id} = {vessel_info} (type: {type(vessel_info)})")
+            
+        # Add this safety check
+        if not isinstance(vessel_info, dict):
+            print(f"Warning: Vessel {vessel_id} has invalid format: {type(vessel_info)}. Skipping.")
+            continue
+            
+        for cargo in vessel_info.get("cargo", []):
+            # Rest of your code remains the same
+            parcel_id = f"{vessel_id}_{cargo.get('grade', '')}_{cargo.get('volume', 0)}"
+            parcels.append(FeedstockParcel(
+                grade=cargo.get("grade", ""),
+                volume=cargo.get("volume", 0),
+                origin=cargo.get("origin", ""),
+                ldr={
+                    int(cargo.get("loading_start_day", 0)): 
+                    int(cargo.get("loading_end_day", 0))
+                },
+                vessel_id=vessel_id
+            ))
     
     return parcels
 
 def load_plant():
     """Load plant configuration data"""
     return load_data_file(os.path.join(STATIC_DATA_DIR, "plant.json"))
+
+def load_routes_as_objects() -> Dict[str, Route]:
+    """Load route data and convert to Route objects"""
+    routes_data = load_data_file(ROUTES_FILE)
+    routes = {}
+    
+    for route_id, route_info in routes_data.items():
+        routes[route_id] = Route(
+            origin=route_info.get("origin", ""),
+            destination=route_info.get("destination", ""),
+            time_travel=route_info.get("time_travel", 0)
+        )
+    
+    return routes
+
+def load_vessel_routes():
+    """Load vessel routes data tracking day-by-day vessel locations"""
+    return load_data_file(VESSEL_ROUTES_FILE)
+
+# Helper function for converting Route objects to dictionaries
+def routes_to_dict(routes):
+    """Convert Route objects to dictionaries for JSON serialization"""
+    return {
+        route_id: {
+            "origin": route.origin,
+            "destination": route.destination,
+            "time_travel": route.time_travel
+        }
+        for route_id, route in routes.items()
+    }
 
 # Helper functions for converting objects back to JSON-serializable format
 def convert_daily_plans_to_json(daily_plans) -> List[Dict]:
@@ -366,6 +385,41 @@ def convert_vessels_to_json(vessels) -> List[Dict]:
                 "loading_end_day": ldr_end
             })
         
+        # Handle vessel route - check if it's a list of dictionaries or Route objects
+        route_json = []
+        if hasattr(vessel, "route"):
+            if vessel.route and len(vessel.route) > 0:  # Make sure route has items
+                try:
+                    # First item is a dict with expected keys
+                    if isinstance(vessel.route[0], dict):
+                        # Check if it has standard route keys
+                        if all(key in vessel.route[0] for key in ['from', 'to']):
+                            route_json = vessel.route  # Already in the right format
+                        # It's a different dictionary format, convert it
+                        else:
+                            for route in vessel.route:
+                                route_dict = {}
+                                # Copy all keys to ensure we don't miss anything
+                                for key, value in route.items():
+                                    route_dict[key] = value
+                                route_json.append(route_dict)
+                    
+                    # It might be a Route object
+                    elif hasattr(vessel.route[0], 'origin'):
+                        for route in vessel.route:
+                            route_json.append({
+                                "from": route.origin,
+                                "to": route.destination,
+                                "day": getattr(route, "day", 0),
+                                "travel_days": route.time_travel
+                            })
+                    # Unknown format - create empty route to avoid errors
+                    else:
+                        print(f"Warning: Unknown route format in vessel {vessel.vessel_id}")
+                except Exception as e:
+                    print(f"Error processing route for vessel {vessel.vessel_id}: {e}")
+                    # In case of error, return empty route
+        
         vessel_json = {
             "vessel_id": vessel.vessel_id,
             "arrival_day": vessel.arrival_day,
@@ -373,8 +427,7 @@ def convert_vessels_to_json(vessels) -> List[Dict]:
             "cost": vessel.cost,
             "cargo": cargo_json,
             "days_held": vessel.days_held,
-            # Add route information
-            "route": vessel.route if hasattr(vessel, "route") else []
+            "route": route_json
         }
         
         result.append(vessel_json)
@@ -403,10 +456,15 @@ def convert_requirements_to_json(requirements) -> List[Dict]:
     return result
 
 # API routes
+# Update the get_data function to use routes_to_dict
 @app.route('/api/data', methods=['GET'])
 def get_data():
     """Get all configuration data"""
     vessels = load_vessels()
+    
+    # Load routes and convert to dictionaries for JSON serialization
+    routes = load_routes()
+    routes_dict = routes_to_dict(routes)
     
     # Convert vessels list to dictionary format for frontend compatibility
     vessels_dict = {}
@@ -429,16 +487,28 @@ def get_data():
             "days_held": vessel.days_held
         }
     
+    # Load schedule data if available
+    schedule_data = []
+    schedule_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+    try:
+        with open(schedule_path, 'r') as f:
+            schedule_json = json.load(f)
+            schedule_data = schedule_json.get('daily_plans', [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    
     return jsonify({
         "tanks": load_tanks(),
         "recipes": load_recipes(),
         "crudes": load_crudes(),
-        "routes": load_routes(),
-        "vessels": vessels_dict,  # Return as dictionary instead of list
+        "routes": routes_dict,  # Use dictionaries instead of Route objects
+        "vessels": vessels_dict,
+        "vessel_routes": load_vessel_routes(),
         "vessel_types": load_vessel_types(),
-        "plants": load_plant(),  # Add this line
+        "plants": load_plant(),
         "feedstock_requirements": load_feedstock_requirements(),
-        "feedstock_parcels": load_feedstock_parcels()
+        "feedstock_parcels": load_feedstock_parcels(),
+        "schedule": schedule_data,
     })
 
 @app.route('/api/scheduler/run', methods=['POST'])
@@ -624,14 +694,14 @@ def generate_requirements():
             FeedstockRequirement(
                 grade="CrudeA",
                 volume=500,
-                origin="Terminal1",
+                origin="Sabah",
                 allowed_ldr={15: 25},
                 required_arrival_by=30
             ),
             FeedstockRequirement(
                 grade="CrudeB",
                 volume=300,
-                origin="Terminal2",
+                origin="Sarawak",
                 allowed_ldr={10: 20},
                 required_arrival_by=25
             )
@@ -656,19 +726,25 @@ def optimize_vessels():
     """Optimize vessel scheduling based on feedstock requirements"""
     try:
         data = request.json
+        print(f"Received vessel optimization request: {data}")
         
         # Get parameters
         requirements_data = data.get('requirements', [])
         horizon_days = data.get('horizon_days', 60)
         use_file_requirements = data.get('use_file_requirements', False)
         
+        print(f"Optimizing vessels with horizon: {horizon_days}, use_file_requirements: {use_file_requirements}")
+        
         # Load data
         routes = load_routes()
         vessel_types = load_vessel_types()
         
+        print(f"Loaded {len(routes)} routes and {len(vessel_types)} vessel types")
+        
         # Either use requirements from request or load from file
         if use_file_requirements:
             requirements = load_feedstock_requirements()
+            print(f"Loaded {len(requirements)} requirements from file")
         else:
             # Convert requirements from JSON
             requirements = []
@@ -683,6 +759,7 @@ def optimize_vessels():
                     },
                     required_arrival_by=req_data.get('required_arrival_by', 0)
                 ))
+            print(f"Created {len(requirements)} requirements from request")
         
         # Create vessel optimizer
         vessel_optimizer = VesselOptimizer(
@@ -691,8 +768,10 @@ def optimize_vessels():
             vessel_types=vessel_types
         )
         
+        print("Starting vessel optimization...")
         # Run optimization
-        vessels = vessel_optimizer.optimize(horizon_days=horizon_days)
+        vessels = vessel_optimizer.optimize_and_save(horizon_days=horizon_days)
+        print(f"Optimization complete. Created {len(vessels)} vessels")
         
         # Convert vessels to JSON
         vessels_json = convert_vessels_to_json(vessels)
@@ -701,42 +780,77 @@ def optimize_vessels():
         vessels_dict = {}
         for i, vessel in enumerate(vessels):
             vessel_id = vessel.vessel_id if vessel.vessel_id else f"Vessel_{i:03d}"
+            print(f"Processing vessel {vessel_id} for JSON...")
+            
+            # Process vessel cargo
+            cargo_json = []
+            for cargo in vessel.cargo:
+                ldr_start = next(iter(cargo.ldr.keys())) if cargo.ldr else 0
+                ldr_end = next(iter(cargo.ldr.values())) if cargo.ldr else 0
+                cargo_json.append({
+                    "grade": cargo.grade,
+                    "volume": cargo.volume,
+                    "origin": cargo.origin,
+                    "loading_start_day": ldr_start,
+                    "loading_end_day": ldr_end
+                })
+            
+            # Process vessel routes - properly serialize to dict
+            route_json = []
+            if hasattr(vessel, "route") and vessel.route:
+                print(f"Vessel {vessel_id} has route data, serializing...")
+                for segment in vessel.route:
+                    if isinstance(segment, dict):
+                        # It's already a dictionary
+                        route_json.append(segment)
+                    elif hasattr(segment, 'origin') and hasattr(segment, 'destination'):
+                        # It's a Route object
+                        route_json.append({
+                            "from": segment.origin,
+                            "to": segment.destination,
+                            "day": getattr(segment, "day", vessel.arrival_day),
+                            "travel_days": segment.time_travel
+                        })
+                    else:
+                        print(f"Warning: Unknown route segment format in vessel {vessel.vessel_id}: {type(segment)}")
+                        
+                print(f"Successfully serialized {len(route_json)} route segments")
+            
+            # Create the vessel dictionary with properly serialized routes
             vessels_dict[vessel_id] = {
                 "vessel_id": vessel_id,
                 "arrival_day": vessel.arrival_day,
                 "capacity": vessel.capacity,
                 "cost": vessel.cost,
                 "days_held": vessel.days_held,
-                "cargo": [
-                    {
-                        "grade": cargo.grade,
-                        "volume": cargo.volume,
-                        "origin": cargo.origin,
-                        "loading_start_day": next(iter(cargo.ldr.keys())) if cargo.ldr else 0,
-                        "loading_end_day": next(iter(cargo.ldr.values())) if cargo.ldr else 0
-                    }
-                    for cargo in vessel.cargo
-                ],
-                # Add route information
-                "route": vessel.route if hasattr(vessel, "route") else []
+                "cargo": cargo_json,
+                # Use the properly serialized route_json
+                "route": route_json
             }
         
         # Save to file
+        print(f"Saving {len(vessels_dict)} vessels to {VESSELS_FILE}")
         with open(VESSELS_FILE, 'w') as f:
             json.dump(vessels_dict, f, indent=2)
             
         # Update the cache
         data_cache[VESSELS_FILE] = vessels_dict
         
+        print("Vessel optimization completed successfully")
         return jsonify({
             "success": True,
             "vessels": vessels_json
         })
         
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"ERROR in vessel optimization: {e}")
+        print(error_trace)
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": str(e),
+            "trace": error_trace
         }), 500
 
 @app.route('/api/save-data', methods=['POST'])
@@ -748,12 +862,14 @@ def save_data():
         content = data.get('content')
         
         # Determine if static or dynamic data
-        if data_type in ['tanks', 'vessels', 'feedstock_parcels', 'feedstock_requirements']:
+        if data_type in ['tanks', 'vessels', 'vessel_routes', 'feedstock_parcels', 'feedstock_requirements']:
             # Dynamic data
             if data_type == 'tanks':
                 file_path = TANKS_FILE
             elif data_type == 'vessels':
                 file_path = VESSELS_FILE
+            elif data_type == 'vessel_routes':
+                file_path = VESSEL_ROUTES_FILE
             elif data_type == 'feedstock_parcels':
                 file_path = os.path.join(DYNAMIC_DATA_DIR, "feedstock_parcels.json")
             elif data_type == 'feedstock_requirements':
@@ -790,6 +906,27 @@ def save_data():
             "success": False,
             "error": str(e)
         }), 500
+
+@app.route('/api/save-schedule', methods=['POST'])
+def save_schedule():
+    """Save modified schedule data"""
+    try:
+        data = request.json
+        schedule = data.get('schedule', [])
+        
+        if not schedule:
+            return jsonify({"success": False, "error": "No schedule data provided"}), 400
+        
+        # Save to schedule_results.json
+        output_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+        
+        with open(output_path, 'w') as f:
+            json.dump({"daily_plans": schedule}, f, indent=2)
+        
+        return jsonify({"success": True, "message": "Schedule saved successfully"})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     # Create data directories if they don't exist

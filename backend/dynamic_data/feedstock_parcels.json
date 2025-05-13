@@ -5,7 +5,7 @@
       "ldr": {
         "5": 8
       },
-      "origin": "Terminal1",
+      "origin": "Sabah",
       "vessel_id": null
     },
     "Parcel_002": {
@@ -14,7 +14,7 @@
       "ldr": {
         "12": 15
       },
-      "origin": "Terminal2",
+      "origin": "Sarawak",
       "vessel_id": null
     },
     "Parcel_003": {
@@ -23,7 +23,7 @@
       "ldr": {
         "18": 22
       },
-      "origin": "Terminal1",
+      "origin": "Sabah",
       "vessel_id": null
     }
   }

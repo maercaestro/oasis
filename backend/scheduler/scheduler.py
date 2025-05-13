@@ -76,12 +76,32 @@ class Scheduler:
                 # Check for vessel arrivals and update inventory
                 self._update_inventory(day)
                 
-                # Pick optimal blending recipes for the day
-                try:
-                    optimal_blends = self._select_blends(day)
-                except Exception as e:
-                    print(f"Error selecting blends for day {day}: {e}")
-                    optimal_blends = []  # Continue with empty blends
+                # Calculate current inventory levels
+                current_inventory = {}
+                for tank in self.tank_manager.tanks.values():
+                    for content in tank.content:
+                        for grade, volume in content.items():
+                            if grade in current_inventory:
+                                current_inventory[grade] += volume
+                            else:
+                                current_inventory[grade] = volume
+
+                # Pass both parameters to _select_blends
+                blend_dict = self._select_blends(day, current_inventory)
+
+                # Convert dictionary to expected list of tuples format
+                optimal_blends = []
+                for recipe_id, rate in blend_dict.items():
+                    try:
+                        # Convert string ID to integer index if needed
+                        idx = int(recipe_id) if recipe_id.isdigit() else 0
+                        if idx < len(self.blending_recipes):
+                            recipe = self.blending_recipes[idx]
+                            # Estimate margin (simplified)
+                            margin = 10.0  # Default margin if not calculated
+                            optimal_blends.append((recipe, margin, rate))
+                    except Exception as e:
+                        print(f"Error converting blend {recipe_id}: {e}")
                 
                 # Create daily plan and update tank inventory
                 self._create_daily_plan(day, optimal_blends)
@@ -222,70 +242,67 @@ class Scheduler:
         return output_files
     
     def _update_inventory(self, day: int) -> None:
-        """
-        Check for vessel arrivals and update tank inventory.
-        """
-        # Find vessels arriving on this day
+        """Update inventory based on vessel arrivals for the given day."""
+        # Check for vessel arrivals
         arriving_vessels = [v for v in self.vessels if v.arrival_day == day]
         
-        if not arriving_vessels:
-            return  # Nothing to do
+        if arriving_vessels:
+            print(f"Day {day}: {len(arriving_vessels)} vessels arriving")
             
-        print(f"Day {day}: Processing {len(arriving_vessels)} arriving vessels")
-        
         for vessel in arriving_vessels:
-            # Process each cargo parcel
-            unloaded_all = True  # Track if all cargo was unloaded
+            print(f"Processing vessel {vessel.name} arrival on day {day}")
+            print(f"  Cargo: {vessel.cargo}")
             
-            for parcel in vessel.cargo:
-                # Find a suitable tank with enough capacity
-                unloaded = False
-                
-                for tank_name, tank in self.tank_manager.tanks.items():
-                    # Calculate current tank volume
-                    current_volume = sum(sum(content.values()) for content in tank.content)
-                    
-                    # Check if there's enough space
-                    if current_volume + parcel.volume <= tank.capacity:
-                        # Add parcel to tank
-                        success = self.tank_manager.add(tank_name, parcel)
-                        if success:
-                            unloaded = True
-                            print(f"  Unloaded {parcel.volume} of {parcel.grade} into tank {tank_name}")
-                            break
-                
-                if not unloaded:
-                    unloaded_all = False
-                    print(f"  WARNING: Couldn't unload {parcel.volume} of {parcel.grade} - insufficient tank capacity")
-                    
-            # If not all cargo was unloaded, delay the vessel
-            if not unloaded_all:
-                vessel.days_held += 1
-                vessel.arrival_day = day + 1
-                print(f"  Vessel {vessel.vessel_id} delayed to day {vessel.arrival_day}")
+            # Process each cargo item
+            for cargo_item in vessel.cargo:
+                # Check if cargo_item is in the new format (with grade, volume as separate keys)
+                if isinstance(cargo_item, dict) and "grade" in cargo_item and "volume" in cargo_item:
+                    grade = cargo_item.get("grade")
+                    volume = cargo_item.get("volume", 0)
+                    if grade and volume > 0:
+                        # Attempt to store the cargo in available tanks
+                        stored = self.tank_manager.store_crude(grade, volume)
+                        if stored < volume:
+                            print(f"  Warning: Could only store {stored} of {volume} {grade} due to tank capacity limitations")
+                # Fallback to the old format (grade: volume pairs)
+                else:
+                    for grade, volume in cargo_item.items():
+                        # Attempt to store the cargo in available tanks
+                        stored = self.tank_manager.store_crude(grade, volume)
+                        if stored < volume:
+                            print(f"  Warning: Could only store {stored} of {volume} {grade} due to tank capacity limitations")
     
-    def _select_blends(self, day: int) -> List[Tuple[BlendingRecipe, float, float]]:
+    def _select_blends(self, day_idx: int, available_inventory: Dict[str, float]) -> Dict[str, float]:
         """
-        Select optimal blending recipes for the current day.
+        Select the optimal blend(s) for the given day based on available inventory.
         
         Args:
-            day: Current day
+            day_idx: Day index
+            available_inventory: Dictionary of available inventory by grade
             
         Returns:
-            List of tuples (recipe, margin, actual_rate)
+            Dictionary mapping recipe IDs to volumes
         """
-        # Get current tanks from tank manager
-        current_tanks = self.tank_manager.tanks
-        
-        # Use blending engine to find optimal blends
-        optimal_blends = self.blending_engine.find_optimal_blends(
-            self.blending_recipes,
-            self.crude_data,
-            current_tanks,
-            self.max_processing_rate
-        )
-        
-        return optimal_blends
+        # Attempt to find optimal blends using the blending engine
+        try:
+            # Pass all required arguments to find_optimal_blends
+            optimal_blends = self.blending_engine.find_optimal_blends(
+                self.blending_recipes,  # available_recipes
+                self.crude_data,        # crude_data
+                self.tank_manager.tanks, # tanks
+                self.max_processing_rate # max_processing
+            )
+            
+            # Convert optimal_blends result to the expected return format
+            blend_dict = {}
+            for recipe, margin, actual_rate in optimal_blends:
+                blend_dict[recipe.name] = actual_rate
+                
+            return blend_dict
+        except Exception as e:
+            print(f"Error in blend selection: {e}")
+            # Fallback logic if blending engine fails
+            return {}
     
     def _create_daily_plan(self, day: int, optimal_blends: List[Tuple[BlendingRecipe, float, float]]) -> None:
         """

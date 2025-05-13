@@ -4,7 +4,7 @@
       "1": 3
     },
     "grade": "Base",
-    "origin": "Terminal1",
+    "origin": "Sabah",
     "required_arrival_by": 10,
     "volume": 400
   },
@@ -13,7 +13,7 @@
       "17": 19
     },
     "grade": "Base",
-    "origin": "Terminal2",
+    "origin": "Sarawak",
     "required_arrival_by": 23,
     "volume": 360
   },
@@ -22,7 +22,7 @@
       "1": 3
     },
     "grade": "A",
-    "origin": "Terminal3",
+    "origin": "Peninsular Malaysia",
     "required_arrival_by": 10,
     "volume": 150
   },

@@ -1,32 +1,27 @@
 {
-  "PM to refinery": {
-    "destination": "Refinery",
-    "origin": "Peninsular Malaysia",
+  "PM_Refinery": {
+    "from": "Peninsular Malaysia",
+    "to": "Refinery",
     "time_travel": 2
   },
-  "Sabah to Refinery": {
-    "destination": "Refinery",
-    "origin": "Sabah",
+  "Sabah_Refinery": {
+    "from": "Sabah", 
+    "to": "Refinery",
     "time_travel": 3.5
   },
-  "Sabah to PM": {
-    "destination": "Peninsular Malaysia",
-    "origin": "Sabah",
+  "Sabah_PM": {
+    "from": "Sabah",
+    "to": "Peninsular Malaysia",
     "time_travel": 3
   },
-  "Sabah to Sarawak": {
-    "origin": "Sabah",
-    "destination": "Sarawak",
+  "Sabah_Sarawak": {
+    "from": "Sabah",
+    "to": "Sarawak",
     "time_travel": 1
   },
-  "Sarawak to Refinery": {
-    "origin": "Sarawak",
-    "destination": "Refinery",
+  "Sarawak_Refinery": {
+    "from": "Sarawak",
+    "to": "Refinery",
     "time_travel": 3
-  },
-  "Sarawak_Peninsular Malaysia": {
-    "origin": "Sarawak",
-    "destination": "Peninsular Malaysia",
-    "time_travel": 2.5
   }
 }
