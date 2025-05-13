@@ -261,24 +261,24 @@
     "route": [
       {
         "from": "Refinery",
-        "to": "Sarawak",
+        "to": "Peninsular Malaysia",
         "day": 3.0,
         "travel_days": 3.0
       },
       {
-        "from": "Sarawak",
+        "from": "Peninsular Malaysia",
         "to": "Sabah",
-        "day": 5.0,
-        "travel_days": 1.0
-      },
-      {
-        "from": "Sabah",
-        "to": "Peninsular Malaysia",
-        "day": 9.0,
+        "day": 7.0,
         "travel_days": 3.0
       },
       {
-        "from": "Peninsular Malaysia",
+        "from": "Sabah",
+        "to": "Sarawak",
+        "day": 9.0,
+        "travel_days": 1.0
+      },
+      {
+        "from": "Sarawak",
         "to": "Refinery",
         "day": 13.0,
         "travel_days": 3.0

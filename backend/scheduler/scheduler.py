@@ -243,57 +243,70 @@ class Scheduler:
     
     def _update_inventory(self, day: int) -> None:
         """Update inventory based on vessel arrivals for the given day."""
+        print(f"------- Updating inventory for Day {day} -------")
+        
         # Check for vessel arrivals
         arriving_vessels = [v for v in self.vessels if v.arrival_day == day]
+        print(f"Arriving vessels: {len(arriving_vessels)}")
         
-        if arriving_vessels:
-            print(f"Day {day}: {len(arriving_vessels)} vessels arriving")
-            
         for vessel in arriving_vessels:
-            print(f"Processing vessel {vessel.name} arrival on day {day}")
-            print(f"  Cargo: {vessel.cargo}")
+            print(f"Processing vessel {vessel.vessel_id} arrival on day {day}")
             
             # Process each cargo item
             for cargo_item in vessel.cargo:
-                # Check if cargo_item is in the new format (with grade, volume as separate keys)
-                if isinstance(cargo_item, dict) and "grade" in cargo_item and "volume" in cargo_item:
-                    grade = cargo_item.get("grade")
-                    volume = cargo_item.get("volume", 0)
+                print(f"Processing cargo item: {cargo_item}")
+                
+                # Check if cargo_item is a FeedstockParcel object
+                if isinstance(cargo_item, FeedstockParcel):
+                    grade = cargo_item.grade
+                    volume = cargo_item.volume
                     if grade and volume > 0:
-                        # Attempt to store the cargo in available tanks
+                        # Attempt to store the crude in available tanks
                         stored = self.tank_manager.store_crude(grade, volume)
-                        if stored < volume:
-                            print(f"  Warning: Could only store {stored} of {volume} {grade} due to tank capacity limitations")
-                # Fallback to the old format (grade: volume pairs)
-                else:
-                    for grade, volume in cargo_item.items():
-                        # Attempt to store the cargo in available tanks
-                        stored = self.tank_manager.store_crude(grade, volume)
-                        if stored < volume:
-                            print(f"  Warning: Could only store {stored} of {volume} {grade} due to tank capacity limitations")
+                        print(f"Stored {stored} units of {grade} ({volume} requested)")
+                
+                # If it's the old format (dict with grade:volume)
+                elif isinstance(cargo_item, dict):
+                    try:
+                        if "grade" in cargo_item and "volume" in cargo_item:
+                            # New vessel.json format with grade/volume as separate keys
+                            grade = cargo_item.get("grade")
+                            volume = cargo_item.get("volume", 0)
+                            if grade and volume > 0:
+                                stored = self.tank_manager.store_crude(grade, volume)
+                                print(f"Stored {stored} units of {grade} ({volume} requested)")
+                        else:
+                            # Legacy format with grade:volume pairs
+                            for grade, volume in cargo_item.items():
+                                stored = self.tank_manager.store_crude(grade, volume)
+                                print(f"Legacy format: Stored {stored} units of {grade}")
+                    except Exception as e:
+                        print(f"Error processing cargo: {e}")
+        
+        # After processing all vessels, print current inventory
+        print("Current inventory after vessel processing:")
+        current_inventory = {}
+        for tank_name, tank in self.tank_manager.tanks.items():
+            for content_item in tank.content:
+                for grade, amount in content_item.items():
+                    if grade in current_inventory:
+                        current_inventory[grade] += amount
+                    else:
+                        current_inventory[grade] = amount
+        print(current_inventory)
     
     def _select_blends(self, day_idx: int, available_inventory: Dict[str, float]) -> Dict[str, float]:
-        """
-        Select the optimal blend(s) for the given day based on available inventory.
-        
-        Args:
-            day_idx: Day index
-            available_inventory: Dictionary of available inventory by grade
-            
-        Returns:
-            Dictionary mapping recipe IDs to volumes
-        """
-        # Attempt to find optimal blends using the blending engine
+        """Select the optimal blend(s) for the given day based on available inventory."""
         try:
-            # Pass all required arguments to find_optimal_blends
+            # Pass ALL required arguments to find_optimal_blends
             optimal_blends = self.blending_engine.find_optimal_blends(
-                self.blending_recipes,  # available_recipes
-                self.crude_data,        # crude_data
-                self.tank_manager.tanks, # tanks
-                self.max_processing_rate # max_processing
+                self.blending_recipes,      # available_recipes 
+                self.crude_data,            # crude_data
+                self.tank_manager.tanks,    # tanks
+                self.max_processing_rate    # max_processing
             )
             
-            # Convert optimal_blends result to the expected return format
+            # Convert the returned list of tuples to a dictionary
             blend_dict = {}
             for recipe, margin, actual_rate in optimal_blends:
                 blend_dict[recipe.name] = actual_rate
@@ -301,7 +314,6 @@ class Scheduler:
             return blend_dict
         except Exception as e:
             print(f"Error in blend selection: {e}")
-            # Fallback logic if blending engine fails
             return {}
     
     def _create_daily_plan(self, day: int, optimal_blends: List[Tuple[BlendingRecipe, float, float]]) -> None:

@@ -107,3 +107,62 @@ class TankManager:
                 if grade in content:
                     total += content[grade]
         return total
+
+    def store_crude(self, grade: str, volume: float) -> float:
+        """
+        Store crude oil of a specific grade in available tanks.
+        
+        Args:
+            grade: The grade of crude to store
+            volume: The volume to store
+        
+        Returns:
+            Amount successfully stored (might be less than requested if tanks are full)
+        """
+        remaining = volume
+        stored = 0
+        
+        # Try to find tanks that already contain this grade
+        for tank_name, tank in self.tanks.items():
+            # Skip if tank is already full
+            current_volume = sum(sum(content.values()) for content in tank.content)
+            if current_volume >= tank.capacity:
+                continue
+                
+            # Check if tank already has this grade
+            has_grade = any(grade in content for content in tank.content)
+            if has_grade:
+                space_available = tank.capacity - current_volume
+                to_store = min(remaining, space_available)
+                
+                # Add to existing grade
+                for content in tank.content:
+                    if grade in content:
+                        content[grade] += to_store
+                        stored += to_store
+                        remaining -= to_store
+                        break
+                        
+                if remaining <= 0:
+                    print(f"✅ Successfully stored {stored} units of {grade}")
+                    return stored
+        
+        # If there's still remaining volume, try empty tanks or tanks with space
+        for tank_name, tank in self.tanks.items():
+            current_volume = sum(sum(content.values()) for content in tank.content)
+            space_available = tank.capacity - current_volume
+            
+            if space_available > 0:
+                to_store = min(remaining, space_available)
+                
+                # Add new grade to tank
+                tank.content.append({grade: to_store})
+                stored += to_store
+                remaining -= to_store
+                
+                if remaining <= 0:
+                    print(f"✅ Successfully stored {stored} units of {grade}")
+                    return stored
+        
+        print(f"✅ Successfully stored {stored} units of {grade}")
+        return stored

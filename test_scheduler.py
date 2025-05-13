@@ -6,7 +6,7 @@ import os
 import json
 import sys
 from backend.scheduler.scheduler import Scheduler
-from backend.scheduler.models import Tank, BlendingRecipe, Crude, Vessel
+from backend.scheduler.models import Tank, BlendingRecipe, Crude, Vessel, FeedstockParcel
 
 # Define paths to data files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,40 +72,37 @@ def load_crudes():
 
 def load_vessels():
     """Load vessel data from JSON file and convert to Vessel objects"""
-    # For debugging - let's print the signature of the Vessel constructor
-    import inspect
-    print(f"Vessel constructor parameters: {inspect.signature(Vessel.__init__)}")
-    
     vessels_data = load_json_file(os.path.join(DYNAMIC_DATA_DIR, "vessels.json"))
     vessels = []
     
-    # Check if data is a dictionary of vessels or a list
     if isinstance(vessels_data, dict):
         for vessel_id, vessel_info in vessels_data.items():
-            try:
-                # Try with positional arguments first
-                vessels.append(Vessel(
-                    vessel_id,  # First arg (likely the vessel identifier)
-                    vessel_info.get("cargo", []),  # Second arg (likely cargo)
-                    vessel_info.get("arrival_day", 0)  # Third arg (likely arrival day)
-                ))
-            except TypeError as e:
-                print(f"Error creating vessel with ID {vessel_id}: {e}")
-                # If the first attempt fails, print the error for debugging
-                print("Vessel data:", vessel_info)
-    elif isinstance(vessels_data, list):
-        for vessel_info in vessels_data:
-            try:
-                # Try with positional arguments for list format
-                vessels.append(Vessel(
-                    vessel_info.get("name", "Unknown"),
-                    vessel_info.get("cargo", []),
-                    vessel_info.get("arrival_day", 0)
-                ))
-            except TypeError as e:
-                print(f"Error creating vessel: {e}")
-                # If the first attempt fails, print the error for debugging
-                print("Vessel data:", vessel_info)
+            # Process each cargo item into FeedstockParcel objects
+            cargo_objects = []
+            for cargo_item in vessel_info.get("cargo", []):
+                if isinstance(cargo_item, dict) and "grade" in cargo_item and "volume" in cargo_item:
+                    # Convert loading days to ldr dict format expected by FeedstockParcel
+                    start_day = cargo_item.get("loading_start_day", 0)
+                    end_day = cargo_item.get("loading_end_day", 0)
+                    ldr = {start_day: end_day} if start_day and end_day else {0: 0}
+                    
+                    cargo_objects.append(FeedstockParcel(
+                        grade=cargo_item["grade"],
+                        volume=cargo_item["volume"],
+                        origin=cargo_item.get("origin", "Unknown"),
+                        ldr=ldr,
+                        vessel_id=vessel_id
+                    ))
+            
+            # Now create the vessel with the correct parameters
+            vessels.append(Vessel(
+                vessel_id=vessel_id,
+                arrival_day=vessel_info.get("arrival_day", 0),
+                cost=vessel_info.get("cost", 0),
+                capacity=vessel_info.get("capacity", 0),
+                cargo=cargo_objects,
+                days_held=vessel_info.get("days_held", 0)
+            ))
     
     return vessels
 
@@ -133,11 +130,21 @@ def main():
     for name, tank in tanks.items():
         print(f"  {name}: {tank.content}")
     
-    # Print vessel delivery schedule
+    # Fix in Vessel delivery schedule section
     print("\nVessel delivery schedule:")
     for vessel in vessels:
-        print(f"  Vessel {vessel.name} arriving on day {vessel.arrival_day}")
+        print(f"  Vessel {vessel.vessel_id} arriving on day {vessel.arrival_day}")
         print(f"    Cargo: {vessel.cargo}")
+    
+    # Fix in Vessel cargo details section
+    print("\nVessel cargo details:")
+    for vessel in vessels:
+        print(f"  Vessel {vessel.vessel_id} arriving on day {vessel.arrival_day}")
+        for cargo_item in vessel.cargo:
+            if isinstance(cargo_item, FeedstockParcel):
+                print(f"    {cargo_item.grade}: {cargo_item.volume} units")
+            else:
+                print(f"    Unexpected cargo format: {cargo_item}")
     
     # Set max processing rate
     max_processing_rate = 100  # Adjust as needed
@@ -148,6 +155,33 @@ def main():
     # Run for 7 days
     days_to_schedule = 30
     print(f"\nRunning scheduler for {days_to_schedule} days with max processing rate {max_processing_rate}...")
+    
+    # IMPORTANT: Check which vessel grades are in the crudes data
+    print("\nVessel cargo grades vs available crude data:")
+    all_vessel_grades = set()
+    for vessel in vessels:
+        for cargo_item in vessel.cargo:
+            if isinstance(cargo_item, dict) and "grade" in cargo_item:
+                grade = cargo_item["grade"]
+                all_vessel_grades.add(grade)
+                if grade in crudes:
+                    print(f"  ✅ Grade {grade} (in vessel cargo) IS in crudes data")
+                else:
+                    print(f"  ❌ Grade {grade} (in vessel cargo) is NOT in crudes data")
+    
+    # Check which recipes can use the available grades
+    print("\nCompatible recipes for vessel cargo:")
+    for recipe in recipes:
+        primary_in_crudes = recipe.primary_grade in crudes
+        secondary_in_crudes = not recipe.secondary_grade or recipe.secondary_grade in crudes
+        
+        primary_in_cargo = recipe.primary_grade in all_vessel_grades
+        secondary_in_cargo = not recipe.secondary_grade or recipe.secondary_grade in all_vessel_grades
+        
+        if primary_in_crudes and secondary_in_crudes and primary_in_cargo and secondary_in_cargo:
+            print(f"  ✅ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is compatible with vessel cargo and crudes")
+        else:
+            print(f"  ❌ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is NOT compatible")
     
     try:
         result = scheduler.run(days_to_schedule, save_output=True, output_dir=OUTPUT_DIR)

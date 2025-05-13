@@ -27,6 +27,51 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
     )
   }
   
+  // NEW FUNCTION: Calculate grade consumption based on recipe processing rates
+  const calculateGradeConsumption = (day) => {
+    const gradeConsumption = {}
+    
+    // Get processing rates and recipe details
+    const processingRates = day.processing_rates || {}
+    const blendingDetails = day.blending_details || []
+    
+    // Create a map of recipe name to recipe details
+    const recipeMap = {}
+    blendingDetails.forEach(recipe => {
+      recipeMap[recipe.name] = recipe
+    })
+    
+    // Calculate consumption for each grade based on recipes used
+    Object.entries(processingRates).forEach(([recipeName, rate]) => {
+      const recipe = recipeMap[recipeName]
+      if (!recipe) return
+      
+      // Calculate primary grade consumption
+      const primaryGrade = recipe.primary_grade
+      const primaryAmount = rate * recipe.primary_fraction
+      
+      if (primaryGrade) {
+        if (!gradeConsumption[primaryGrade]) {
+          gradeConsumption[primaryGrade] = 0
+        }
+        gradeConsumption[primaryGrade] += primaryAmount
+      }
+      
+      // Calculate secondary grade consumption (if exists)
+      if (recipe.secondary_grade) {
+        const secondaryGrade = recipe.secondary_grade
+        const secondaryAmount = rate * (1 - recipe.primary_fraction)
+        
+        if (!gradeConsumption[secondaryGrade]) {
+          gradeConsumption[secondaryGrade] = 0
+        }
+        gradeConsumption[secondaryGrade] += secondaryAmount
+      }
+    })
+    
+    return gradeConsumption
+  }
+  
   // Process data for charts
   const chartData = editedSchedule.map(day => {
     // Get total processing amount and per-recipe amounts
@@ -37,6 +82,9 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
       processingRates[recipe] = rate
       totalProcessing += rate
     })
+    
+    // Get grade consumption (NEW)
+    const gradeConsumption = calculateGradeConsumption(day)
     
     // Get inventory by grade
     const inventoryByGrade = {}
@@ -74,7 +122,12 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
       dayLabel: `Day ${day.day}`,
       totalProcessing,
       totalInventory,
-      ...processingRates,
+      ...processingRates, // Keep the original recipe data for editing
+      // Add grade consumption data with a prefix to differentiate
+      ...Object.entries(gradeConsumption).reduce((acc, [grade, amount]) => {
+        acc[`grade_${grade}`] = amount
+        return acc
+      }, {}),
       ...Object.entries(inventoryByGrade).reduce((acc, [grade, amount]) => {
         acc[`inventory_${grade}`] = amount
         return acc
@@ -83,11 +136,19 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
     }
   })
   
-  // Get unique recipe names for bars
+  // Get unique recipe names for reference
   const recipes = [...new Set(
     schedule.flatMap(day => 
       Object.keys(day.processing_rates || {})
     )
+  )]
+  
+  // Get unique grades for processing chart (NEW)
+  const processedGrades = [...new Set(
+    schedule.flatMap(day => {
+      const gradeConsumption = calculateGradeConsumption(day)
+      return Object.keys(gradeConsumption)
+    })
   )]
   
   // Get unique crude grades for inventory
@@ -157,7 +218,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
       }
     } 
     else {
-      // Edit processing rates
+      // Edit processing rates (still need to work with the original recipes)
       day.processing_rates = { ...day.processing_rates, [key]: parseFloat(value) }
     }
     
@@ -198,17 +259,26 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
             <XAxis dataKey="dayLabel" />
             <YAxis />
             <Tooltip 
-              formatter={(value, name) => [`${value.toFixed(1)}`, name]}
+              formatter={(value, name) => {
+                // Format differently based on if it's a grade or recipe
+                if (name.startsWith('grade_')) {
+                  return [`${value.toFixed(1)}`, name.replace('grade_', '')]
+                }
+                return [`${value.toFixed(1)}`, name]
+              }}
               labelFormatter={(label) => `Day ${label.split(' ')[1]}`}
             />
-            <Legend />
-            {recipes.map((recipe, index) => (
+            <Legend 
+              formatter={(value) => value.startsWith('grade_') ? value.replace('grade_', '') : value}
+            />
+            {/* Show grades consumed instead of recipes */}
+            {processedGrades.map((grade, index) => (
               <Bar 
-                key={recipe}
-                dataKey={recipe}
-                name={recipe}
+                key={grade}
+                dataKey={`grade_${grade}`}
+                name={`grade_${grade}`}
                 stackId="stack"
-                fill={recipeColors[index % recipeColors.length]}
+                fill={gradeColors[index % gradeColors.length]}
                 radius={[4, 4, 0, 0]}
                 onClick={(data) => editMode && setSelectedDay(data.day - 1)}
               />
@@ -258,6 +328,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
         )
         
       case 'tanks':
+        // tank chart remains the same
         return (
           <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -322,7 +393,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
               : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
           }`}
         >
-          Processing Rates
+          Grade Processing
         </button>
         <button 
           onClick={() => setViewType('inventory')}
@@ -410,7 +481,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
             
             {viewType === 'processing' && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-600">Processing Rates</h4>
+                <h4 className="text-sm font-medium text-slate-600">Recipe Processing Rates</h4>
                 {recipes.map((recipe) => (
                   <div key={recipe} className="flex items-center gap-2">
                     <div 
@@ -428,6 +499,21 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
                     />
                   </div>
                 ))}
+                
+                <h4 className="text-sm font-medium text-slate-600 mt-4">Resulting Grade Processing</h4>
+                {processedGrades.map((grade) => {
+                  const gradeConsumption = calculateGradeConsumption(editedSchedule[selectedDay]);
+                  return (
+                    <div key={grade} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: gradeColors[processedGrades.indexOf(grade) % gradeColors.length] }}
+                      ></div>
+                      <label className="text-sm">{grade}:</label>
+                      <span className="text-sm">{(gradeConsumption[grade] || 0).toFixed(1)}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
             
@@ -504,7 +590,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
         )}
       </div>
 
-      {/* Detailed data table (conditionally shown) */}
+      {/* Detailed data table - updated for processing view to show grades */}
       {showDetails && (
         <div className="h-64 overflow-y-auto border border-slate-200 rounded-md">
           <table className="min-w-full divide-y divide-slate-200">
@@ -512,9 +598,9 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
               <tr>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Day</th>
                 {viewType === 'processing' ? (
-                  recipes.map(recipe => (
-                    <th key={recipe} className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                      {recipe}
+                  processedGrades.map(grade => (
+                    <th key={grade} className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      {grade}
                     </th>
                   ))
                 ) : viewType === 'inventory' ? (
@@ -546,20 +632,9 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
                 >
                   <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-900">Day {day.day}</td>
                   {viewType === 'processing' ? (
-                    recipes.map(recipe => (
-                      <td key={recipe} className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
-                        {editMode ? (
-                          <input
-                            type="number"
-                            value={day[recipe] || 0}
-                            onChange={(e) => handleValueChange(idx, recipe, e.target.value)}
-                            className="w-full px-2 py-1 border border-slate-300 rounded"
-                            step="0.1"
-                            min="0"
-                          />
-                        ) : (
-                          day[recipe] ? day[recipe].toFixed(1) : '-'
-                        )}
+                    processedGrades.map(grade => (
+                      <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
+                        {day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '-'}
                       </td>
                     ))
                   ) : viewType === 'inventory' ? (

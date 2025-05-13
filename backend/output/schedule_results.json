@@ -17,19 +17,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -38,14 +49,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -59,7 +74,7 @@
         {
           "name": "0",
           "primary_grade": "Base",
-          "secondary_grade": "",
+          "secondary_grade": null,
           "primary_fraction": 1,
           "max_rate": 87
         }
@@ -82,19 +97,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -103,14 +129,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -124,7 +154,7 @@
         {
           "name": "0",
           "primary_grade": "Base",
-          "secondary_grade": "",
+          "secondary_grade": null,
           "primary_fraction": 1,
           "max_rate": 87
         }
@@ -147,19 +177,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -168,14 +209,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -189,7 +234,7 @@
         {
           "name": "0",
           "primary_grade": "Base",
-          "secondary_grade": "",
+          "secondary_grade": null,
           "primary_fraction": 1,
           "max_rate": 87
         }
@@ -212,19 +257,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -233,14 +289,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -254,7 +314,7 @@
         {
           "name": "0",
           "primary_grade": "Base",
-          "secondary_grade": "",
+          "secondary_grade": null,
           "primary_fraction": 1,
           "max_rate": 87
         }
@@ -276,19 +336,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -297,14 +368,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -318,7 +393,7 @@
         {
           "name": "0",
           "primary_grade": "Base",
-          "secondary_grade": "",
+          "secondary_grade": null,
           "primary_fraction": 1,
           "max_rate": 87
         }
@@ -339,19 +414,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -360,14 +446,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -395,19 +485,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -416,14 +517,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -450,19 +555,30 @@
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -471,14 +587,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": [
@@ -493,29 +613,47 @@
     },
     {
       "day": 9,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "4": 95,
+        "0": 5
+      },
+      "inventory": 1080.0,
       "inventory_by_grade": {
+        "D": 150.0,
+        "F": 510.0,
+        "E": 250.0,
         "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "C": 2.2952054794520222,
+        "Base": 167.70479452054795
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -524,43 +662,81 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "4",
+          "primary_grade": "Base",
+          "secondary_grade": "C",
+          "primary_fraction": 0.73,
+          "max_rate": 95
+        },
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        }
+      ]
     },
     {
       "day": 10,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "4": 8.50076103500749,
+        "0": 87,
+        "2": 1.0526559048297779e-13,
+        "3": 4.7369515717340014e-14,
+        "5": 4.499238964992362
+      },
+      "inventory": 980.0,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 149.99999999999997,
+        "F": 510.0,
+        "E": 245.50076103500766,
+        "Base": 74.49923896499241
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -569,43 +745,99 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "4",
+          "primary_grade": "Base",
+          "secondary_grade": "C",
+          "primary_fraction": 0.73,
+          "max_rate": 95
+        },
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        },
+        {
+          "name": "2",
+          "primary_grade": "Base",
+          "secondary_grade": "B",
+          "primary_fraction": 0.73,
+          "max_rate": 95
+        },
+        {
+          "name": "3",
+          "primary_grade": "B",
+          "secondary_grade": "D",
+          "primary_fraction": 0.6,
+          "max_rate": 96
+        },
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 11,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "0": 87,
+        "5": 13
+      },
+      "inventory": 1080.0,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 149.99999999999997,
+        "F": 510.0,
+        "E": 232.50076103500766,
+        "Base": 187.49923896499237
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -614,43 +846,78 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        },
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 12,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "0": 87,
+        "5": 13
+      },
+      "inventory": 980.0,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 149.99999999999997,
+        "F": 510.0,
+        "E": 219.50076103500766,
+        "Base": 100.49923896499237
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -659,43 +926,80 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        },
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 13,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "1": 96,
+        "0": 4
+      },
+      "inventory": 1080.0,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 149.99999999999997,
+        "F": 510.0,
+        "E": 219.50076103500766,
+        "A": 124.08,
+        "Base": 26.419238964992374,
+        "B": 50.0
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -704,43 +1008,81 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "1",
+          "primary_grade": "Base",
+          "secondary_grade": "A",
+          "primary_fraction": 0.73,
+          "max_rate": 96
+        },
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        }
+      ]
     },
     {
       "day": 14,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "1": 36.19073830820873,
+        "0": 26.419238964992374,
+        "2": 36.19073830820873,
+        "3": 1.1992844185901674
+      },
+      "inventory": 1032.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 149.5202862325639,
+        "F": 510.0,
+        "E": 219.50076103500766,
+        "A": 114.30850065678364,
+        "B": 39.508930005629544
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -749,43 +1091,92 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "1",
+          "primary_grade": "Base",
+          "secondary_grade": "A",
+          "primary_fraction": 0.73,
+          "max_rate": 96
+        },
+        {
+          "name": "0",
+          "primary_grade": "Base",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 87
+        },
+        {
+          "name": "2",
+          "primary_grade": "Base",
+          "secondary_grade": "B",
+          "primary_fraction": 0.73,
+          "max_rate": 95
+        },
+        {
+          "name": "3",
+          "primary_grade": "B",
+          "secondary_grade": "D",
+          "primary_fraction": 0.6,
+          "max_rate": 96
+        }
+      ]
     },
     {
       "day": 15,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "3": 65.84821667604925,
+        "5": 34.15178332395075
+      },
+      "inventory": 932.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 510.0,
+        "E": 185.34897771105688,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -794,43 +1185,78 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "3",
+          "primary_grade": "B",
+          "secondary_grade": "D",
+          "primary_fraction": 0.6,
+          "max_rate": 96
+        },
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 16,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "5": 95,
+        "6": 5
+      },
+      "inventory": 832.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 505.0,
+        "E": 90.34897771105689,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -839,43 +1265,77 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        },
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 17,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "5": 90.34897771105689,
+        "6": 9.65102228894311
+      },
+      "inventory": 732.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 495.3489777110568,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -884,43 +1344,76 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        },
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 18,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 95
+      },
+      "inventory": 637.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 400.3489777110569,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -929,43 +1422,69 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 19,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 95
+      },
+      "inventory": 542.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 305.3489777110569,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -974,43 +1493,69 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 20,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 95
+      },
+      "inventory": 447.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 210.34897771105688,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1019,43 +1564,69 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 21,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 95
+      },
+      "inventory": 352.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 115.34897771105688,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1064,43 +1635,69 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 22,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 95
+      },
+      "inventory": 257.8384779299847,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "F": 20.348977711056875,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1109,43 +1706,68 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 23,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "6": 20.348977711056875
+      },
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1154,43 +1776,66 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "6",
+          "primary_grade": "F",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     },
     {
       "day": 24,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1199,14 +1844,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
@@ -1214,28 +1863,39 @@
     {
       "day": 25,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1244,14 +1904,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
@@ -1259,28 +1923,39 @@
     {
       "day": 26,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1289,14 +1964,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
@@ -1304,28 +1983,39 @@
     {
       "day": 27,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1334,14 +2024,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
@@ -1349,28 +2043,39 @@
     {
       "day": 28,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1379,14 +2084,18 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
@@ -1394,28 +2103,39 @@
     {
       "day": 29,
       "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "inventory": 237.48950021892784,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1424,43 +2144,61 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
       "blending_details": []
     },
     {
       "day": 30,
-      "processing_rates": {},
-      "inventory": 27.945205479452053,
+      "processing_rates": {
+        "5": 95
+      },
+      "inventory": 642.4895002189279,
       "inventory_by_grade": {
-        "B": 2.842170943040401e-14,
-        "C": 27.945205479452024
+        "D": 123.18099956214421,
+        "E": 405.0,
+        "A": 114.30850065678364
       },
       "tanks": {
         "Tank1": {
           "name": "Tank1",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "D": 123.18099956214421
+            },
+            {
+              "E": 31.81900043785579
+            }
+          ]
         },
         "Tank2": {
           "name": "Tank2",
           "capacity": 250,
-          "content": []
+          "content": [
+            {
+              "E": 250
+            }
+          ]
         },
         "Tank3": {
           "name": "Tank3",
           "capacity": 250,
           "content": [
             {
-              "B": 2.842170943040401e-14
+              "E": 123.18099956214422
             }
           ]
         },
@@ -1469,17 +2207,29 @@
           "capacity": 250,
           "content": [
             {
-              "C": 27.945205479452024
+              "A": 84.80773962177601
             }
           ]
         },
         "Tank5": {
           "name": "Tank5",
           "capacity": 180,
-          "content": []
+          "content": [
+            {
+              "A": 29.500761035007628
+            }
+          ]
         }
       },
-      "blending_details": []
+      "blending_details": [
+        {
+          "name": "5",
+          "primary_grade": "E",
+          "secondary_grade": null,
+          "primary_fraction": 1,
+          "max_rate": 95
+        }
+      ]
     }
   ]
 }

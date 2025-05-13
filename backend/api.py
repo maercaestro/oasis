@@ -521,8 +521,40 @@ def run_scheduler():
         # Load required data
         tanks = load_tanks()
         recipes = load_recipes()
-        vessels = load_vessels()
         crudes = load_crudes()
+        
+        # Load vessels with proper conversion to FeedstockParcel objects
+        vessels_data = load_data_file(VESSELS_FILE)
+        vessels = []
+        
+        if isinstance(vessels_data, dict):
+            for vessel_id, vessel_info in vessels_data.items():
+                # Process each cargo item into FeedstockParcel objects
+                cargo_objects = []
+                for cargo_item in vessel_info.get("cargo", []):
+                    if isinstance(cargo_item, dict) and "grade" in cargo_item and "volume" in cargo_item:
+                        # Convert loading days to ldr dict format expected by FeedstockParcel
+                        start_day = cargo_item.get("loading_start_day", 0)
+                        end_day = cargo_item.get("loading_end_day", 0)
+                        ldr = {start_day: end_day} if start_day and end_day else {0: 0}
+                        
+                        cargo_objects.append(FeedstockParcel(
+                            grade=cargo_item["grade"],
+                            volume=cargo_item["volume"],
+                            origin=cargo_item.get("origin", "Unknown"),
+                            ldr=ldr,
+                            vessel_id=vessel_id
+                        ))
+                
+                # Create the vessel with the correct parameters
+                vessels.append(Vessel(
+                    vessel_id=vessel_id,
+                    arrival_day=vessel_info.get("arrival_day", 0),
+                    cost=vessel_info.get("cost", 0),
+                    capacity=vessel_info.get("capacity", 0),
+                    cargo=cargo_objects,
+                    days_held=vessel_info.get("days_held", 0)
+                ))
         
         # Validate required data
         if not tanks:
@@ -532,68 +564,67 @@ def run_scheduler():
         if not crudes:
             return jsonify({"success": False, "error": "No crude data available"}), 400
         
-        # Add at the top of run_scheduler function, right before creating the scheduler
+        # Add compatibility checks for vessel grades and crudes
         print("Available crude grades in crude data:", list(crudes.keys()))
-        print("Available tanks:", list(tanks.keys()))
-
-        # Debug tank contents
-        for tank_name, tank in tanks.items():
-            print(f"Tank {tank_name} contents:")
-            for content in tank.content:
-                print(f"  {content}")
         
-        # Add this after loading vessels, before creating scheduler
         vessel_grades = set()
         for vessel in vessels:
             for cargo in vessel.cargo:
                 vessel_grades.add(cargo.grade)
-
+        
         print(f"Grades from vessels: {vessel_grades}")
         print(f"Crude data grades: {set(crudes.keys())}")
         missing = vessel_grades - set(crudes.keys())
         if missing:
             print(f"WARNING: Vessels contain grades that are not in crudes.json: {missing}")
         
-        # Create and run scheduler with debug logging
-        print(f"Creating scheduler with {len(tanks)} tanks, {len(recipes)} recipes, {len(vessels)} vessels")
+        # Check which recipes can use the available grades
+        print("\nCompatible recipes for vessel cargo:")
+        for recipe in recipes:
+            primary_in_crudes = recipe.primary_grade in crudes
+            secondary_in_crudes = not recipe.secondary_grade or recipe.secondary_grade in crudes
+            
+            primary_in_cargo = recipe.primary_grade in vessel_grades
+            secondary_in_cargo = not recipe.secondary_grade or recipe.secondary_grade in vessel_grades
+            
+            if primary_in_crudes and secondary_in_crudes and primary_in_cargo and secondary_in_cargo:
+                print(f"  ✅ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is compatible")
+            else:
+                print(f"  ❌ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is NOT compatible")
+        
+        # Create and run scheduler
+        max_processing_rate = 100  # Use the same value as in test_scheduler.py
+        
+        scheduler = Scheduler(
+            tanks=tanks,
+            blending_recipes=recipes,
+            vessels=vessels,
+            crude_data=crudes,
+            max_processing_rate=max_processing_rate
+        )
+        
+        # Run scheduler with save_output=True
+        print(f"Running scheduler for {days} days")
+        result = scheduler.run(days, save_output=True)
+        
+        # Load the standardized JSON file
+        json_file = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+        print(f"Loading schedule data from {json_file}")
         
         try:
-            scheduler = Scheduler(
-                tanks=tanks,
-                blending_recipes=recipes,
-                vessels=vessels,
-                crude_data=crudes,
-                max_processing_rate=350.0  # Default or configurable
-            )
-            
-            # Run scheduler with save_output=True
-            print(f"Running scheduler for {days} days")
-            scheduler.run(days, save_output=True)
-            
-            # Load the standardized JSON file (always same name)
-            json_file = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
-            print(f"Loading schedule data from {json_file}")
-            
-            try:
-                with open(json_file, 'r') as f:
-                    schedule_data = json.load(f)
-                    
-                return jsonify({
-                    "success": True,
-                    "days": days,
-                    "daily_plans": schedule_data.get("daily_plans", [])
-                })
+            with open(json_file, 'r') as f:
+                schedule_data = json.load(f)
                 
-            except Exception as file_error:
-                print(f"Error loading JSON file: {file_error}")
-                return jsonify({"success": False, "error": f"Failed to load schedule results: {str(file_error)}"}), 500
+            return jsonify({
+                "success": True,
+                "days": days,
+                "daily_plans": schedule_data.get("daily_plans", [])
+            })
             
-        except Exception as e:
-            import traceback
-            print("Scheduler run error:")
-            traceback.print_exc()
-            return jsonify({"success": False, "error": f"Scheduler error: {str(e)}"}), 500
-            
+        except Exception as file_error:
+            print(f"Error loading JSON file: {file_error}")
+            return jsonify({"success": False, "error": f"Failed to load schedule results: {str(file_error)}"}), 500
+        
     except Exception as e:
         import traceback
         traceback.print_exc()
