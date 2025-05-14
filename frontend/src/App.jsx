@@ -145,34 +145,35 @@ function App() {
     try {
       // Call the scheduler API endpoint
       const response = await axios.post('/api/scheduler/run', {
-        days: 30,  // Default to 30 days
-        save_output: true,  // Save results to output files
+        days: 30,
+        save_output: true,
       });
       
       if (response.data.success) {
-        // Update schedule data with the returned schedule
+        // CURRENT CODE - just updates schedule
         setData(prev => ({
           ...prev,
-          schedule: response.data.schedule
+          schedule: response.data.daily_plans || response.data.schedule
+        }));
+        
+        // ADD THIS: Refresh all data to get latest tank states
+        const refreshResponse = await axios.get('/api/data');
+        setData(prev => ({
+          ...prev,
+          tanks: refreshResponse.data.tanks || prev.tanks,
+          vessels: refreshResponse.data.vessels || prev.vessels,
+          // Other data you want to refresh
         }));
         
         setOptimizationMessage({ 
           type: 'success', 
-          text: 'Scheduler ran successfully! Schedule has been updated.' 
+          text: 'Scheduler ran successfully! Schedule and inventory updated.' 
         });
         
-        // Switch to view mode to show the results
-        setAppMode('view');
-        setVisualizationView('dailyPlan');
-      } else {
-        throw new Error(response.data.error || 'Unknown error');
+        // Rest of the function...
       }
     } catch (error) {
-      console.error('Failed to run scheduler:', error);
-      setOptimizationMessage({ 
-        type: 'error', 
-        text: `Failed to run scheduler: ${error.message || 'Unknown error'}` 
-      });
+      // Error handling...
     } finally {
       setIsOptimizing(false);
       setIsRunningScheduler(false);
@@ -200,7 +201,7 @@ function App() {
             {/* Optimization buttons */}
             <button
               onClick={handleOptimizeVessels}
-              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-white border border-emerald-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-emerald-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
               disabled={isOptimizing}
             >
               {isOptimizingVessels ? (
@@ -214,7 +215,7 @@ function App() {
             </button>
             <button
               onClick={handleOptimizeSchedule}
-              className="px-4 py-2 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-blue-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-blue-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
               disabled={isOptimizing}
             >
               {isOptimizingSchedule ? (
@@ -228,7 +229,7 @@ function App() {
             </button>
             <button
               onClick={handleRunScheduler}
-              className="px-4 py-2 !bg-amber-600 rounded-md text-sm font-medium text-white border border-amber-600/50 hover:!bg-amber-700 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-blue-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
               disabled={isOptimizing}
             >
               {isRunningScheduler ? (

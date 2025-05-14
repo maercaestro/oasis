@@ -33,14 +33,20 @@ class Scheduler:
             blending_recipes: List of available blending recipes
             vessels: List of vessels with arrival schedules
             crude_data: Dictionary of crude data (margins, etc.)
-            max_processing_rate: Maximum daily processing rate
+            max_processing_rate: Fallback max rate if recipe doesn't specify one
         """
         self.tank_manager = TankManager(tanks)
         self.blending_engine = BlendingEngine()
+        
+        # Ensure all recipes have a max_rate by using the fallback if needed
+        for recipe in blending_recipes:
+            if not hasattr(recipe, 'max_rate') or recipe.max_rate is None:
+                recipe.max_rate = max_processing_rate
+        
         self.blending_recipes = blending_recipes
         self.vessels = vessels
         self.crude_data = crude_data
-        self.max_processing_rate = max_processing_rate
+        self.max_processing_rate = max_processing_rate  # Keep as fallback
         self.daily_plans = {}  # Dictionary with day (int) as key and DailyPlan as value
         
     # Enhanced run method with better error handling and automatic output saving
@@ -70,6 +76,9 @@ class Scheduler:
             missing_grades = recipe_grades - set(self.crude_data.keys())
             if missing_grades:
                 raise ValueError(f"Missing crude data for grades: {', '.join(missing_grades)}")
+            
+            # Create day 0 plan with initial inventory
+            self._create_initial_plan()
             
             # Process each day
             for day in range(1, days+1):
@@ -296,41 +305,60 @@ class Scheduler:
         print(current_inventory)
     
     def _select_blends(self, day_idx: int, available_inventory: Dict[str, float]) -> Dict[str, float]:
-        """Select the optimal blend(s) for the given day based on available inventory."""
+        """Select the optimal blend for the given day based on available inventory."""
         try:
-            # Pass ALL required arguments to find_optimal_blends
-            optimal_blends = self.blending_engine.find_optimal_blends(
-                self.blending_recipes,      # available_recipes 
-                self.crude_data,            # crude_data
-                self.tank_manager.tanks,    # tanks
-                self.max_processing_rate    # max_processing
+            # Find all possible blends
+            all_possible_blends = self.blending_engine.find_optimal_blends(
+                self.blending_recipes,      
+                self.crude_data,            
+                self.tank_manager.tanks,    
+                float('inf')  # No global limit - we'll use recipe limits
             )
             
-            # Convert the returned list of tuples to a dictionary
-            blend_dict = {}
-            for recipe, margin, actual_rate in optimal_blends:
-                blend_dict[recipe.name] = actual_rate
-                
-            return blend_dict
+            # If no blends found, return empty dict
+            if not all_possible_blends:
+                print(f"Day {day_idx}: No viable blends found")
+                return {}
+            
+            # Sort by margin (highest first)
+            sorted_blends = sorted(all_possible_blends, key=lambda x: x[1], reverse=True)
+            
+            # Take only the best blend (highest margin)
+            best_recipe, best_margin, proposed_rate = sorted_blends[0]
+            
+            # Limit to recipe's max_rate
+            actual_rate = min(proposed_rate, best_recipe.max_rate)
+            print(f"Day {day_idx}: Selected recipe {best_recipe.name} at rate {actual_rate} (max: {best_recipe.max_rate})")
+            
+            # Return only the best recipe
+            return {best_recipe.name: actual_rate}
+            
         except Exception as e:
             print(f"Error in blend selection: {e}")
+            import traceback
+            traceback.print_exc()
             return {}
     
     def _create_daily_plan(self, day: int, optimal_blends: List[Tuple[BlendingRecipe, float, float]]) -> None:
         """
-        Create a daily plan and update tank inventory.
+        Create a daily plan for a single blend and update tank inventory.
         
         Args:
             day: Current day
-            optimal_blends: List of selected blends with rates
+            optimal_blends: List containing the selected blend with rate
         """
-        # Extract recipes and rates
+        # Extract the single recipe and rate
         processing_rates = {}
-        selected_recipes = []
+        selected_recipe = None
         
-        for recipe, margin, rate in optimal_blends:
+        if optimal_blends:
+            recipe, margin, rate = optimal_blends[0]  # Take only the first blend
+            
+            # Make sure we respect the recipe's max rate
+            rate = min(rate, recipe.max_rate)
+            
             processing_rates[recipe.name] = rate
-            selected_recipes.append(recipe)
+            selected_recipe = recipe
             
             # Withdraw crude from tanks based on recipe
             primary_volume = rate * recipe.primary_fraction
@@ -340,7 +368,7 @@ class Scheduler:
                 secondary_volume = rate * (1.0 - recipe.primary_fraction)
                 self._withdraw_crude(recipe.secondary_grade, secondary_volume)
         
-        # Calculate current inventory levels
+        # Calculate current inventory levels (keep this part the same)
         total_inventory = 0
         inventory_by_grade = {}
         
@@ -357,7 +385,7 @@ class Scheduler:
         daily_plan = DailyPlan(
             day=day,
             processing_rates=processing_rates,
-            blending_details=selected_recipes,
+            blending_details=[selected_recipe] if selected_recipe else [],
             inventory=total_inventory,
             inventory_by_grade=inventory_by_grade,
             tanks=self.tank_manager.tanks.copy()
@@ -448,3 +476,31 @@ class Scheduler:
             print(f"Error exporting to JSON: {e}")
             import traceback
             traceback.print_exc()
+
+    def _create_initial_plan(self):
+        """Create a day 0 plan with initial inventory"""
+        # Calculate current inventory levels
+        total_inventory = 0
+        inventory_by_grade = {}
+        
+        for tank in self.tank_manager.tanks.values():
+            for content in tank.content:
+                for grade, volume in content.items():
+                    total_inventory += volume
+                    if grade in inventory_by_grade:
+                        inventory_by_grade[grade] += volume
+                    else:
+                        inventory_by_grade[grade] = volume
+        
+        # Create day 0 plan (no processing)
+        daily_plan = DailyPlan(
+            day=0,
+            processing_rates={},
+            blending_details=[],
+            inventory=total_inventory,
+            inventory_by_grade=inventory_by_grade,
+            tanks=self.tank_manager.tanks.copy()
+        )
+        
+        self.daily_plans[0] = daily_plan
+        print(f"Initial inventory registered: {total_inventory} total, {inventory_by_grade} by grade")

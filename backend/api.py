@@ -134,43 +134,23 @@ def load_vessels() -> List[Vessel]:
                     vessel_id=vessel_id
                 ))
             
-            vessels.append(Vessel(
+            # Create vessel object without route parameter
+            vessel = Vessel(
                 vessel_id=vessel_id,
                 arrival_day=int(vessel_info.get("arrival_day", 0)),
                 capacity=float(vessel_info.get("capacity", 0)),
                 cost=float(vessel_info.get("cost", 0)),
                 cargo=cargo,
                 days_held=int(vessel_info.get("days_held", 0))
-            ))
-    else:
-        # Try to handle the file as a list of vessels or a single vessel object
-        vessel_list = vessels_data if isinstance(vessels_data, list) else [vessels_data]
-        
-        for vessel_info in vessel_list:
-            vessel_id = vessel_info.get("vessel_id", f"Unknown_Vessel_{len(vessels)}")
+            )
             
-            # Process cargo data
-            cargo = []
-            for parcel_info in vessel_info.get("cargo", []):
-                cargo.append(FeedstockParcel(
-                    grade=parcel_info.get("grade", ""),
-                    volume=parcel_info.get("volume", 0),
-                    origin=parcel_info.get("origin", ""),
-                    ldr={
-                        int(parcel_info.get("loading_start_day", 0)): 
-                        int(parcel_info.get("loading_end_day", 0))
-                    },
-                    vessel_id=vessel_id
-                ))
+            # Set route attribute separately
+            if "route" in vessel_info:
+                vessel.route = vessel_info["route"]
+                
+            vessels.append(vessel)
             
-            vessels.append(Vessel(
-                vessel_id=vessel_id,
-                arrival_day=int(vessel_info.get("arrival_day", 0)),
-                capacity=float(vessel_info.get("capacity", 0)),
-                cost=float(vessel_info.get("cost", 0)),
-                cargo=cargo,
-                days_held=int(vessel_info.get("days_held", 0))
-            ))
+    # ...handle the else case if needed...
     
     return vessels
 
@@ -469,6 +449,22 @@ def get_data():
     # Convert vessels list to dictionary format for frontend compatibility
     vessels_dict = {}
     for vessel in vessels:
+        # Process route data for the response
+        route_data = []
+        if hasattr(vessel, 'route') and vessel.route:
+            for route_segment in vessel.route:
+                if isinstance(route_segment, dict):
+                    # If it's already a dict, use it as is
+                    route_data.append(route_segment)
+                else:
+                    # Convert Route object to dict
+                    route_data.append({
+                        "from": route_segment.origin,
+                        "to": route_segment.destination,
+                        "day": getattr(route_segment, "day", 0),
+                        "travel_days": route_segment.time_travel
+                    })
+        
         vessels_dict[vessel.vessel_id] = {
             "vessel_id": vessel.vessel_id,
             "arrival_day": vessel.arrival_day,
@@ -484,7 +480,8 @@ def get_data():
                 }
                 for parcel in vessel.cargo
             ],
-            "days_held": vessel.days_held
+            "days_held": vessel.days_held,
+            "route": route_data  # Add this line to include route data
         }
     
     # Load schedule data if available
@@ -591,6 +588,22 @@ def run_scheduler():
                 print(f"  ✅ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is compatible")
             else:
                 print(f"  ❌ Recipe {recipe.name} ({recipe.primary_grade}/{recipe.secondary_grade}) is NOT compatible")
+        
+        # Add this section before creating the scheduler
+        print("\nInitial inventory from tanks:")
+        initial_inventory = {}
+        total_initial = 0
+        for tank_name, tank in tanks.items():
+            for content_item in tank.content:
+                for grade, amount in content_item.items():
+                    if grade in initial_inventory:
+                        initial_inventory[grade] += amount
+                    else:
+                        initial_inventory[grade] = amount
+                    total_initial += amount
+        
+        print(f"Total initial inventory: {total_initial}")
+        print(f"By grade: {initial_inventory}")
         
         # Create and run scheduler
         max_processing_rate = 100  # Use the same value as in test_scheduler.py
@@ -854,7 +867,6 @@ def optimize_vessels():
                 "capacity": vessel.capacity,
                 "cost": vessel.cost,
                 "days_held": vessel.days_held,
-                "cargo": cargo_json,
                 # Use the properly serialized route_json
                 "route": route_json
             }

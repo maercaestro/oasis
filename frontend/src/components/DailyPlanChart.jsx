@@ -389,7 +389,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
           onClick={() => setViewType('processing')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'processing' 
-              ? 'bg-blue-600 text-white' 
+              ? '!bg-emerald-600 text-white' 
               : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
           }`}
         >
@@ -399,7 +399,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
           onClick={() => setViewType('inventory')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'inventory' 
-              ? 'bg-blue-600 text-white' 
+              ? '!bg-emerald-600 text-white' 
               : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
           }`}
         >
@@ -409,7 +409,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
           onClick={() => setViewType('tanks')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'tanks' 
-              ? 'bg-blue-600 text-white' 
+              ? '!bg-emerald-600 text-white' 
               : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
           }`}
         >
@@ -433,7 +433,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
           onClick={() => setEditMode(!editMode)}
           className={`px-3 py-1.5 rounded-md text-sm font-medium ${
             editMode
-              ? 'bg-amber-500 text-white'
+              ? '!bg-blue-500 text-white'
               : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
           }`}
         >
@@ -443,7 +443,7 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
         {editMode && (
           <button 
             onClick={saveChanges}
-            className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700"
+            className="px-3 py-1.5 rounded-md text-sm font-medium !bg-emerald-600 text-white hover:bg-emerald-700"
           >
             Save Changes
           </button>

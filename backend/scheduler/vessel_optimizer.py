@@ -34,14 +34,29 @@ class VesselOptimizer:
         self.routes = routes
         self.vessel_types = vessel_types
     
-    def optimize(self, horizon_days: int =30) -> List[Vessel]:
+    def optimize(self, horizon_days: int =30, time_limit_seconds: int = 300) -> List[Vessel]:
         """
         Optimize vessel scheduling to minimize costs
-        params horizon_days: int the number of days to optimize for
-        return: List[Vessel] the list of scheduled vessels with their cargo
+        
+        Args:
+            horizon_days: Number of days to optimize for
+            time_limit_seconds: Maximum solving time in seconds
+            
+        Returns:
+            List of scheduled vessels with cargo
         """
         model = self._build_optimization_model(horizon_days)
-        model.solve()
+        
+        # Set time limit for solver
+        solver = plp.PULP_CBC_CMD(timeLimit=time_limit_seconds)
+        model.solve(solver)
+        
+        # Even if not optimal, extract the best solution found
+        print(f"Optimization status: {plp.LpStatus[model.status]}")
+        if model.status == plp.LpStatusOptimal:
+            print("Found optimal solution")
+        else:
+            print(f"Best solution found within {time_limit_seconds} seconds")
 
         vessels = self._extract_solution(model)
         return vessels
@@ -194,14 +209,12 @@ class VesselOptimizer:
     def _build_optimization_model(self, horizon_days: int) -> plp.LpProblem:
         """
         Build the optimization model for vessel scheduling.
-        params horizon_days: int the number of days to optimize for
-        return: plp.LpProblem the optimization model
         """
         # Create a linear programming problem
         model = plp.LpProblem("Vessel_Scheduling_Optimization", plp.LpMinimize)
         
         # Store horizon days for later use
-        model.horizon_days = horizon_days  # Add this line
+        model.horizon_days = horizon_days
 
         # Create decision variables for vessel type selection and loading
         # y[v_type, day] = 1 if vessel of type v_type is scheduled on day
@@ -220,6 +233,37 @@ class VesselOptimizer:
                         f"Load_Vessel_{v_idx}_Day_{day}_Req_{req_idx}", 
                         lowBound=0, 
                         cat='Continuous')
+        
+        # NEW: Preprocess to avoid unnecessary variables - MOVED UP
+        # Group requirements by grade for faster lookup
+        requirements_by_grade = {}
+        for req_idx, req in enumerate(self.requirements):
+            if req.grade not in requirements_by_grade:
+                requirements_by_grade[req.grade] = []
+            requirements_by_grade[req.grade].append((req_idx, req))
+        
+        # Get all unique grades
+        all_grades = set(req.grade for req in self.requirements)
+        
+        # Only add relevant grade variables and constraints
+        relevant_grades_by_vessel = {}
+        for v_idx, vessel_type in enumerate(self.vessel_types):
+            relevant_grades_by_vessel[v_idx] = set()
+            
+            for grade, reqs in requirements_by_grade.items():
+                # Check if this vessel type could practically carry this grade
+                if any(req.volume <= vessel_type["capacity"] for _, req in reqs):
+                    relevant_grades_by_vessel[v_idx].add(grade)
+        
+        # NEW: Create binary variables to track which grades are loaded - COMBINED
+        z = {}
+        for v_idx, vessel_type in enumerate(self.vessel_types):
+            relevant_grades = relevant_grades_by_vessel[v_idx]
+            for day in range(1, horizon_days+1):
+                for grade in relevant_grades:  # Only relevant grades!
+                    z[(v_idx, day, grade)] = plp.LpVariable(
+                        f"Grade_{grade}_on_Vessel_{v_idx}_Day_{day}", 
+                        cat='Binary')
         
         # Objective function: Minimize total cost of vessels
         model += plp.lpSum([self.vessel_types[v_idx]["cost"] * y[(v_idx, day)] 
@@ -248,11 +292,43 @@ class VesselOptimizer:
                     model += x[(v_idx, day, req_idx)] <= \
                             self.vessel_types[v_idx]["capacity"] * y[(v_idx, day)], \
                             f"Load_If_Used_{v_idx}_{day}_{req_idx}"
-                            
+        
+        # NEW: Link binary grade variables to loading variables
+        for v_idx in range(len(self.vessel_types)):
+            relevant_grades = relevant_grades_by_vessel[v_idx]
+            for day in range(1, horizon_days+1):
+                for grade in relevant_grades:
+                    # Find all requirements with this grade
+                    req_indices = [idx for idx, req in enumerate(self.requirements) if req.grade == grade]
+                    
+                    # If any requirement with this grade is loaded, set z = 1
+                    for req_idx in req_indices:
+                        model += x[(v_idx, day, req_idx)] <= \
+                                self.vessel_types[v_idx]["capacity"] * z[(v_idx, day, grade)], \
+                                f"Grade_Used_{v_idx}_{day}_{grade}_{req_idx}"
+                    
+                    # Only set z = 1 if there's actual volume loaded
+                    model += plp.lpSum([x[(v_idx, day, req_idx)] for req_idx in req_indices]) >= \
+                            0.001 * z[(v_idx, day, grade)], \
+                            f"Grade_Not_Used_{v_idx}_{day}_{grade}"
+        
+        # NEW: Constraint - maximum 3 grades per vessel (with unique constraint names)
+        for v_idx in range(len(self.vessel_types)):
+            capacity = self.vessel_types[v_idx]["capacity"]
+            for day in range(1, horizon_days+1):
+                # Limit number of binary z variables that can be 1 based on capacity
+                model += plp.lpSum([z[(v_idx, day, grade)] for grade in relevant_grades_by_vessel[v_idx]]) <= 3, \
+                        f"Max_Three_Grades_v{v_idx}_d{day}"
+                
+                # Add a valid inequality: if no vessel is used, no grades can be assigned
+                model += plp.lpSum([z[(v_idx, day, grade)] for grade in relevant_grades_by_vessel[v_idx]]) <= 3 * y[(v_idx, day)], \
+                        f"No_Grades_If_No_Vessel_v{v_idx}_d{day}"
+        
         # Store decision variables for solution extraction
         self._y_vars = y
         self._x_vars = x
-                
+        self._z_vars = z  # Store new variables
+            
         return model
 
     def _extract_solution(self, model: plp.LpProblem) -> List[Vessel]:
