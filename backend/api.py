@@ -14,7 +14,7 @@ from typing import Dict, List, Any, Optional
 
 from scheduler import (
     Scheduler, VesselOptimizer, SchedulerOptimizer, 
-    Tank, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement
+    Tank, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement, DailyPlan
 )
 
 from scheduler.models import BlendingRecipe
@@ -449,23 +449,7 @@ def get_data():
     # Convert vessels list to dictionary format for frontend compatibility
     vessels_dict = {}
     for vessel in vessels:
-        # Process route data for the response
-        route_data = []
-        if hasattr(vessel, 'route') and vessel.route:
-            for route_segment in vessel.route:
-                if isinstance(route_segment, dict):
-                    # If it's already a dict, use it as is
-                    route_data.append(route_segment)
-                else:
-                    # Convert Route object to dict
-                    route_data.append({
-                        "from": route_segment.origin,
-                        "to": route_segment.destination,
-                        "day": getattr(route_segment, "day", 0),
-                        "travel_days": route_segment.time_travel
-                    })
-        
-        vessels_dict[vessel.vessel_id] = {
+        vessel_data = {
             "vessel_id": vessel.vessel_id,
             "arrival_day": vessel.arrival_day,
             "capacity": vessel.capacity,
@@ -481,8 +465,15 @@ def get_data():
                 for parcel in vessel.cargo
             ],
             "days_held": vessel.days_held,
-            "route": route_data  # Add this line to include route data
         }
+        
+        # Add route if it exists
+        if hasattr(vessel, 'route'):
+            vessel_data["route"] = vessel.route
+        else:
+            vessel_data["route"] = []
+            
+        vessels_dict[vessel.vessel_id] = vessel_data
     
     # Load schedule data if available
     schedule_data = []
@@ -523,9 +514,14 @@ def run_scheduler():
         # Load vessels with proper conversion to FeedstockParcel objects
         vessels_data = load_data_file(VESSELS_FILE)
         vessels = []
-        
+
         if isinstance(vessels_data, dict):
             for vessel_id, vessel_info in vessels_data.items():
+                # Add this safety check
+                if not isinstance(vessel_info, dict):
+                    print(f"Warning: Vessel {vessel_id} has invalid format: {type(vessel_info)}. Skipping.")
+                    continue
+                    
                 # Process each cargo item into FeedstockParcel objects
                 cargo_objects = []
                 for cargo_item in vessel_info.get("cargo", []):
@@ -645,72 +641,158 @@ def run_scheduler():
 
 @app.route('/api/optimizer/optimize', methods=['POST'])
 def optimize_schedule():
-    """Optimize an existing schedule"""
+    """
+    Optimize a schedule using the SchedulerOptimizer.
+    Accepts a schedule and returns an optimized version based on objective.
+    """
     try:
+        # Parse request data
         data = request.json
-        
-        # Get parameters
+        days = data.get('days', 30)
         schedule_data = data.get('schedule', [])
-        objective = data.get('objective', 'margin')  # 'margin' or 'throughput'
-        max_processing_rate = data.get('max_processing_rate', 500)
+        objective = data.get('objective', 'margin')
         
-        # Load data
+        print(f"Optimizer Request: days={days}, objective={objective}")
+        print(f"Schedule data: {len(schedule_data)} days")
+        
+        # Check if we have schedule data
+        if not schedule_data:
+            return jsonify({
+                'success': False,
+                'error': 'No schedule data provided. Run the scheduler first.'
+            }, 400)
+        
+        # Load required data
         recipes = load_recipes()
         crudes = load_crudes()
-        vessels = load_vessels()
         
-        # Convert JSON schedule back to DailyPlan objects
-        # This is a simplified conversion - you'll need more logic to properly reconstruct DailyPlan objects
-        from backend.scheduler.models import DailyPlan
+        # Import the DailyPlan class explicitly here if needed
+        from scheduler.models import DailyPlan
         
-        existing_schedule = []
+        # Convert JSON schedule data to DailyPlan objects
+        daily_plans = []
         for day_data in schedule_data:
-            # Convert tanks from JSON format
-            tanks = {}
-            for tank_name, tank_data in day_data.get('tanks', {}).items():
-                tanks[tank_name] = Tank(
-                    name=tank_name,
-                    capacity=tank_data.get('capacity', 0),
-                    content=tank_data.get('content', [])
+            try:
+                # Create a simplified DailyPlan from the JSON data
+                daily_plan = DailyPlan(
+                    day=day_data.get('day', 0),
+                    processing_rates=day_data.get('processing_rates', {}),
+                    blending_details=day_data.get('blending_details', []),
+                    inventory=day_data.get('inventory', 0),
+                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
+                    tanks={}  # We may not need full tank objects for optimization
                 )
-            
-            # Create DailyPlan
-            plan = DailyPlan(
-                day=day_data.get('day', 0),
-                processing_rates=day_data.get('processing_rates', {}),
-                blending_details=recipes,  # Simplified - would need to match the specific recipes used
-                inventory=day_data.get('inventory', 0),
-                inventory_by_grade=day_data.get('inventory_by_grade', {}),
-                tanks=tanks
-            )
-            existing_schedule.append(plan)
+                daily_plans.append(daily_plan)
+            except Exception as e:
+                print(f"Error converting day {day_data.get('day', 'unknown')}: {str(e)}")
         
-        # Create optimizer
+        # Ensure we have daily plans
+        if not daily_plans:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to convert schedule data to daily plans'
+            }, 400)
+        
+        # Load vessels (required for optimization)
+        vessels_data = load_data_file(VESSELS_FILE)
+        vessels = []
+
+        if isinstance(vessels_data, dict):
+            for vessel_id, vessel_info in vessels_data.items():
+                try:
+                    # Process each cargo item into FeedstockParcel objects
+                    cargo_objects = []
+                    for cargo_item in vessel_info.get("cargo", []):
+                        if isinstance(cargo_item, dict) and "grade" in cargo_item and "volume" in cargo_item:
+                            # Convert loading days to ldr dict format expected by FeedstockParcel
+                            start_day = cargo_item.get("loading_start_day", 0)
+                            end_day = cargo_item.get("loading_end_day", 0)
+                            ldr = {start_day: end_day} if start_day and end_day else {0: 0}
+                            
+                            cargo_objects.append(FeedstockParcel(
+                                grade=cargo_item["grade"],
+                                volume=cargo_item["volume"],
+                                origin=cargo_item.get("origin", "Unknown"),
+                                ldr=ldr,
+                                vessel_id=vessel_id
+                            ))
+                    
+                    # Create the vessel with the correct parameters
+                    vessels.append(Vessel(
+                        vessel_id=vessel_id,
+                        arrival_day=vessel_info.get("arrival_day", 0),
+                        cost=vessel_info.get("cost", 0),
+                        capacity=vessel_info.get("capacity", 0),
+                        cargo=cargo_objects,
+                        days_held=vessel_info.get("days_held", 0)
+                    ))
+                except Exception as e:
+                    print(f"Error converting vessel {vessel_id}: {str(e)}")
+        
+        # Initialize optimizer
         optimizer = SchedulerOptimizer(
             blending_recipes=recipes,
             crude_data=crudes,
-            max_processing_rate=max_processing_rate
+            max_processing_rate=1000  # Use an appropriate default or get from data
         )
         
-        # Run optimization
-        if objective == 'throughput':
-            optimized_schedule = optimizer.optimize_throughput(existing_schedule, vessels)
-        else:
-            optimized_schedule = optimizer.optimize_margin(existing_schedule, vessels)
-        
-        # Convert optimized schedule to JSON
-        schedule_json = convert_daily_plans_to_json(optimized_schedule)
-        
-        return jsonify({
-            "success": True,
-            "schedule": schedule_json
-        })
-        
+        # Run optimization based on objective
+        try:
+            if objective == 'throughput':
+                print("Running throughput optimization")
+                optimized_schedule = optimizer.optimize_throughput(daily_plans, vessels)
+            else:
+                print("Running margin optimization")
+                optimized_schedule = optimizer.optimize_margin(daily_plans, vessels)
+                
+            # Convert the optimized schedule back to JSON
+            optimized_json = []
+            for plan in optimized_schedule:
+                plan_dict = {
+                    'day': plan.day,
+                    'processing_rates': plan.processing_rates,
+                    'blending_details': plan.blending_details,
+                    'inventory': plan.inventory,
+                    'inventory_by_grade': plan.inventory_by_grade
+                }
+                optimized_json.append(plan_dict)
+                
+            # Calculate total margin improvement
+            total_margin = sum(day.daily_margin for day in optimized_schedule)
+            original_margin = sum(day.daily_margin for day in daily_plans if hasattr(day, 'daily_margin'))
+
+            # Add to response
+            return jsonify({
+                'success': True,
+                'schedule': optimized_json,
+                'message': f'Optimized schedule for {objective}',
+                'days_processed': len(optimized_json),
+                'metrics': {
+                    'total_margin': total_margin,
+                    'original_margin': original_margin,
+                    'margin_improvement_percent': ((total_margin - original_margin) / original_margin * 100) if original_margin > 0 else 0
+                }
+            })
+            
+        except Exception as e:
+            error_message = f"Optimization error: {str(e)}"
+            print(error_message)
+            import traceback
+            print(traceback.format_exc())
+            return jsonify({
+                'success': False,
+                'error': error_message
+            }, 500)
+            
     except Exception as e:
+        error_message = f"API error: {str(e)}"
+        print(error_message)
+        import traceback
+        print(traceback.format_exc())
         return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+            'success': False, 
+            'error': error_message
+        }, 500)
 
 @app.route('/api/vessel-optimizer/generate-requirements', methods=['POST'])
 def generate_requirements():
@@ -789,6 +871,13 @@ def optimize_vessels():
         if use_file_requirements:
             requirements = load_feedstock_requirements()
             print(f"Loaded {len(requirements)} requirements from file")
+            
+            # DEBUG: Print detailed requirements info
+            print("\n=== DETAILED REQUIREMENTS DATA ===")
+            for i, req in enumerate(requirements):
+                print(f"Req {i}: {req.grade} from {req.origin}, volume: {req.volume}")
+                print(f"  - allowed_ldr: {req.allowed_ldr}")
+                print(f"  - required_arrival_by: {req.required_arrival_by}")
         else:
             # Convert requirements from JSON
             requirements = []
@@ -805,6 +894,21 @@ def optimize_vessels():
                 ))
             print(f"Created {len(requirements)} requirements from request")
         
+        # DEBUG: Validate vessel type capacities
+        print("\n=== VESSEL TYPE CAPACITIES ===")
+        for i, vtype in enumerate(vessel_types):
+            print(f"Vessel type {i}: {vtype.get('name', 'Unknown')} - Capacity: {vtype.get('capacity', 0)}")
+        
+        # Check requirement volumes vs vessel capacities
+        max_capacity = max(v.get('capacity', 0) for v in vessel_types) if vessel_types else 0
+        print(f"\nMax vessel capacity: {max_capacity}")
+        
+        oversize_reqs = [r for r in requirements if r.volume > max_capacity]
+        if oversize_reqs:
+            print(f"WARNING: {len(oversize_reqs)} requirements have volumes larger than max vessel capacity:")
+            for r in oversize_reqs:
+                print(f"  - {r.grade}: {r.volume} (max capacity: {max_capacity})")
+        
         # Create vessel optimizer
         vessel_optimizer = VesselOptimizer(
             feedstock_requirements=requirements,
@@ -812,89 +916,103 @@ def optimize_vessels():
             vessel_types=vessel_types
         )
         
-        print("Starting vessel optimization...")
-        # Run optimization
-        vessels = vessel_optimizer.optimize_and_save(horizon_days=horizon_days)
-        print(f"Optimization complete. Created {len(vessels)} vessels")
+        print(f"Starting vessel optimization with {len(requirements)} requirements...")
+        print(f"Network will include {len(vessel_optimizer.locations)} locations: {vessel_optimizer.locations}")
         
-        # Convert vessels to JSON
-        vessels_json = convert_vessels_to_json(vessels)
-        
-        # Save to vessels.json
-        vessels_dict = {}
-        for i, vessel in enumerate(vessels):
-            vessel_id = vessel.vessel_id if vessel.vessel_id else f"Vessel_{i:03d}"
-            print(f"Processing vessel {vessel_id} for JSON...")
+        # Run optimization with debug info
+        try:
+            vessels = vessel_optimizer.optimize(horizon_days=horizon_days)
+            print(f"Optimization complete. Created {len(vessels)} vessels")
             
-            # Process vessel cargo
-            cargo_json = []
-            for cargo in vessel.cargo:
-                ldr_start = next(iter(cargo.ldr.keys())) if cargo.ldr else 0
-                ldr_end = next(iter(cargo.ldr.values())) if cargo.ldr else 0
-                cargo_json.append({
-                    "grade": cargo.grade,
-                    "volume": cargo.volume,
-                    "origin": cargo.origin,
-                    "loading_start_day": ldr_start,
-                    "loading_end_day": ldr_end
-                })
+            # Summarize vessel plan
+            total_volume = sum(sum(c.volume for c in v.cargo) for v in vessels)
+            total_req_volume = sum(req.volume for req in requirements)
+            print(f"Total scheduled volume: {total_volume} of {total_req_volume} required ({total_volume/total_req_volume*100:.1f}% fulfilled)")
             
-            # Process vessel routes - properly serialize to dict
-            route_json = []
-            if hasattr(vessel, "route") and vessel.route:
-                print(f"Vessel {vessel_id} has route data, serializing...")
-                for segment in vessel.route:
-                    if isinstance(segment, dict):
-                        # It's already a dictionary
-                        route_json.append(segment)
-                    elif hasattr(segment, 'origin') and hasattr(segment, 'destination'):
-                        # It's a Route object
-                        route_json.append({
-                            "from": segment.origin,
-                            "to": segment.destination,
-                            "day": getattr(segment, "day", vessel.arrival_day),
-                            "travel_days": segment.time_travel
-                        })
-                    else:
-                        print(f"Warning: Unknown route segment format in vessel {vessel.vessel_id}: {type(segment)}")
-                        
-                print(f"Successfully serialized {len(route_json)} route segments")
-            
-            # Create the vessel dictionary with properly serialized routes
-            vessels_dict[vessel_id] = {
-                "vessel_id": vessel_id,
-                "arrival_day": vessel.arrival_day,
-                "capacity": vessel.capacity,
-                "cost": vessel.cost,
-                "days_held": vessel.days_held,
-                # Use the properly serialized route_json
-                "route": route_json
-            }
-        
-        # Save to file
-        print(f"Saving {len(vessels_dict)} vessels to {VESSELS_FILE}")
-        with open(VESSELS_FILE, 'w') as f:
-            json.dump(vessels_dict, f, indent=2)
-            
-        # Update the cache
-        data_cache[VESSELS_FILE] = vessels_dict
-        
-        print("Vessel optimization completed successfully")
-        return jsonify({
-            "success": True,
-            "vessels": vessels_json
-        })
-        
+            # Save results
+            vessels = vessel_optimizer.optimize_and_save(horizon_days=horizon_days)
+        except Exception as e:
+            print(f"Error during vessel optimization: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({
+                "success": False, 
+                "error": f"Optimization failed: {str(e)}"
+            }), 500
     except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        print(f"ERROR in vessel optimization: {e}")
-        print(error_trace)
-        return jsonify({
-            "success": False,
-            "error": str(e),
-            "trace": error_trace
-        }), 500
+        print(f"Optimization error: {str(e)}")
+        raise
+    
+    # Convert vessels to JSON
+    vessels_json = convert_vessels_to_json(vessels)
+    
+    # Save to vessels.json
+    vessels_dict = {}
+    for i, vessel in enumerate(vessels):
+        vessel_id = vessel.vessel_id if vessel.vessel_id else f"Vessel_{i:03d}"
+        print(f"Processing vessel {vessel_id} for JSON...")
+        
+        # Process vessel cargo
+        cargo_json = []
+        for cargo in vessel.cargo:
+            ldr_start = next(iter(cargo.ldr.keys())) if cargo.ldr else 0
+            ldr_end = next(iter(cargo.ldr.values())) if cargo.ldr else 0
+            cargo_json.append({
+                "grade": cargo.grade,
+                "volume": cargo.volume,
+                "origin": cargo.origin,
+                "loading_start_day": ldr_start,
+                "loading_end_day": ldr_end
+            })
+        
+        # Process vessel routes - properly serialize to dict
+        route_json = []
+        if hasattr(vessel, "route") and vessel.route:
+            print(f"Vessel {vessel_id} has route data, serializing...")
+            for segment in vessel.route:
+                if isinstance(segment, dict):
+                    # It's already a dictionary
+                    route_json.append(segment)
+                elif hasattr(segment, 'origin') and hasattr(segment, 'destination'):
+                    # It's a Route object
+                    route_json.append({
+                        "from": segment.origin,
+                        "to": segment.destination,
+                        "day": getattr(segment, "day", vessel.arrival_day),
+                        "travel_days": segment.time_travel
+                    })
+                else:
+                    print(f"Warning: Unknown route segment format in vessel {vessel.vessel_id}: {type(segment)}")
+                    
+            print(f"Successfully serialized {len(route_json)} route segments")
+        
+        # Create the vessel dictionary with properly serialized routes
+        vessels_dict[vessel_id] = {
+            "vessel_id": vessel_id,
+            "arrival_day": vessel.arrival_day,
+            "capacity": vessel.capacity,
+            "cost": vessel.cost,
+            "days_held": vessel.days_held,
+            "cargo": cargo_json,
+            # Use the properly serialized route_json
+            "route": route_json
+        }
+    
+    # Save to file
+    print(f"Saving {len(vessels_dict)} vessels to {VESSELS_FILE}")
+    with open(VESSELS_FILE, 'w') as f:
+        json.dump(vessels_dict, f, indent=2)
+        
+    # Update the cache
+    data_cache[VESSELS_FILE] = vessels_dict
+    
+    print("Vessel optimization completed successfully")
+    return jsonify({
+        "success": True,
+        "vessels": vessels_json
+    })
+        
+
 
 @app.route('/api/save-data', methods=['POST'])
 def save_data():
@@ -909,8 +1027,13 @@ def save_data():
             # Dynamic data
             if data_type == 'tanks':
                 file_path = TANKS_FILE
+                tank_name = content.get('name')
+                if tank_name:
+                    current_tanks = load_tanks()
+                    current_tanks[tank_name] = content
             elif data_type == 'vessels':
                 file_path = VESSELS_FILE
+                vessel_id = content.get('vessel_id')
             elif data_type == 'vessel_routes':
                 file_path = VESSEL_ROUTES_FILE
             elif data_type == 'feedstock_parcels':

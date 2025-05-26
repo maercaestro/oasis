@@ -5,6 +5,7 @@ import DataEditor from './components/DataEditor'
 import Chatbox from './components/Chatbox'
 import axios from 'axios'
 import logo from './assets/logo_oasis2.png'
+import ScheduleDashboard from './components/ScheduleDashboard';
 
 function App() {
   const [appMode, setAppMode] = useState('view')
@@ -32,6 +33,7 @@ function App() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [originalSchedule, setOriginalSchedule] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,10 +105,16 @@ function App() {
   const handleOptimizeSchedule = async () => {
     setIsOptimizing(true);
     setIsOptimizingSchedule(true);
+    // Store the original schedule for comparison
+    setOriginalSchedule(data.schedule);
+    
     try {
-      // Call the schedule optimizer API endpoint
-      const response = await axios.post('/api/optimizer/schedule', {
-        days: 30
+      // Fix #1: Use correct URL
+      // Fix #2: Send the current schedule data
+      const response = await axios.post('/api/optimizer/optimize', {
+        days: 30,
+        schedule: data.schedule,  // Add the current schedule
+        objective: 'margin'       // You can also specify the objective
       });
       
       if (response.data.success) {
@@ -133,6 +141,7 @@ function App() {
         type: 'error', 
         text: `Failed to optimize schedule: ${error.message || 'Unknown error'}` 
       });
+      setOriginalSchedule(null); // Clear original schedule if optimization failed
     } finally {
       setIsOptimizing(false);
       setIsOptimizingSchedule(false);
@@ -177,6 +186,26 @@ function App() {
     } finally {
       setIsOptimizing(false);
       setIsRunningScheduler(false);
+    }
+  };
+
+  // Add this function in your App component
+  const refreshData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get('/api/data?nocache=' + Date.now()); // Add cache-busting parameter
+      
+      setData({
+        schedule: response.data.schedule || [],
+        tanks: response.data.tanks || {},
+        vessels: response.data.vessels || [],
+        // ...other data
+      });
+      
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error refreshing data:", err);
+      setIsLoading(false);
     }
   };
 
@@ -496,7 +525,12 @@ function App() {
                 {/* VIEW MODE: Show visualizations */}
                 {appMode === 'view' && (
                   <>
-                    {visualizationView === 'dailyPlan' && <DailyPlanChart schedule={data.schedule} />}
+                    {visualizationView === 'dailyPlan' && (
+                      <DailyPlanChart 
+                        schedule={data.schedule} 
+                        originalSchedule={originalSchedule} // Pass original schedule for comparison
+                      />
+                    )}
                     {visualizationView === 'vessels' && (
                       <VesselSchedule 
                         vessels={data.vessels} 
@@ -542,30 +576,28 @@ function App() {
                         : data[activeEditor]
                     }
                     onSave={(updatedData) => {
-                      setData(prev => ({
-                        ...prev,
-                        [activeEditor]: updatedData
-                      }))
-                      
-                      // Show success message
-                      setOptimizationMessage({ 
-                        type: 'success', 
-                        text: `${activeEditor.charAt(0).toUpperCase() + activeEditor.slice(1).replace('_', ' ')} data updated successfully!` 
-                      })
-                      
-                      // Save to backend
+                      // Save to backend first
                       axios.post('/api/save-data', {
                         type: activeEditor,
                         content: updatedData
                       })
-                        .then(response => console.log(`Saved ${activeEditor} data to server`))
-                        .catch(error => {
-                          console.error(`Error saving ${activeEditor} data to server`, error)
-                          setOptimizationMessage({ 
-                            type: 'error', 
-                            text: `Failed to save ${activeEditor} data to server.` 
-                          })
-                        })
+                      .then(() => {
+                        // Then refresh all data
+                        refreshData();
+                        
+                        // Show success message
+                        setOptimizationMessage({ 
+                          type: 'success', 
+                          text: `${activeEditor.charAt(0).toUpperCase() + activeEditor.slice(1).replace('_', ' ')} data updated successfully!` 
+                        });
+                      })
+                      .catch(error => {
+                        console.error(`Error saving ${activeEditor} data`, error);
+                        setOptimizationMessage({ 
+                          type: 'error', 
+                          text: `Failed to save ${activeEditor} data.` 
+                        });
+                      });
                     }}
                   />
                 )}
@@ -574,36 +606,37 @@ function App() {
           </div>
         </div>
         
-        {/* Right sidebar - Chat - 25% width with enhanced styling */}
-        <div className="w-1/4 border-l border-slate-200 bg-white">
-          <div className="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200 p-3">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 !bg-emerald-600 rounded-full"></div>
-                <h3 className="text-sm font-medium text-slate-700">OASIS Assistant</h3>
-              </div>
+        {/* Right sidebar - Dashboard and Chat - 25% width with enhanced styling */}
+        <div className="w-1/4 p-4 border-l border-gray-200 flex flex-col">
+    
+          {/* Chat section - remaining space */}
+          <div className="flex-grow flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">Assistant</h3>
               <button 
                 onClick={() => setShowChat(!showChat)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+                className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
               >
                 {showChat ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5" />
-                  </svg>
+                  <>
+                    <span>Hide</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5" />
-                  </svg>
+                  <>
+                    <span>Show</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  </>
                 )}
               </button>
             </div>
+            
+            {showChat && <Chatbox />}
           </div>
-          
-          {showChat && (
-            <div className="h-full">
-              <Chatbox schedule={data.schedule} tanks={data.tanks} vessels={data.vessels} />
-            </div>
-          )}
         </div>
       </div>
     </div>

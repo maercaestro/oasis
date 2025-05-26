@@ -3,10 +3,5 @@
     "capacity": 700,
     "cost": 80000,
     "name": "Aframax"
-  },
-  {
-    "capacity": 500,
-    "cost": 60000,
-    "name": "Panamax"
   }
 ]

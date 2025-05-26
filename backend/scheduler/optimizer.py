@@ -3,309 +3,399 @@ OASIS Base Scheduler/optimizer.py
 This module refines schedules created by the main scheduler to optimize for margin or throughput.
 Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 """
-import pulp as plp
 from typing import List, Dict, Optional, Tuple, Set
 from .models import Tank, BlendingRecipe, FeedstockParcel, Vessel, DailyPlan, Crude
 from .blending import BlendingEngine
+import pulp as plp
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("optimizer_debug.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("scheduler.optimizer")
 
 class SchedulerOptimizer:
     """
     Optimizer for refining and improving refinery schedules created by the main scheduler.
     Can optimize for either maximum throughput or maximum margin.
     """
+    # Add constant for numerical stability
+    EPSILON = 1e-6
 
     def __init__(self, blending_recipes: List[BlendingRecipe],
                  crude_data: Dict[str, Crude], max_processing_rate: float):
         """
-        Initialize the schedule optimizer.
-
-        args:
-        blending_recipes: List[BlendingRecipe] - List of available blending recipes.
-        crude_data: Dict[str, Crude] - Dictionary of crude data.
-        max_processing_rate: float - Maximum daily processing rate for the refinery.
+        Initialize the optimizer with recipes and crude data
         """
         self.blending_recipes = blending_recipes
         self.crude_data = crude_data
         self.max_processing_rate = max_processing_rate
         self.blending_engine = BlendingEngine()
+        
+        logger.info(f"Initialized SchedulerOptimizer with {len(blending_recipes)} recipes")
+        logger.info(f"Available crude grades: {list(crude_data.keys())}")
+        logger.info(f"Max processing rate: {max_processing_rate}")
+        
+        # Log recipe details
+        for recipe in blending_recipes:
+            logger.info(f"Recipe: {recipe.name}, Primary: {recipe.primary_grade} ({recipe.primary_fraction}), "
+                      f"Secondary: {recipe.secondary_grade}, Max rate: {recipe.max_rate}")
 
     def optimize_throughput(self, existing_schedule: List[DailyPlan], vessels: List[Vessel] = None) -> List[DailyPlan]:
-        """
-        Optimize an existing schedule for maximum throughput.
-
-        args:
-        existing_schedule: List[DailyPlan] - The existing schedule to optimize
-        vessels: List[Vessel] - Optional list of vessels arriving during the planning period
-
-        return: List[DailyPlan] - List of optimized daily plans
-        """
+        """Optimize the schedule to maximize throughput"""
+        logger.info(f"Starting throughput optimization with {len(existing_schedule)} days of schedule")
+        if vessels:
+            logger.info(f"Using {len(vessels)} provided vessels")
+            
         return self._optimize(existing_schedule, vessels, objective="throughput")
     
     def optimize_margin(self, existing_schedule: List[DailyPlan], vessels: List[Vessel] = None) -> List[DailyPlan]:
-        """
-        Optimize an existing schedule for maximum margin.
-        
-        args:
-        existing_schedule: List[DailyPlan] - The existing schedule to optimize
-        vessels: List[Vessel] - Optional list of vessels arriving during the planning period
-        
-        return: List[DailyPlan] - List of optimized daily plans
-        """
+        """Optimize the schedule to maximize margin"""
+        logger.info(f"Starting margin optimization with {len(existing_schedule)} days of schedule")
+        if vessels:
+            logger.info(f"Using {len(vessels)} provided vessels")
+            
         return self._optimize(existing_schedule, vessels, objective="margin")
     
-    def _optimize(self, existing_schedule: List[DailyPlan], vessels: List[Vessel], objective: str) -> List[DailyPlan]:
+    def _optimize(self, existing_schedule: List[DailyPlan], vessels: List[Vessel] = None, 
+                 objective: str = "margin") -> List[DailyPlan]:
         """
-        Optimize the refinery schedule using multi-period optimization.
-
-        args:
-        existing_schedule: List[DailyPlan] - The existing schedule to optimize
-        vessels: List[Vessel] - List of vessels arriving during the planning period
-        objective: str - Objective to optimize for. Can be "throughput" or "margin"
-
-        return: List[DailyPlan] - List of optimized daily plans
+        Core optimization function used by both throughput and margin optimization.
+        
+        Args:
+            existing_schedule: List of DailyPlan objects representing the current schedule
+            vessels: List of vessels with arrival schedules (optional)
+            objective: Either 'margin' or 'throughput' to determine optimization goal
+            
+        Returns:
+            List of optimized DailyPlan objects
         """
-        # Determine the planning horizon based on the existing schedule
+        # Check if we have data to optimize
+        if not existing_schedule:
+            logger.error("No schedule data provided for optimization")
+            raise ValueError("No schedule provided for optimization")
+            
+        logger.info(f"Starting {objective} optimization with {len(existing_schedule)} days")
+        
+        # Log schedule inventory
+        for i, day in enumerate(existing_schedule):
+            logger.info(f"Day {day.day}: Inventory = {day.inventory}, "
+                      f"Grades = {day.inventory_by_grade}")
+        
+        # Extract initial tanks from first day
+        try:
+            initial_tanks = existing_schedule[0].tanks
+            logger.info(f"Initial tanks: {len(initial_tanks)}")
+            
+            # Log initial inventory per tank
+            for tank_name, tank in initial_tanks.items():
+                total = sum(sum(content.values()) for content in tank.content)
+                logger.info(f"  Tank {tank_name}: {total} units")
+                for content in tank.content:
+                    for grade, volume in content.items():
+                        logger.info(f"    - {grade}: {volume} units")
+                        
+        except (IndexError, AttributeError) as e:
+            logger.error(f"Failed to extract initial tanks: {e}")
+            logger.error(f"Schedule first day: {existing_schedule[0] if existing_schedule else 'No schedule'}")
+            raise ValueError(f"Invalid schedule format: {e}")
+            
+        # Get all unique crude grades used in the schedule
+        all_grades = self._get_all_grades(existing_schedule)
+        logger.info(f"Unique grades in schedule: {all_grades}")
+        
+        # Get number of days
         days = len(existing_schedule)
         
-        # Extract initial tank state from the first day of the existing schedule
-        initial_tanks = existing_schedule[0].tanks
+        # Create optimization model
+        model = plp.LpProblem(name="refinery_schedule_optimization", sense=plp.LpMaximize)
+        logger.info("Created optimization model")
         
-        # Create the optimization model
-        model = plp.LpProblem("Schedule_Refinement", plp.LpMaximize)
-        
-        # Get all unique crude grades in the system
-        all_grades = self._get_all_grades(existing_schedule, vessels)
-        
-        # DECISION VARIABLES
-        
-        # 1. Processing rate for each recipe on each day
+        # Define decision variables:
+        # 1. Processing rates for each day and recipe
         rates = {}
         for day in range(1, days+1):
             for recipe in self.blending_recipes:
-                rates[(day, recipe.name)] = plp.LpVariable(
-                    f"Rate_Day{day}_{recipe.name}", 
-                    lowBound=0, 
-                    upBound=recipe.max_rate
-                )
+                var_name = f"rate_{day}_{recipe.name}"
+                rates[(day, recipe.name)] = plp.LpVariable(var_name, lowBound=0, upBound=recipe.max_rate)
+                logger.debug(f"Created variable: {var_name}, bounds: [0, {recipe.max_rate}]")
         
-        # 2. Inventory tracking variables for each grade on each day
-        inventory = {}
-        for day in range(0, days+1):  # Day 0 is initial inventory
-            for grade in all_grades:
-                inventory[(day, grade)] = plp.LpVariable(
-                    f"Inventory_Day{day}_{grade}", 
-                    lowBound=0
-                )
-        
-        # CONSTRAINTS
-        
-        # 1. Set initial inventory (day 0) from first day of schedule
-        for grade in all_grades:
-            initial_amount = existing_schedule[0].inventory_by_grade.get(grade, 0)
-            model += inventory[(0, grade)] == initial_amount, f"Initial_{grade}"
-        
-        # 2. Inventory balance constraints for each day and grade
-        for day in range(1, days+1):
-            for grade in all_grades:
-                # Consumption from recipes
-                consumption = plp.lpSum([
-                    # Primary grade consumption
-                    rates[(day, recipe.name)] * recipe.primary_fraction 
-                    for recipe in self.blending_recipes 
-                    if recipe.primary_grade == grade
-                ]) + plp.lpSum([
-                    # Secondary grade consumption
-                    rates[(day, recipe.name)] * (1.0 - recipe.primary_fraction) 
-                    for recipe in self.blending_recipes 
-                    if recipe.secondary_grade == grade
-                ])
-                
-                # Deliveries from vessels arriving today
-                delivery = plp.lpSum([
-                    parcel.volume
-                    for vessel in (vessels or [])
-                    if vessel.arrival_day == day
-                    for parcel in vessel.cargo
-                    if parcel.grade == grade
-                ])
-                
-                # Inventory balance: previous + deliveries - consumption = current
-                model += (
-                    inventory[(day-1, grade)] + delivery - consumption == inventory[(day, grade)]
-                ), f"Balance_Day{day}_{grade}"
-        
-        # 3. Processing capacity constraint for each day
-        for day in range(1, days+1):
-            model += plp.lpSum([
-                rates[(day, recipe.name)] 
-                for recipe in self.blending_recipes
-            ]) <= self.max_processing_rate, f"Capacity_Day{day}"
-        
-        # 4. Inventory must be sufficient for processing
+        # NEW: Add binary variables for recipe selection (1 if recipe is used on that day, 0 otherwise)
+        recipe_used = {}
         for day in range(1, days+1):
             for recipe in self.blending_recipes:
-                # Primary grade must be available
-                if recipe.primary_grade in all_grades:
-                    model += rates[(day, recipe.name)] * recipe.primary_fraction <= inventory[(day-1, recipe.primary_grade)], \
-                           f"PrimaryAvail_Day{day}_{recipe.name}"
+                var_name = f"use_{day}_{recipe.name}"
+                recipe_used[(day, recipe.name)] = plp.LpVariable(var_name, cat=plp.LpBinary)
+                logger.debug(f"Created binary variable: {var_name} for recipe selection")
+        
+        # 2. Inventory for each day and grade
+        inventory = {}
+        for day in range(days+1):  # Include day 0 for initial state
+            for grade in all_grades:
+                var_name = f"inventory_{day}_{grade}"
+                inventory[(day, grade)] = plp.LpVariable(var_name, lowBound=0)
+                logger.debug(f"Created variable: {var_name}, bounds: [0, None]")
+        
+        # Set initial inventory from first day of existing schedule
+        for grade in all_grades:
+            initial_amount = existing_schedule[0].inventory_by_grade.get(grade, 0)
+            model += inventory[(0, grade)] == initial_amount
+            logger.info(f"Initial inventory for {grade}: {initial_amount}")
+        
+        # Add constraints
+        logger.info("Adding constraints to the model...")
+        
+        # NEW: Add constraint to ensure only one recipe is used per day
+        for day in range(1, days+1):
+            one_recipe_constraint = plp.lpSum([recipe_used[(day, recipe.name)] for recipe in self.blending_recipes]) == 1
+            model += one_recipe_constraint
+            logger.info(f"Day {day}: Added constraint to use exactly one recipe")
+        
+        # NEW: Link binary variables to processing rates
+        M = self.max_processing_rate  # Big-M value
+        for day in range(1, days+1):
+            for recipe in self.blending_recipes:
+                # If recipe_used is 0, then rate must be 0
+                # If recipe_used is 1, then rate can be up to recipe.max_rate
+                model += rates[(day, recipe.name)] <= M * recipe_used[(day, recipe.name)]
+                model += rates[(day, recipe.name)] <= recipe.max_rate
+                logger.debug(f"Day {day}, {recipe.name}: Linked binary selection to processing rate")
                 
-                # Secondary grade must be available (if needed)
-                if recipe.secondary_grade and recipe.secondary_grade in all_grades:
-                    model += rates[(day, recipe.name)] * (1.0 - recipe.primary_fraction) <= inventory[(day-1, recipe.secondary_grade)], \
-                           f"SecondaryAvail_Day{day}_{recipe.name}"
+                # Optional: Add minimum processing rate if recipe is selected
+                # min_rate = 10  # Minimum rate if recipe is chosen
+                # model += rates[(day, recipe.name)] >= min_rate * recipe_used[(day, recipe.name)]
         
-        # OBJECTIVE FUNCTION
+        # 1. Maximum processing rate per day
+        for day in range(1, days+1):
+            constraint = plp.lpSum([rates[(day, recipe.name)] for recipe in self.blending_recipes]) <= self.max_processing_rate
+            model += constraint
+            logger.debug(f"Day {day} max processing: <= {self.max_processing_rate}")
+            
+        # 2. Inventory balance constraints
+        for day in range(1, days+1):
+            for grade in all_grades:
+                # Calculate consumption of this grade by all recipes
+                consumption = 0
+                for recipe in self.blending_recipes:
+                    if recipe.primary_grade == grade:
+                        consumption += rates[(day, recipe.name)] * recipe.primary_fraction
+                    if recipe.secondary_grade == grade:
+                        consumption += rates[(day, recipe.name)] * (1 - recipe.primary_fraction)
+                
+                # Calculate arrivals from vessels on this day
+                arrivals = 0
+                if vessels:
+                    for vessel in vessels:
+                        if vessel.arrival_day == day:
+                            for cargo in vessel.cargo:
+                                if cargo.grade == grade:
+                                    arrivals += cargo.volume
+                                    logger.info(f"Day {day}: {cargo.volume} units of {grade} arriving")
+                
+                # Inventory balance equation: today = yesterday - consumption + arrivals
+                constraint = inventory[(day, grade)] == inventory[(day-1, grade)] - consumption + arrivals
+                model += constraint
+                logger.debug(f"Day {day}, {grade} balance: today = yesterday - {consumption} + {arrivals}")
+                
+        # 3. Recipe feasibility constraints
+        for day in range(1, days+1):
+            for recipe in self.blending_recipes:
+                # Can't use more primary grade than available
+                primary_constraint = rates[(day, recipe.name)] * recipe.primary_fraction <= inventory[(day-1, recipe.primary_grade)]
+                model += primary_constraint
+                logger.debug(f"Day {day}, {recipe.name} primary limit: <= {recipe.primary_grade} inventory")
+                
+                # Can't use more secondary grade than available (if applicable)
+                if recipe.secondary_grade:
+                    secondary_constraint = rates[(day, recipe.name)] * (1 - recipe.primary_fraction) <= inventory[(day-1, recipe.secondary_grade)]
+                    model += secondary_constraint
+                    logger.debug(f"Day {day}, {recipe.name} secondary limit: <= {recipe.secondary_grade} inventory")
         
+        # Set objective function based on parameter
+        logger.info(f"Setting objective function for {objective} optimization")
         if objective == "throughput":
-            # Maximize total throughput across planning horizon
-            model += plp.lpSum([
-                rates[(day, recipe.name)]
-                for day in range(1, days+1)
-                for recipe in self.blending_recipes
-            ]), "Total_Throughput"
-        else:  # margin
-            # Maximize total margin across planning horizon
-            model += plp.lpSum([
-                rates[(day, recipe.name)] * self.blending_engine.blend_margin(recipe, self.crude_data)
-                for day in range(1, days+1)
-                for recipe in self.blending_recipes
-            ]), "Total_Margin"
-        
-        # Optional: add constraints to limit deviation from original schedule
-        # This can be enabled if you want the optimized schedule to stay close to the original
-        enable_deviation_limit = False
-        if enable_deviation_limit:
-            max_deviation = 0.2  # Maximum 20% deviation from original
+            # Maximize total processing
+            model += plp.lpSum([rates[(day, recipe.name)] for day in range(1, days+1) 
+                               for recipe in self.blending_recipes])
+            logger.info("Objective: Maximize total processing volume")
+        else:
+            # Maximize margin (default)
+            objective_expr = 0
             for day in range(1, days+1):
                 for recipe in self.blending_recipes:
-                    # Get original rate from existing schedule
-                    original_rate = existing_schedule[day-1].processing_rates.get(recipe.name, 0)
-                    if original_rate > 0:
-                        # Limit deviation from original rate
-                        model += rates[(day, recipe.name)] >= original_rate * (1 - max_deviation), f"MinDev_Day{day}_{recipe.name}"
-                        model += rates[(day, recipe.name)] <= original_rate * (1 + max_deviation), f"MaxDev_Day{day}_{recipe.name}"
+                    margin = self.blending_engine.blend_margin(recipe, self.crude_data)
+                    objective_expr += rates[(day, recipe.name)] * margin
+                    logger.debug(f"Recipe {recipe.name} margin: {margin}")
+                    
+            model += objective_expr
+            logger.info("Objective: Maximize total margin")
         
         # Solve the model
-        model.solve(plp.PULP_CBC_CMD(msg=False))
+        logger.info("Solving optimization model...")
+
+        # Add solver parameters for performance
+        time_limit = 1200  # Maximum solve time in seconds
+
+        # Configure solver with performance parameters
+        solver = plp.PULP_CBC_CMD(
+            msg=True,  # Show solver output
+            gapRel=0.05,  # Accept solutions within specified gap
+            timeLimit=time_limit,  # Maximum time in seconds
+            options=['log=2']  # More frequent logging
+        )
+
+        logger.info(f"Using solver with MIP gap=0.05 and time limit={time_limit} seconds")
+        model.solve(solver)
+
+        # Check solution status
+        status = plp.LpStatus[model.status]
+        logger.info(f"Optimization status: {status}")
         
-        if model.status != plp.LpStatusOptimal:
-            print(f"Warning: Optimization did not reach optimal status. Status: {model.status}")
-            return existing_schedule  # Return original schedule if optimization failed
+        if status != 'Optimal':
+            logger.warning(f"Optimization did not complete successfully: {status}")
+            if status == 'Infeasible':
+                logger.error("The problem has no feasible solution - check constraints")
+                # Try to identify which constraints might be causing infeasibility
+                self._debug_infeasible_model(model)
+            return existing_schedule  # Return the original schedule if optimization fails
+            
+        # Log objective value
+        logger.info(f"Objective value: {plp.value(model.objective)}")
         
-        # Extract solution into daily plans
-        optimized_plans = []
+        # Create optimized schedule
+        logger.info("Creating optimized schedule...")
+        optimized_schedule = []
         
-        for day in range(1, days+1):
-            # Get processing rates for this day
+        for day_idx in range(days):
+            day = day_idx + 1  # Day 1-indexed in the model
+            
+            # Extract processing rates for this day
             processing_rates = {}
-            blending_details = []
+            blend_details = []
+            total_processing = 0
             
             for recipe in self.blending_recipes:
                 rate_value = rates[(day, recipe.name)].value()
-                if rate_value > 0.001:  # Ignore very small rates
+                if rate_value > self.EPSILON:  # Only include non-zero rates
                     processing_rates[recipe.name] = rate_value
-                    blending_details.append(recipe)
+                    blend_details.append(recipe)
+                    total_processing += rate_value
+                    logger.info(f"Day {day}: Processing {rate_value} units of {recipe.name}")
             
-            # Get inventory by grade for this day
+            # Calculate inventory for this day
             inventory_by_grade = {}
+            total_inventory = 0
+            
             for grade in all_grades:
-                inv_value = inventory[(day, grade)].value()
-                if inv_value > 0.001:  # Ignore very small inventories
-                    inventory_by_grade[grade] = inv_value
+                grade_inventory = inventory[(day, grade)].value()
+                if grade_inventory > self.EPSILON:
+                    inventory_by_grade[grade] = grade_inventory
+                    total_inventory += grade_inventory
+                    logger.debug(f"Day {day}: {grade} inventory = {grade_inventory}")
+
+            # Add this code right before creating the new DailyPlan object
+
+            # Calculate margin for this day
+            daily_margin = 0.0
+            for recipe_name, rate in processing_rates.items():
+                # Find the recipe object
+                recipe_obj = next((r for r in self.blending_recipes if r.name == recipe_name), None)
+                if recipe_obj:
+                    # Calculate margin for this recipe
+                    recipe_margin = self.blending_engine.blend_margin(recipe_obj, self.crude_data)
+                    recipe_total = rate * recipe_margin
+                    daily_margin += recipe_total
+
+                    # Add margin information to the recipe object in blend_details
+                    for i, recipe_detail in enumerate(blend_details):
+                        if recipe_detail.name == recipe_name:
+                            # Create a copy to avoid modifying the original recipe
+                            blend_details[i] = BlendingRecipe(
+                                name=recipe_detail.name,
+                                primary_grade=recipe_detail.primary_grade,
+                                secondary_grade=recipe_detail.secondary_grade,
+                                max_rate=recipe_detail.max_rate,
+                                primary_fraction=recipe_detail.primary_fraction
+                            )
+                            # Add margin as an attribute
+                            setattr(blend_details[i], 'margin', recipe_margin)
+                            setattr(blend_details[i], 'total_margin', recipe_total)
+                            break
+
+            logger.info(f"Day {day}: Total margin = {daily_margin}")
             
-            # Calculate total inventory
-            total_inventory = sum(inventory_by_grade.values())
-            
-            # Get tanks from original schedule but adjust content to match new inventory
-            # This is a simplification - in practice you would need a more sophisticated
-            # algorithm to distribute inventory among tanks
-            adjusted_tanks = self._adjust_tank_contents(existing_schedule[day-1].tanks, inventory_by_grade)
-            
-            # Create daily plan
-            daily_plan = DailyPlan(
+            # Create DailyPlan for this day
+            new_plan = DailyPlan(
                 day=day,
                 processing_rates=processing_rates,
-                blending_details=blending_details,
+                blending_details=blend_details,
                 inventory=total_inventory,
                 inventory_by_grade=inventory_by_grade,
-                tanks=adjusted_tanks
+                # Include margin data in each day
+                daily_margin=daily_margin,
+                # Include margins per recipe in blending_details
+                tanks=existing_schedule[day_idx].tanks if day_idx < len(existing_schedule) else {}
             )
             
-            optimized_plans.append(daily_plan)
+            optimized_schedule.append(new_plan)
+            logger.info(f"Day {day}: Total inventory = {total_inventory}, Processing = {total_processing}")
         
-        return optimized_plans
+        logger.info(f"Optimization complete! Created {len(optimized_schedule)} days of schedule")
+        return optimized_schedule
     
-    def _get_all_grades(self, existing_schedule: List[DailyPlan], vessels: List[Vessel] = None) -> Set[str]:
-        """Get all crude grades used in the system."""
+    def _get_all_grades(self, schedule: List[DailyPlan]) -> Set[str]:
+        """Extract all unique crude grades used in the schedule"""
         grades = set()
+        for day in schedule:
+            if hasattr(day, 'inventory_by_grade'):
+                grades.update(day.inventory_by_grade.keys())
         
-        # Grades from recipes
+        # Also add grades from recipes
         for recipe in self.blending_recipes:
-            if recipe.primary_grade:
-                grades.add(recipe.primary_grade)
+            grades.add(recipe.primary_grade)
             if recipe.secondary_grade:
                 grades.add(recipe.secondary_grade)
-        
-        # Grades in existing schedule
-        for plan in existing_schedule:
-            for grade in plan.inventory_by_grade:
-                grades.add(grade)
-        
-        # Grades in arriving vessels
-        if vessels:
-            for vessel in vessels:
-                for parcel in vessel.cargo:
-                    grades.add(parcel.grade)
-        
+                
         return grades
     
-    def _adjust_tank_contents(self, original_tanks: Dict[str, Tank], inventory_by_grade: Dict[str, float]) -> Dict[str, Tank]:
+    def _debug_infeasible_model(self, model):
         """
-        Adjust tank contents to match new inventory levels while preserving tank structure.
-        
-        args:
-        original_tanks: Dict[str, Tank] - Original tank state
-        inventory_by_grade: Dict[str, float] - Target inventory by grade
-        
-        return: Dict[str, Tank] - Adjusted tank contents
+        Try to identify why a model is infeasible by checking constraints
         """
-        # Copy tank structure
-        adjusted_tanks = {}
-        for name, tank in original_tanks.items():
-            adjusted_tanks[name] = Tank(
-                name=name,
-                capacity=tank.capacity,
-                content=[]
-            )
+        logger.info("Debugging infeasible model...")
         
-        # Make a copy of inventory_by_grade that we'll modify as we allocate
-        remaining_inventory = inventory_by_grade.copy()
+        # Check initial inventory values
+        initial_inventory = {}
+        for var in model.variables():
+            if var.name.startswith("inventory_0_"):
+                grade = var.name.replace("inventory_0_", "")
+                initial_inventory[grade] = var.value()
+                
+        logger.info(f"Initial inventory values: {initial_inventory}")
         
-        # First pass: try to maintain existing grade-to-tank assignments
-        for name, tank in original_tanks.items():
-            for content_dict in tank.content:
-                for grade in content_dict:
-                    if grade in remaining_inventory and remaining_inventory[grade] > 0:
-                        # Calculate how much we can put in this tank
-                        available_space = tank.capacity - sum(sum(c.values()) for c in adjusted_tanks[name].content)
-                        amount = min(remaining_inventory[grade], available_space)
-                        
-                        if amount > 0:
-                            adjusted_tanks[name].content.append({grade: amount})
-                            remaining_inventory[grade] -= amount
+        # Check for zero inventory grades that are needed by recipes
+        for recipe in self.blending_recipes:
+            primary_inv = initial_inventory.get(recipe.primary_grade, 0)
+            if primary_inv <= self.EPSILON:
+                logger.warning(f"Recipe {recipe.name} needs {recipe.primary_grade} but initial inventory is {primary_inv}")
+                
+            if recipe.secondary_grade:
+                secondary_inv = initial_inventory.get(recipe.secondary_grade, 0)
+                if secondary_inv <= self.EPSILON:
+                    logger.warning(f"Recipe {recipe.name} needs {recipe.secondary_grade} but initial inventory is {secondary_inv}")
         
-        # Second pass: allocate any remaining inventory to tanks with space
-        for grade, volume in list(remaining_inventory.items()):
-            if volume > 0.001:  # If there's still inventory to allocate
-                for name, tank in adjusted_tanks.items():
-                    available_space = tank.capacity - sum(sum(c.values()) for c in tank.content)
-                    if available_space > 0:
-                        amount = min(volume, available_space)
-                        tank.content.append({grade: amount})
-                        remaining_inventory[grade] -= amount
-                        volume -= amount
-                        
-                        if volume < 0.001:
-                            break
+        # Check for other potential issues
+        if not self.blending_recipes:
+            logger.error("No blending recipes provided")
         
-        return adjusted_tanks
+        if sum(initial_inventory.values()) <= self.EPSILON:
+            logger.error("No initial inventory available")
+            
+        logger.info("Debug complete - see warnings above for potential causes")

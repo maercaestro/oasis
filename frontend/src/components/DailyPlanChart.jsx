@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts'
 import axios from 'axios'
+import { DashboardCard, ScheduleDashboardCards } from './DashboardCard' // Import the dashboard cards
 
-function DailyPlanChart({ schedule, onScheduleChange }) {
+function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null }) {
   const [viewType, setViewType] = useState('processing')
   const [showDetails, setShowDetails] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -383,6 +384,9 @@ function DailyPlanChart({ schedule, onScheduleChange }) {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Add Dashboard Cards at the top */}
+      <ScheduleDashboardCards schedule={schedule} originalSchedule={originalSchedule} />
+      
       {/* Chart type selector */}
       <div className="flex gap-3 mb-4 flex-wrap">
         <button 

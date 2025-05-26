@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { DndContext, useDraggable } from '@dnd-kit/core'
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers'
+import { VesselDashboardCards } from './DashboardCard' // Import the dashboard cards
 
 function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
   const [vessels, setVessels] = useState([])
@@ -44,28 +45,40 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
     // Check if it's a single vessel object
     if (vesselsData.vessel_id) {
       const vessel = vesselsData
+      // Sum up all cargo volumes
+      const totalVolume = vessel.cargo?.reduce((sum, cargo) => sum + (cargo.volume || 0), 0) || 0;
+      // Determine crude type display
+      const crudeType = vessel.cargo?.length > 1 ? "Multiple" : vessel.cargo?.[0]?.grade || "Unknown";
+      
       return [{
         id: vessel.vessel_id,
         name: vessel.vessel_id,
         arrival_day: parseInt(vessel.arrival_day),
         departure_day: parseInt(vessel.arrival_day) + 3, // Default
-        crude_type: vessel.cargo?.[0]?.grade || "Unknown",
-        volume: vessel.cargo?.[0]?.volume || 0,
-        route: vessel.route || [], // Extract route information
+        crude_type: crudeType,
+        volume: totalVolume, // Now using the total volume of all cargo
+        route: vessel.route || [],
         original: vessel
       }]
     } else if (typeof vesselsData === 'object') {
       // Handle dictionary format {Vessel_001: {...}, Vessel_002: {...}}
-      return Object.entries(vesselsData).map(([key, vessel]) => ({
-        id: key,
-        name: vessel.vessel_id || key,
-        arrival_day: parseInt(vessel.arrival_day),
-        departure_day: parseInt(vessel.arrival_day) + 3, // Default
-        crude_type: vessel.cargo?.[0]?.grade || "Unknown",
-        volume: vessel.cargo?.[0]?.volume || 0,
-        route: vessel.route || [], // Extract route information
-        original: vessel
-      }))
+      return Object.entries(vesselsData).map(([key, vessel]) => {
+        // Sum up all cargo volumes
+        const totalVolume = vessel.cargo?.reduce((sum, cargo) => sum + (cargo.volume || 0), 0) || 0;
+        // Determine crude type display
+        const crudeType = vessel.cargo?.length > 1 ? "Multiple" : vessel.cargo?.[0]?.grade || "Unknown";
+        
+        return {
+          id: key,
+          name: vessel.vessel_id || key,
+          arrival_day: parseInt(vessel.arrival_day),
+          departure_day: parseInt(vessel.arrival_day) + 3, // Default
+          crude_type: crudeType,
+          volume: totalVolume, // Now using the total volume of all cargo
+          route: vessel.route || [],
+          original: vessel
+        };
+      })
     }
     return []
   }
@@ -269,9 +282,9 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
     return (
       <div className="mt-2 relative">
         {/* Route timeline visualization */}
-        <div className="h-2 relative w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-3 relative w-full bg-gray-100 rounded-full overflow-hidden">
           {vessel.route.map((segment, index) => {
-            const segmentWidth = segment.travel_days * timelineConfig.dayWidth;
+            // Calculate positions for the entire journey
             const startDay = segment.day - segment.travel_days;
             const startPosition = dayToPosition(startDay) - dayToPosition(vessel.arrival_day);
             const endPosition = dayToPosition(segment.day) - dayToPosition(vessel.arrival_day);
@@ -284,7 +297,9 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
                 style={{ 
                   left: `${startPosition}px`, 
                   width: `${width}px`,
-                  background: `linear-gradient(to right, ${getLocationColor(segment.from)}, ${getLocationColor(segment.to)})`
+                  background: `linear-gradient(to right, ${getLocationColor(segment.from)}, ${getLocationColor(segment.to)})`,
+                  // Add traveling pattern
+                  backgroundImage: index > 0 ? `repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.3) 5px, rgba(255,255,255,0.3) 10px)` : '',
                 }}
                 title={`${segment.from} to ${segment.to} (Day ${startDay} - Day ${segment.day})`}
               />
@@ -293,32 +308,65 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
           
           {/* Stop markers */}
           {vessel.route.map((segment, index) => {
-            if (index === 0) return null; // Skip first segment start
-            
-            const stopDay = segment.day - segment.travel_days;
-            const stopPosition = dayToPosition(stopDay) - dayToPosition(vessel.arrival_day);
+            // Show both departure and arrival points
+            const departureDay = segment.day - segment.travel_days;
+            const departurePosition = dayToPosition(departureDay) - dayToPosition(vessel.arrival_day);
+            const arrivalDay = segment.day;
+            const arrivalPosition = dayToPosition(arrivalDay) - dayToPosition(vessel.arrival_day);
             
             return (
-              <div 
-                key={`stop-${index}`}
-                className="absolute w-3 h-3 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/3 z-10"
-                style={{ 
-                  left: `${stopPosition}px`, 
-                  top: '50%',
-                  backgroundColor: getLocationColor(segment.from)
-                }}
-                title={`Stop at ${segment.from} on Day ${stopDay}`}
-              />
+              <>
+                {/* Departure marker */}
+                <div 
+                  key={`departure-${index}`}
+                  className="absolute w-3 h-3 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/3 z-10"
+                  style={{ 
+                    left: `${departurePosition}px`, 
+                    top: '50%',
+                    backgroundColor: getLocationColor(segment.from)
+                  }}
+                  title={`Depart from ${segment.from} on Day ${departureDay}`}
+                />
+                
+                {/* Arrival marker */}
+                <div 
+                  key={`arrival-${index}`}
+                  className="absolute w-3 h-3 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/3 z-10"
+                  style={{ 
+                    left: `${arrivalPosition}px`, 
+                    top: '50%',
+                    backgroundColor: getLocationColor(segment.to)
+                  }}
+                  title={`Arrive at ${segment.to} on Day ${arrivalDay}`}
+                />
+              </>
             );
           })}
         </div>
         
-        {/* Display a badge if there are multiple stops */}
-        {hasMultipleStops && (
-          <span className="absolute -top-4 right-0 text-xs px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">
-            {vessel.route.length - 1} stops
-          </span>
-        )}
+        {/* Travel indicators with day labels */}
+        <div className="mt-1 text-xs text-gray-500">
+          {vessel.route.map((segment, index) => {
+            const startDay = segment.day - segment.travel_days;
+            const startPosition = dayToPosition(startDay) - dayToPosition(vessel.arrival_day);
+            const midPosition = startPosition + (dayToPosition(segment.day) - dayToPosition(startDay)) / 2;
+            
+            return (
+              <div 
+                key={`travel-${index}`} 
+                className="absolute flex flex-col items-center"
+                style={{ left: `${midPosition}px`, transform: 'translateX(-50%)' }}
+              >
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-blue-600">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                  <span className="text-[10px] text-blue-600">{segment.travel_days}d</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -347,6 +395,72 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
       </div>
     );
   }
+
+  // Add this function after your getVesselLocationByDay function
+
+const renderDailyLocationBar = (vessel) => {
+  if (!vessel.route || vessel.route.length === 0) {
+    return null;
+  }
+  
+  const totalDays = vessel.departure_day - vessel.arrival_day;
+  
+  // Generate array of days from arrival to departure
+  const days = Array.from({ length: totalDays }, (_, i) => vessel.arrival_day + i);
+  
+  return (
+    <div className="mt-2 mb-1">
+      <div className="text-xs text-gray-500 mb-1">Daily Location:</div>
+      <div className="flex h-4 w-full rounded-md overflow-hidden">
+        {days.map(day => {
+          // Find vessel location for this day
+          let location = null;
+          let isInTransit = false;
+          
+          for (const segment of vessel.route) {
+            const departureDay = segment.day - segment.travel_days;
+            const arrivalDay = segment.day;
+            
+            if (day >= departureDay && day <= arrivalDay) {
+              if (day === departureDay) {
+                location = segment.from;
+              } else if (day === arrivalDay) {
+                location = segment.to;
+              } else {
+                location = segment.to;
+                isInTransit = true;
+              }
+              break;
+            }
+          }
+          
+          const backgroundColor = location ? getLocationColor(location) : '#e5e7eb';
+          
+          return (
+            <div
+              key={day}
+              className="flex-1 flex items-center justify-center text-[9px] font-medium relative"
+              style={{ 
+                backgroundColor,
+                backgroundImage: isInTransit ? 
+                  'repeating-linear-gradient(-45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 4px, transparent 4px, transparent 8px)' : 
+                  'none' 
+              }}
+              title={isInTransit ? `Day ${day}: Traveling to ${location}` : `Day ${day}: At ${location}`}
+            >
+              {/* Day number label - only show every few days to avoid crowding */}
+              {day % 3 === 0 && (
+                <span className={`absolute ${isInTransit ? 'text-white' : 'text-gray-700'}`}>
+                  {day}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
   // Loading state
   if (isLoading) {
@@ -407,6 +521,9 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
         </div>
       </div>
       
+      {/* Add Dashboard Cards */}
+      <VesselDashboardCards vessels={vessels} />
+      
       {/* Main content with vertical layout */}
       <div className="flex flex-col h-full">
         {/* Timeline container with both horizontal and vertical scrolling */}
@@ -444,22 +561,42 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
                   const endPosition = dayToPosition(vessel.departure_day)
                   const width = Math.max(endPosition - startPosition, 100)
                   
+                  // Add this function to get the vessel's current location on each day
+                  const getVesselLocationByDay = (day) => {
+                    if (!vessel.route || vessel.route.length === 0) return null;
+                    
+                    for (const segment of vessel.route) {
+                      const departureDay = segment.day - segment.travel_days;
+                      const arrivalDay = segment.day;
+                      
+                      if (day >= departureDay && day <= arrivalDay) {
+                        if (day === departureDay) return segment.from;
+                        if (day === arrivalDay) return segment.to;
+                        return `Traveling from ${segment.from} to ${segment.to}`;
+                      }
+                    }
+                    return null;
+                  };
+                  
                   return (
                     <div 
                       key={vessel.id} 
-                      className="vessel-row relative mb-3 h-16"
+                      className="vessel-row relative mb-4 h-16" // Reduced height for cleaner look
                     >
                       <div className="absolute left-0 h-full flex items-center px-2 text-sm font-medium text-gray-700 w-40">
-                        {vessel.name}
+                        <div className="flex flex-col">
+                          <span className="font-medium">{vessel.name}</span>
+                          <span className="text-xs text-gray-500">{vessel.volume} kbbl</span>
+                        </div>
                       </div>
                       
                       <div className="absolute" style={{ left: `40px` }}>
                         <DraggableVessel vessel={vessel}>
                           <div 
-                            className={`vessel-item absolute rounded-md px-3 py-2 border transition-all shadow-sm hover:shadow flex flex-col justify-between ${
+                            className={`vessel-item absolute rounded-md transition-all shadow-sm hover:shadow ${
                               editingVessel && editingVessel.id === vessel.id 
-                                ? 'border-blue-500 bg-blue-200 shadow-md' 
-                                : 'border-blue-300 bg-blue-100 hover:bg-blue-200'
+                                ? 'border-2 border-blue-500 shadow-md' 
+                                : 'border border-blue-100 bg-blue-50 hover:bg-blue-100'
                             }`}
                             style={{ 
                               width: `${width}px`, 
@@ -468,27 +605,76 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
                             }}
                             onDoubleClick={() => handleSelectVessel(vessel)}
                           >
-                            <div className="font-semibold text-blue-800 truncate cursor-default flex items-center justify-between">
-                              <span>{vessel.name}</span>
-                              {vessel.route && vessel.route.length > 0 && (
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); toggleVesselDetails(vessel.id); }}
-                                  className="text-blue-600 hover:text-blue-800"
-                                  title="Show/hide route details"
+                            {/* Simple vessel display - just name and volume */}
+                            <div className="h-full flex items-center px-3 justify-between">
+                              <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-blue-600 mr-2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                                </svg>
+                                <span className="font-medium text-sm">{vessel.name}</span>
+                              </div>
+                              
+                              <div className="flex items-center">
+                                <span className="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
+                                  {vessel.volume} kbbl
+                                </span>
+                                
+                                {/* Small indicator if route exists */}
+                                {vessel.route && vessel.route.length > 0 && (
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); toggleVesselDetails(vessel.id); }}
+                                    className="ml-2 text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-100"
+                                    title="Show route details"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Expanded details popup - keep this functionality */}
+                            {expandedVesselDetails[vessel.id] && (
+                              <div className="absolute top-full left-0 z-20 bg-white rounded-md shadow-lg border border-gray-200 p-3 w-80 mt-2">
+                                <h4 className="font-semibold text-gray-800 mb-2">Vessel Route Details</h4>
+                                <div className="space-y-2">
+                                  {vessel.route.map((segment, index) => (
+                                    <div key={index} className="text-sm">
+                                      <div className="flex items-center">
+                                        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: getLocationColor(segment.from) }}></div>
+                                        <span className="font-medium">{segment.from}</span>
+                                        <span className="text-gray-500 ml-1">(Day {segment.day - segment.travel_days})</span>
+                                      </div>
+                                      <div className="ml-5 my-1 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-gray-400 mr-1">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+                                        </svg>
+                                        <span className="text-xs text-gray-500">
+                                          Traveling for {segment.travel_days} days
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: getLocationColor(segment.to) }}></div>
+                                        <span className="font-medium">{segment.to}</span>
+                                        <span className="text-gray-500 ml-1">(Day {segment.day})</span>
+                                      </div>
+                                      {index < vessel.route.length - 1 && (
+                                        <div className="h-4 border-l border-dashed border-gray-300 ml-1.5"></div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                <button
+                                  onClick={() => toggleVesselDetails(vessel.id)}
+                                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                                 >
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                   </svg>
                                 </button>
-                              )}
-                            </div>
-                            
-                            <div className="text-xs text-blue-600">
-                              {vessel.crude_type} ({vessel.volume} kbbl)
-                            </div>
-                            
-                            {/* Route visualization */}
-                            {vessel.route && vessel.route.length > 0 && renderVesselRoute(vessel)}
+                              </div>
+                            )}
                           </div>
                         </DraggableVessel>
                       </div>

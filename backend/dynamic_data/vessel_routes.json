@@ -1,20 +1,28 @@
 {
-  "Vessel_0_11": {
+  "Vessel_0": {
     "start_location": "Peninsular Malaysia",
     "days": {
-      "0": "Refinery",
-      "1": "en_route_to_Sarawak",
-      "2": "en_route_to_Sarawak",
-      "3": "Sarawak",
-      "4": "Sarawak",
-      "5": "Sabah",
-      "6": "Sabah",
-      "7": "en_route_to_Refinery",
-      "8": "en_route_to_Refinery",
-      "9": "en_route_to_Refinery"
+      "0": "Peninsular Malaysia",
+      "1": "en_route_to_Refinery",
+      "2": "en_route_to_Refinery",
+      "3": "en_route_to_Refinery",
+      "4": "en_route_to_Refinery",
+      "5": "Refinery"
     }
   },
-  "Vessel_0_17": {
+  "Vessel_1": {
+    "start_location": "Peninsular Malaysia",
+    "days": {
+      "0": "Peninsular Malaysia",
+      "1": "Peninsular Malaysia",
+      "2": "en_route_to_Refinery",
+      "3": "en_route_to_Refinery",
+      "4": "en_route_to_Refinery",
+      "5": "en_route_to_Refinery",
+      "6": "Refinery"
+    }
+  },
+  "Vessel_3": {
     "start_location": "Peninsular Malaysia",
     "days": {
       "0": "Peninsular Malaysia",
@@ -26,55 +34,22 @@
       "6": "Peninsular Malaysia",
       "7": "Peninsular Malaysia",
       "8": "Peninsular Malaysia",
-      "9": "en_route_to_Sabah",
-      "10": "en_route_to_Sabah",
-      "11": "en_route_to_Sabah",
-      "12": "Sabah",
-      "13": "Sabah",
-      "14": "Sabah",
-      "15": "Sabah",
-      "16": "Sabah",
+      "9": "Peninsular Malaysia",
+      "10": "Peninsular Malaysia",
+      "11": "Peninsular Malaysia",
+      "12": "Peninsular Malaysia",
+      "13": "Peninsular Malaysia",
+      "14": "Peninsular Malaysia",
+      "15": "Peninsular Malaysia",
+      "16": "Peninsular Malaysia",
       "17": "en_route_to_Refinery",
       "18": "en_route_to_Refinery",
       "19": "en_route_to_Refinery",
-      "20": "Refinery"
+      "20": "en_route_to_Refinery",
+      "21": "Refinery"
     }
   },
-  "Vessel_0_27": {
-    "start_location": "Peninsular Malaysia",
-    "days": {
-      "0": "Refinery",
-      "1": "en_route_to_Peninsular Malaysia",
-      "2": "en_route_to_Peninsular Malaysia",
-      "3": "Peninsular Malaysia",
-      "4": "Peninsular Malaysia",
-      "5": "en_route_to_Sarawak",
-      "6": "en_route_to_Sarawak",
-      "7": "Sarawak",
-      "8": "Sarawak",
-      "9": "en_route_to_Refinery",
-      "10": "en_route_to_Refinery",
-      "11": "Refinery"
-    }
-  },
-  "Vessel_1_26": {
-    "start_location": "Peninsular Malaysia",
-    "days": {
-      "0": "Refinery",
-      "1": "en_route_to_Peninsular Malaysia",
-      "2": "en_route_to_Peninsular Malaysia",
-      "3": "Peninsular Malaysia",
-      "4": "Peninsular Malaysia",
-      "5": "en_route_to_Sabah",
-      "6": "en_route_to_Sabah",
-      "7": "Sabah",
-      "8": "Sabah",
-      "9": "en_route_to_Refinery",
-      "10": "en_route_to_Refinery",
-      "11": "en_route_to_Refinery"
-    }
-  },
-  "Vessel_1_30": {
+  "Vessel_4": {
     "start_location": "Peninsular Malaysia",
     "days": {
       "0": "Peninsular Malaysia",
@@ -96,21 +71,94 @@
       "16": "Peninsular Malaysia",
       "17": "Peninsular Malaysia",
       "18": "Peninsular Malaysia",
-      "19": "Peninsular Malaysia",
-      "20": "Peninsular Malaysia",
-      "21": "Peninsular Malaysia",
-      "22": "en_route_to_Sabah",
-      "23": "en_route_to_Sabah",
-      "24": "en_route_to_Sabah",
-      "25": "Sabah",
-      "26": "Sabah",
-      "27": "Sabah",
-      "28": "Sabah",
-      "29": "Sabah",
-      "30": "en_route_to_Refinery",
-      "31": "en_route_to_Refinery",
-      "32": "en_route_to_Refinery",
-      "33": "Refinery"
+      "19": "en_route_to_Refinery",
+      "20": "en_route_to_Refinery",
+      "21": "en_route_to_Refinery",
+      "22": "en_route_to_Refinery",
+      "23": "Refinery"
+    }
+  },
+  "Vessel_5": {
+    "start_location": "Sabah",
+    "days": {
+      "0": "Sabah",
+      "1": "Sabah",
+      "2": "Sabah",
+      "3": "Sabah",
+      "4": "Sabah",
+      "5": "Sabah",
+      "6": "Sabah",
+      "7": "Sabah",
+      "8": "Sabah",
+      "9": "Sabah",
+      "10": "en_route_to_Refinery",
+      "11": "en_route_to_Refinery",
+      "12": "en_route_to_Refinery",
+      "13": "en_route_to_Refinery",
+      "14": "en_route_to_Refinery"
+    }
+  },
+  "Vessel_7": {
+    "start_location": "Sabah",
+    "days": {
+      "0": "Sabah",
+      "1": "Sabah",
+      "2": "Sabah",
+      "3": "Sabah",
+      "4": "Sabah",
+      "5": "Sabah",
+      "6": "Sabah",
+      "7": "Sabah",
+      "8": "Sabah",
+      "9": "Sabah",
+      "10": "Sabah",
+      "11": "Sabah",
+      "12": "Sabah",
+      "13": "Sabah",
+      "14": "Sabah",
+      "15": "Sabah",
+      "16": "Sabah",
+      "17": "Sabah",
+      "18": "Sabah",
+      "19": "Sabah",
+      "20": "Sabah",
+      "21": "Sabah",
+      "22": "Sabah",
+      "23": "Sabah",
+      "24": "en_route_to_Refinery",
+      "25": "en_route_to_Refinery",
+      "26": "en_route_to_Refinery",
+      "27": "en_route_to_Refinery",
+      "28": "en_route_to_Refinery"
+    }
+  },
+  "Vessel_8": {
+    "start_location": "Sarawak",
+    "days": {
+      "0": "Sarawak",
+      "1": "Sarawak",
+      "2": "Sarawak",
+      "3": "Sarawak",
+      "4": "Sarawak",
+      "5": "Sarawak",
+      "6": "Sarawak",
+      "7": "Sarawak",
+      "8": "Sarawak",
+      "9": "Sarawak",
+      "10": "Sarawak",
+      "11": "Sarawak",
+      "12": "Sarawak",
+      "13": "Sarawak",
+      "14": "Sarawak",
+      "15": "Sarawak",
+      "16": "Sarawak",
+      "17": "Sarawak",
+      "18": "Sarawak",
+      "19": "en_route_to_Refinery",
+      "20": "en_route_to_Refinery",
+      "21": "en_route_to_Refinery",
+      "22": "en_route_to_Refinery",
+      "23": "Refinery"
     }
   }
 }

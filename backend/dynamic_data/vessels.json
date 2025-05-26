@@ -1,7 +1,137 @@
 {
-  "Vessel_0_11": {
-    "vessel_id": "Vessel_0_11",
-    "arrival_day": 9,
+  "Vessel_0": {
+    "vessel_id": "Vessel_0",
+    "arrival_day": 5.0,
+    "capacity": 700,
+    "cost": 80000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "A",
+        "volume": 150.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 1,
+        "loading_end_day": 2
+      }
+    ],
+    "route": [
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Refinery",
+        "day_start_travel": 1,
+        "day_end_travel": 5.0,
+        "travel_days": 4.0,
+        "action": "requirement_flow"
+      }
+    ]
+  },
+  "Vessel_1": {
+    "vessel_id": "Vessel_1",
+    "arrival_day": 6.0,
+    "capacity": 700,
+    "cost": 80000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "Base",
+        "volume": 400.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 2,
+        "loading_end_day": 3
+      }
+    ],
+    "route": [
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Refinery",
+        "day_start_travel": 2,
+        "day_end_travel": 6.0,
+        "travel_days": 4.0,
+        "action": "requirement_flow"
+      }
+    ]
+  },
+  "Vessel_3": {
+    "vessel_id": "Vessel_3",
+    "arrival_day": 21.0,
+    "capacity": 700,
+    "cost": 80000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "Base",
+        "volume": 360.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 17,
+        "loading_end_day": 18
+      }
+    ],
+    "route": [
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Refinery",
+        "day_start_travel": 17,
+        "day_end_travel": 21.0,
+        "travel_days": 4.0,
+        "action": "requirement_flow"
+      }
+    ]
+  },
+  "Vessel_4": {
+    "vessel_id": "Vessel_4",
+    "arrival_day": 23.0,
+    "capacity": 700,
+    "cost": 80000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "C",
+        "volume": 200.0,
+        "origin": "Peninsular Malaysia",
+        "loading_start_day": 19,
+        "loading_end_day": 20
+      }
+    ],
+    "route": [
+      {
+        "from": "Peninsular Malaysia",
+        "to": "Refinery",
+        "day_start_travel": 19,
+        "day_end_travel": 23.0,
+        "travel_days": 4.0,
+        "action": "requirement_flow"
+      }
+    ]
+  },
+  "Vessel_5": {
+    "vessel_id": "Vessel_5",
+    "arrival_day": 14.5,
+    "capacity": 700,
+    "cost": 80000,
+    "days_held": 0,
+    "cargo": [
+      {
+        "grade": "E",
+        "volume": 550.0,
+        "origin": "Sabah",
+        "loading_start_day": 10,
+        "loading_end_day": 11
+      }
+    ],
+    "route": [
+      {
+        "from": "Sabah",
+        "to": "Refinery",
+        "day_start_travel": 10,
+        "day_end_travel": 14.5,
+        "travel_days": 4.5,
+        "action": "requirement_flow"
+      }
+    ]
+  },
+  "Vessel_7": {
+    "vessel_id": "Vessel_7",
+    "arrival_day": 28.5,
     "capacity": 700,
     "cost": 80000,
     "days_held": 0,
@@ -10,223 +140,44 @@
         "grade": "D",
         "volume": 150.0,
         "origin": "Sabah",
-        "loading_start_day": 11,
-        "loading_end_day": 12
-      },
-      {
-        "grade": "F",
-        "volume": 180.0,
-        "origin": "Sarawak",
-        "loading_start_day": 11,
-        "loading_end_day": 12
-      },
-      {
-        "grade": "F",
-        "volume": 370.0,
-        "origin": "Sarawak",
-        "loading_start_day": 11,
-        "loading_end_day": 12
+        "loading_start_day": 24,
+        "loading_end_day": 25
       }
     ],
     "route": [
       {
-        "from": "Refinery",
-        "to": "Sarawak",
-        "day": 3.0,
-        "travel_days": 3.0
-      },
-      {
-        "from": "Sarawak",
-        "to": "Sabah",
-        "day": 5.0,
-        "travel_days": 1.0
-      },
-      {
         "from": "Sabah",
         "to": "Refinery",
-        "day": 9.5,
-        "travel_days": 3.5
+        "day_start_travel": 24,
+        "day_end_travel": 28.5,
+        "travel_days": 4.5,
+        "action": "requirement_flow"
       }
     ]
   },
-  "Vessel_0_17": {
-    "vessel_id": "Vessel_0_17",
-    "arrival_day": 20,
+  "Vessel_8": {
+    "vessel_id": "Vessel_8",
+    "arrival_day": 23.0,
     "capacity": 700,
     "cost": 80000,
     "days_held": 0,
     "cargo": [
       {
-        "grade": "Base",
-        "volume": 400.0,
-        "origin": "Sabah",
-        "loading_start_day": 17,
-        "loading_end_day": 18
-      },
-      {
-        "grade": "E",
-        "volume": 250.0,
-        "origin": "Sabah",
-        "loading_start_day": 17,
-        "loading_end_day": 18
-      },
-      {
-        "grade": "E",
-        "volume": 50.0,
-        "origin": "Sabah",
-        "loading_start_day": 17,
-        "loading_end_day": 18
-      }
-    ],
-    "route": [
-      {
-        "from": "Refinery",
-        "to": "Sabah",
-        "day": 12.0,
-        "travel_days": 3.5
-      },
-      {
-        "from": "Sabah",
-        "to": "Refinery",
-        "day": 20,
-        "travel_days": 3.5
-      }
-    ]
-  },
-  "Vessel_0_27": {
-    "vessel_id": "Vessel_0_27",
-    "arrival_day": 11,
-    "capacity": 700,
-    "cost": 80000,
-    "days_held": 0,
-    "cargo": [
-      {
-        "grade": "Base",
-        "volume": 360.0,
-        "origin": "Sarawak",
-        "loading_start_day": 27,
-        "loading_end_day": 28
-      },
-      {
-        "grade": "C",
-        "volume": 200.0,
-        "origin": "Peninsular Malaysia",
-        "loading_start_day": 27,
-        "loading_end_day": 28
-      },
-      {
         "grade": "F",
-        "volume": 140.0,
+        "volume": 280.0,
         "origin": "Sarawak",
-        "loading_start_day": 27,
-        "loading_end_day": 28
+        "loading_start_day": 19,
+        "loading_end_day": 20
       }
     ],
     "route": [
-      {
-        "from": "Refinery",
-        "to": "Peninsular Malaysia",
-        "day": 3.0,
-        "travel_days": 3.0
-      },
-      {
-        "from": "Peninsular Malaysia",
-        "to": "Sarawak",
-        "day": 7.0,
-        "travel_days": 3.0
-      },
       {
         "from": "Sarawak",
         "to": "Refinery",
-        "day": 11.0,
-        "travel_days": 3.0
-      }
-    ]
-  },
-  "Vessel_1_26": {
-    "vessel_id": "Vessel_1_26",
-    "arrival_day": 11,
-    "capacity": 500,
-    "cost": 60000,
-    "days_held": 0,
-    "cargo": [
-      {
-        "grade": "A",
-        "volume": 150.0,
-        "origin": "Peninsular Malaysia",
-        "loading_start_day": 26,
-        "loading_end_day": 27
-      },
-      {
-        "grade": "B",
-        "volume": 150.0,
-        "origin": "Peninsular Malaysia",
-        "loading_start_day": 26,
-        "loading_end_day": 27
-      },
-      {
-        "grade": "E",
-        "volume": 50.0,
-        "origin": "Sabah",
-        "loading_start_day": 26,
-        "loading_end_day": 27
-      },
-      {
-        "grade": "E",
-        "volume": 50.0,
-        "origin": "Sabah",
-        "loading_start_day": 26,
-        "loading_end_day": 27
-      }
-    ],
-    "route": [
-      {
-        "from": "Refinery",
-        "to": "Peninsular Malaysia",
-        "day": 3.0,
-        "travel_days": 3.0
-      },
-      {
-        "from": "Peninsular Malaysia",
-        "to": "Sabah",
-        "day": 7.0,
-        "travel_days": 3.0
-      },
-      {
-        "from": "Sabah",
-        "to": "Refinery",
-        "day": 11.5,
-        "travel_days": 3.5
-      }
-    ]
-  },
-  "Vessel_1_30": {
-    "vessel_id": "Vessel_1_30",
-    "arrival_day": 33,
-    "capacity": 500,
-    "cost": 60000,
-    "days_held": 0,
-    "cargo": [
-      {
-        "grade": "E",
-        "volume": 500.0,
-        "origin": "Sabah",
-        "loading_start_day": 30,
-        "loading_end_day": 31
-      }
-    ],
-    "route": [
-      {
-        "from": "Refinery",
-        "to": "Sabah",
-        "day": 25.0,
-        "travel_days": 3.5
-      },
-      {
-        "from": "Sabah",
-        "to": "Refinery",
-        "day": 33,
-        "travel_days": 3.5
+        "day_start_travel": 19,
+        "day_end_travel": 23.0,
+        "travel_days": 4.0,
+        "action": "requirement_flow"
       }
     ]
   }

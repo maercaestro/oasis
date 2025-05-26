@@ -61,47 +61,75 @@ class BlendingEngine:
                 
         return True
     
-    def find_optimal_blends(self, available_recipes: List[BlendingRecipe], crude_data: Dict[str, Crude],
-                    tanks: Dict[str, Tank], max_processing: float) -> List[Tuple[BlendingRecipe, float, float]]:
+    def find_optimal_blends(self, available_recipes, crude_data, tanks, max_processing):
         """
-        Determine the optimal set of blends to run based on margins and available inventory
-        
-        Args:
-            available_recipes: List of possible blending recipes
-            crude_data: Dictionary of crude information including margins
-            tanks: Dict of available tanks
-            max_processing: Maximum daily processing capacity
-        
-        Returns:
-            List of tuples containing (recipe, margin, actual_rate)
+        Determine the optimal set of blends to run based on available inventory.
+        For scheduler use - prioritizes inventory utilization over margin.
         """
+        # Add practical zero threshold
+        EPSILON = 1e-6
+        
+        # Add debug information
+        print("\n--- Debugging BlendingEngine.find_optimal_blends (INVENTORY-BASED) ---")
+        print(f"Available recipes: {[r.name for r in available_recipes]}")
+        print(f"Available grades in crude_data: {list(crude_data.keys())}")
+        
+        # Calculate available inventory for debugging
+        inventory_by_grade = {}
+        for tank in tanks.values():
+            for content in tank.content:
+                for grade, volume in content.items():
+                    if grade in inventory_by_grade:
+                        inventory_by_grade[grade] += volume
+                    else:
+                        inventory_by_grade[grade] = volume
+        print(f"Available inventory by grade: {inventory_by_grade}")
+        
         # Calculate margin for each recipe and check compatibility
         viable_recipes = []
         for recipe in available_recipes:
             # Calculate the maximum possible rate from inventory
             max_rate_from_inventory = self.calculate_max_rate(recipe, tanks)
             
-            # Only consider recipes with enough inventory to run
-            if max_rate_from_inventory > 0:
-                margin = self.blend_margin(recipe, crude_data)
-                viable_recipes.append((recipe, margin, max_rate_from_inventory))
+            # Add debugging for each recipe evaluation
+            print(f"\nEvaluating recipe: {recipe.name}")
+            print(f"  Primary grade: {recipe.primary_grade}, fraction: {recipe.primary_fraction}")
+            print(f"  Secondary grade: {recipe.secondary_grade or 'None'}")
+            print(f"  Max rate from recipe: {recipe.max_rate}")
+            print(f"  Max rate from inventory: {max_rate_from_inventory}")
+            
+            # Print why a recipe was rejected if applicable
+            if max_rate_from_inventory <= EPSILON:  # Using EPSILON instead of 0
+                print(f"  REJECTED: Insufficient inventory to run this recipe")
+                primary_available = sum(content.get(recipe.primary_grade, 0) for tank in tanks.values() for content in tank.content)
+                print(f"    Primary grade {recipe.primary_grade}: {primary_available} available")
+                if recipe.secondary_grade:
+                    secondary_available = sum(content.get(recipe.secondary_grade, 0) for tank in tanks.values() for content in tank.content)
+                    print(f"    Secondary grade {recipe.secondary_grade}: {secondary_available} available")
+                continue
+                
+            margin = self.blend_margin(recipe, crude_data)
+            print(f"  Recipe margin: {margin}")
+            viable_recipes.append((recipe, margin, max_rate_from_inventory))
         
-        # Sort by margin (highest first)
-        viable_recipes.sort(key=lambda x: x[1], reverse=True)
+        print(f"\nFound {len(viable_recipes)} viable recipes")
+        
+        # CHANGED: Sort by inventory availability (highest first) instead of margin
+        print("Using INVENTORY-BASED sorting for scheduler")
+        viable_recipes.sort(key=lambda x: x[2], reverse=True)
         
         # Select recipes up to max processing capacity
         selected_recipes = []
         remaining_capacity = max_processing
-        remaining_tanks = tanks.copy()
         
         for recipe, margin, max_possible_rate in viable_recipes:
-            if remaining_capacity <= 0:
+            if remaining_capacity <= EPSILON:  # Using EPSILON instead of 0
                 break
                 
             # Determine actual rate: min of recipe max_rate, inventory-based rate, and remaining capacity
             actual_rate = min(recipe.max_rate, max_possible_rate, remaining_capacity)
             
-            if actual_rate > 0:
+            if actual_rate > EPSILON:  # Using EPSILON instead of 0
                 selected_recipes.append((recipe, margin, actual_rate))
                 remaining_capacity -= actual_rate
         

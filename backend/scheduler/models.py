@@ -107,3 +107,4 @@ class DailyPlan:
     inventory: float
     inventory_by_grade: Dict[str, float]
     tanks: Dict[str, Tank]
+    daily_margin: float = 0.0  # Add margin calculation as an optional field with default 0
