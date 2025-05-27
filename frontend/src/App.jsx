@@ -210,31 +210,30 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-100 to-sky-100 text-slate-800">
       {/* Enhanced header with gradient */}
-      <div className="bg-gradient-to-r from-white to-emerald-500 text-white p-5 shadow-lg">
+      <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white p-4 shadow-lg sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="-ml-1">
-              <img 
-                src={logo} 
-                alt="OASIS Logo" 
-                className="h-18 w-auto" 
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <img 
+              src={logo} 
+              alt="OASIS Logo" 
+              className="h-12 w-auto" // Slightly reduced logo size for better balance
+            />
             <div>
-              <h3 className="text-gray-700 font-light">Refinery Scheduling & Optimization</h3>
+              <h1 className="text-2xl font-bold tracking-tight">OASIS</h1>
+              <h3 className="text-sm font-light text-emerald-100">Refinery Scheduling & Optimization</h3>
             </div>
           </div>
           <div className="flex items-center gap-3">
             {/* Optimization buttons */}
             <button
               onClick={handleOptimizeVessels}
-              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-emerald-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={isOptimizing}
             >
               {isOptimizingVessels ? (
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5" />
@@ -244,11 +243,11 @@ function App() {
             </button>
             <button
               onClick={handleOptimizeSchedule}
-              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-blue-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={isOptimizing}
             >
               {isOptimizingSchedule ? (
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5" />
@@ -258,11 +257,11 @@ function App() {
             </button>
             <button
               onClick={handleRunScheduler}
-              className="px-3 py-1.5 !bg-emerald-900 rounded-md text-sm font-medium text-blue-100 border border-blue-600/50 hover:!bg-emerald-700 transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={isOptimizing}
             >
               {isRunningScheduler ? (
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
@@ -276,24 +275,24 @@ function App() {
 
       {/* Add this after the header section to show optimization messages */}
       {optimizationMessage && (
-        <div className={`p-3 mb-4 rounded-lg text-sm font-medium ${
+        <div className={`p-4 m-4 rounded-lg text-sm font-medium shadow-lg border ${ 
           optimizationMessage.type === 'success' 
-            ? 'bg-green-100 text-green-800 border border-green-200' 
-            : 'bg-red-100 text-red-800 border border-red-200'
+            ? 'bg-gradient-to-r from-green-50 via-green-100 to-green-50 text-green-700 border-green-300' 
+            : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 text-red-700 border-red-300'
         }`}>
           <div className="flex items-center">
             {optimizationMessage.type === 'success' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
-            {optimizationMessage.text}
+            <span className="flex-grow">{optimizationMessage.text}</span>
             <button 
-              className="ml-auto text-slate-500 hover:text-slate-700"
+              className={`ml-auto text-${optimizationMessage.type === 'success' ? 'green' : 'red'}-500 hover:text-${optimizationMessage.type === 'success' ? 'green' : 'red'}-700 p-1 rounded-full hover:bg-${optimizationMessage.type === 'success' ? 'green' : 'red'}-100 transition-colors`}
               onClick={() => setOptimizationMessage(null)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -305,63 +304,59 @@ function App() {
       )}
 
       {/* Main content area with chat on right */}
-      <div className="flex-grow flex">
+      <div className="flex-grow flex overflow-hidden"> {/* Added overflow-hidden here */}
         {/* Left main content - 75% width */}
-        <div className="w-3/4 p-5 overflow-y-auto flex flex-col">
+        <div className="w-3/4 p-5 overflow-y-auto flex flex-col space-y-6"> {/* Added space-y-6 for spacing between elements */}
           {/* View/Edit tabs with enhanced styling */}
-          <div className="flex gap-3 mb-6">
+          <div className="flex gap-3">
             <button 
               onClick={() => setAppMode('view')}
-              className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 ${ 
                 appMode === 'view' 
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
-                  : 'bg-white text-blue-950 hover:bg-blue-50 shadow-sm'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg transform hover:scale-105 focus:ring-teal-400' 
+                  : 'bg-white text-slate-700 hover:bg-slate-50 shadow focus:ring-slate-300'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                View Data
-              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              View Data
             </button>
             <button 
               onClick={() => setAppMode('edit')}
-              className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 ${ 
                 appMode === 'edit' 
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500/50' 
-                  : 'bg-white text-blue-950 hover:bg-blue-50 shadow-sm'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg transform hover:scale-105 focus:ring-teal-400' 
+                  : 'bg-white text-slate-700 hover:bg-slate-50 shadow focus:ring-slate-300'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                </svg>
-                Edit Data
-              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              Edit Data
             </button>
           </div>
 
           {/* VIEW MODE: Visualization selector tabs */}
           {appMode === 'view' && (
-            <div className="flex gap-2 mb-5 bg-slate-100 p-1 rounded-lg w-fit">
+            <div className="bg-slate-200/80 p-1.5 rounded-lg flex gap-1 w-fit shadow-inner">
               <button 
                 onClick={() => setVisualizationView('dailyPlan')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${ 
                   visualizationView === 'dailyPlan' 
-                    ? 'bg-white text-blue-700 shadow-sm' 
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-gradient-to-r from-white to-slate-50 text-emerald-700 shadow-md' 
+                    : 'text-slate-600 hover:bg-slate-300/70 hover:text-slate-800'
                 }`}
               >
                 Daily Plan
               </button>
               <button 
                 onClick={() => setVisualizationView('vessels')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${ 
                   visualizationView === 'vessels' 
-                    ? 'bg-white text-blue-700 shadow-sm' 
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-gradient-to-r from-white to-slate-50 text-emerald-700 shadow-md' 
+                    : 'text-slate-600 hover:bg-slate-300/70 hover:text-slate-800'
                 }`}
               >
                 Vessel Schedule
@@ -371,141 +366,80 @@ function App() {
 
           {/* EDIT MODE: Data type selector tabs */}
           {appMode === 'edit' && (
-            <div className="flex flex-col gap-2 mb-5">
-              <div className="flex gap-2 border-b border-slate-200">
+            <div className="flex flex-col gap-0"> {/* Reduced gap */}
+              <div className="flex gap-0 border-b border-slate-300"> {/* Removed gap, adjusted border */}
                 <button 
                   onClick={() => setEditorMode('input')}
-                  className={`px-4 py-2 rounded-tl-lg rounded-tr-lg text-sm font-medium transition-all duration-200 ${
+                  className={`px-5 py-3 rounded-tl-lg rounded-tr-lg text-sm font-semibold transition-all duration-200 ease-in-out border-b-2 ${ 
                     editorMode === 'input' 
-                      ? 'bg-gray-400 text-emerald-700 border-t border-l border-r border-slate-200' 
-                      : 'bg-slate-100 text-slate-300 hover:bg-slate-100/80 hover:text-slate-700'
+                      ? 'bg-gradient-to-b from-white to-slate-50 text-emerald-700 border-emerald-600 shadow-sm' 
+                      : 'bg-slate-200/70 text-slate-500 hover:bg-slate-300/70 hover:text-slate-700 border-transparent'
                   }`}
                 >
                   Input Data
                 </button>
                 <button 
                   onClick={() => setEditorMode('plant')}
-                  className={`px-4 py-2 rounded-tl-lg rounded-tr-lg text-sm font-medium transition-all duration-200 ${
+                  className={`px-5 py-3 rounded-tl-lg rounded-tr-lg text-sm font-semibold transition-all duration-200 ease-in-out border-b-2 ${ 
                     editorMode === 'plant' 
-                      ? 'bg-gray-400 text-emerald-700 border-t border-l border-r border-slate-200' 
-                      : 'bg-slate-100 text-slate-300 hover:bg-slate-100/80 hover:text-slate-700'
+                      ? 'bg-gradient-to-b from-white to-slate-50 text-emerald-700 border-emerald-600 shadow-sm' 
+                      : 'bg-slate-200/70 text-slate-500 hover:bg-slate-300/70 hover:text-slate-700 border-transparent'
                   }`}
                 >
                   Plant Data
                 </button>
               </div>
 
-              {/* Input data editor sub-tabs */}
-              {editorMode === 'input' && (
-                <div className="flex gap-2 px-2 py-2 flex-wrap">
-                  <button 
-                    onClick={() => setActiveEditor('tanks')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'tanks' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Tank Data
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('vessels')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'vessels' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Vessel Data
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('feedstock_parcels')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'feedstock_parcels' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Feedstock Parcels
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('feedstock_requirements')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'feedstock_requirements' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Feedstock Requirements
-                  </button>
-                </div>
-              )}
+              {/* Sub-tabs container with a subtle background */}
+              <div className="bg-slate-50 p-3 rounded-b-lg shadow-inner">
+                {/* Input data editor sub-tabs */}
+                {editorMode === 'input' && (
+                  <div className="flex gap-2 flex-wrap">
+                    {['tanks', 'vessels', 'feedstock_parcels', 'feedstock_requirements'].map(editor => (
+                      <button 
+                        key={editor}
+                        onClick={() => setActiveEditor(editor)}
+                        className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 ${ 
+                          activeEditor === editor 
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white focus:ring-teal-400 transform hover:scale-105' 
+                            : 'bg-white text-emerald-700 hover:bg-emerald-50 focus:ring-emerald-300'
+                        }`}
+                      >
+                        {editor.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-              {/* Plant data editor sub-tabs */}
-              {editorMode === 'plant' && (
-                <div className="flex gap-2 px-2 py-2 flex-wrap">
-                  <button 
-                    onClick={() => setActiveEditor('plants')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'plants' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Plants
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('crudes')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'crudes' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Crude Types
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('recipes')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'recipes' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Recipes
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('routes')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'routes' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Routes
-                  </button>
-                  <button 
-                    onClick={() => setActiveEditor('vessel_types')}
-                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeEditor === 'vessel_types' 
-                        ? '!bg-emerald-600 text-white shadow-sm' 
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    Vessel Types
-                  </button>
-                </div>
-              )}
+                {/* Plant data editor sub-tabs */}
+                {editorMode === 'plant' && (
+                  <div className="flex gap-2 flex-wrap">
+                    {['plants', 'crudes', 'recipes', 'routes', 'vessel_types'].map(editor => (
+                      <button 
+                        key={editor}
+                        onClick={() => setActiveEditor(editor)}
+                        className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 ${ 
+                          activeEditor === editor 
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white focus:ring-teal-400 transform hover:scale-105' 
+                            : 'bg-white text-emerald-700 hover:bg-emerald-50 focus:ring-emerald-300'
+                        }`}
+                      >
+                        {editor.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* Main content area with enhanced card styling */}
-          <div className="bg-white rounded-xl shadow-lg p-5 flex-grow border border-slate-100">
+          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl shadow-xl p-6 flex-grow border border-slate-200/80"> {/* Enhanced shadow, border, padding */}
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center">
-                  <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                  <p className="mt-4 text-slate-500 font-medium">Loading data...</p>
+                  <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                  <p className="mt-5 text-slate-600 font-semibold text-lg">Loading data...</p>
                 </div>
               </div>
             ) : error ? (
@@ -607,28 +541,28 @@ function App() {
         </div>
         
         {/* Right sidebar - Dashboard and Chat - 25% width with enhanced styling */}
-        <div className="w-1/4 p-4 border-l border-gray-200 flex flex-col">
+        <div className="w-1/4 p-4 border-l border-slate-300 flex flex-col bg-slate-50/50"> {/* Subtle bg for chat sidebar */}
     
           {/* Chat section - remaining space */}
           <div className="flex-grow flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold">Assistant</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xl font-semibold text-slate-700">Assistant</h3>
               <button 
                 onClick={() => setShowChat(!showChat)}
-                className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                className="text-emerald-600 hover:text-emerald-800 text-sm flex items-center p-1 rounded-md hover:bg-emerald-100 transition-colors"
               >
                 {showChat ? (
                   <>
-                    <span>Hide</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <span className="font-medium">Hide</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </>
                 ) : (
                   <>
-                    <span>Show</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    <span className="font-medium">Show</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
                     </svg>
                   </>
                 )}
@@ -643,4 +577,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

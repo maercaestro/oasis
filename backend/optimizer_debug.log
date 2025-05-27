@@ -3264,3 +3264,214 @@
 2025-05-26 11:38:42,473 - scheduler.optimizer - INFO - Optimization complete! Created 31 days of schedule
 2025-05-26 11:38:42,475 - werkzeug - INFO - 127.0.0.1 - - [26/May/2025 11:38:42] "POST /api/optimizer/optimize HTTP/1.1" 200 -
 2025-05-26 11:38:45,399 - werkzeug - INFO - 127.0.0.1 - - [26/May/2025 11:38:45] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-27 10:21:36,108 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-27 10:21:36,108 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-27 10:21:36,128 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-27 10:21:37,103 - werkzeug - WARNING -  * Debugger is active!
+2025-05-27 10:21:37,115 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-27 10:31:16,224 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:31:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 10:31:16,240 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:31:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 10:34:24,762 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:34:24] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 10:34:24,773 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:34:24] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 10:34:44,474 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:34:44] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-27 10:35:14,170 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-27 10:35:14,171 - scheduler.optimizer - INFO - Available crude grades: ['Base', 'A', 'B', 'C', 'D', 'E', 'F']
+2025-05-27 10:35:14,171 - scheduler.optimizer - INFO - Max processing rate: 1000
+2025-05-27 10:35:14,171 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1), Secondary: None, Max rate: 87
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1), Secondary: None, Max rate: 95
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1), Secondary: None, Max rate: 95
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Starting margin optimization with 31 days of schedule
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Using 7 provided vessels
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Starting margin optimization with 31 days
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Day 0: Inventory = 750, Grades = {'B': 150, 'Base': 350, 'C': 150, 'D': 100}
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Day 1: Inventory = 655, Grades = {'B': 150, 'Base': 280.65, 'C': 124.35, 'D': 100}
+2025-05-27 10:35:14,172 - scheduler.optimizer - INFO - Day 2: Inventory = 560, Grades = {'B': 150, 'Base': 211.3, 'C': 98.69999999999999, 'D': 100}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 3: Inventory = 465, Grades = {'B': 150, 'Base': 141.95000000000002, 'C': 73.04999999999998, 'D': 100}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 4: Inventory = 370, Grades = {'B': 150, 'Base': 72.60000000000002, 'C': 47.39999999999998, 'D': 100}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 5: Inventory = 275, Grades = {'B': 150, 'Base': 3.2500000000000284, 'C': 21.749999999999975, 'D': 100}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 6: Inventory = 270.54794520547944, Grades = {'B': 150, 'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 100}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 7: Inventory = 174.5479452054794, Grades = {'B': 92.4, 'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 61.599999999999994}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 8: Inventory = 78.54794520547941, Grades = {'B': 34.80000000000001, 'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 23.19999999999999}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 9: Inventory = 720.5479452054794, Grades = {'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 149.99999999999997, 'F': 550}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 10: Inventory = 625.5479452054794, Grades = {'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 149.99999999999997, 'F': 455}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 11: Inventory = 879.5479452054794, Grades = {'A': 150, 'B': 92.4, 'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 111.59999999999997, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 12: Inventory = 783.5479452054793, Grades = {'A': 150, 'B': 34.80000000000001, 'Base': 4.440892098500626e-16, 'C': 20.547945205479415, 'D': 73.19999999999996, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 13: Inventory = 1103.896499238965, Grades = {'A': 150, 'B': 34.80000000000001, 'Base': 340.89649923896513, 'D': 73.19999999999996, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 14: Inventory = 1007.896499238965, Grades = {'A': 124.08, 'B': 34.80000000000001, 'Base': 270.8164992389652, 'D': 73.19999999999996, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 15: Inventory = 911.8964992389651, Grades = {'A': 98.16, 'B': 34.80000000000001, 'Base': 200.73649923896517, 'D': 73.19999999999996, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 16: Inventory = 1084.0000000000002, Grades = {'A': 72.24, 'B': 34.80000000000001, 'Base': 130.65649923896518, 'D': 73.19999999999996, 'E': 268.10350076103487, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 17: Inventory = 988.0000000000001, Grades = {'A': 46.31999999999999, 'B': 34.80000000000001, 'Base': 60.576499238965184, 'D': 73.19999999999996, 'E': 268.10350076103487, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 18: Inventory = 905.0184941931985, Grades = {'A': 23.914993432163556, 'B': 34.80000000000001, 'D': 73.19999999999996, 'E': 268.10350076103487, 'F': 505}
+2025-05-27 10:35:14,173 - scheduler.optimizer - INFO - Day 19: Inventory = 847.0184941931984, Grades = {'A': 23.914993432163556, 'D': 49.99999999999995, 'E': 268.10350076103487, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 20: Inventory = 1091.425950251246, Grades = {'Base': 235.3399436834097, 'D': 49.99999999999995, 'E': 301.0860065678365, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 21: Inventory = 1004.4259502512461, Grades = {'Base': 148.3399436834097, 'D': 49.99999999999995, 'E': 301.0860065678365, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 22: Inventory = 917.4259502512461, Grades = {'Base': 61.3399436834097, 'D': 49.99999999999995, 'E': 301.0860065678365, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 23: Inventory = 856.0860065678364, Grades = {'D': 49.99999999999995, 'E': 301.0860065678365, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 24: Inventory = 761.0860065678364, Grades = {'D': 49.99999999999995, 'E': 206.08600656783645, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 25: Inventory = 666.0860065678364, Grades = {'D': 49.99999999999995, 'E': 111.08600656783645, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 26: Inventory = 571.0860065678364, Grades = {'D': 49.99999999999995, 'E': 16.08600656783645, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 27: Inventory = 555, Grades = {'D': 49.99999999999995, 'F': 505}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 28: Inventory = 459.99999999999994, Grades = {'D': 49.99999999999995, 'F': 410}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 29: Inventory = 364.99999999999994, Grades = {'D': 49.99999999999995, 'F': 315}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Day 30: Inventory = 269.99999999999994, Grades = {'D': 49.99999999999995, 'F': 220}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Initial tanks: 0
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Unique grades in schedule: {'B', 'A', 'D', 'E', 'F', 'C', 'Base'}
+2025-05-27 10:35:14,174 - scheduler.optimizer - INFO - Created optimization model
+2025-05-27 10:35:14,177 - scheduler.optimizer - INFO - Initial inventory for B: 150
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for A: 0
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for D: 100
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for E: 0
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for F: 0
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for C: 150
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Initial inventory for Base: 350
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Adding constraints to the model...
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Day 1: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Day 2: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Day 3: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,178 - scheduler.optimizer - INFO - Day 4: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 5: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 6: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 7: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 8: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 9: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 10: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 11: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 12: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 13: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,179 - scheduler.optimizer - INFO - Day 14: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 15: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 16: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 17: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 18: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 19: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 20: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 21: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 22: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 23: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 24: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 25: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,180 - scheduler.optimizer - INFO - Day 26: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,181 - scheduler.optimizer - INFO - Day 27: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,181 - scheduler.optimizer - INFO - Day 28: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,181 - scheduler.optimizer - INFO - Day 29: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,181 - scheduler.optimizer - INFO - Day 30: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,181 - scheduler.optimizer - INFO - Day 31: Added constraint to use exactly one recipe
+2025-05-27 10:35:14,189 - scheduler.optimizer - INFO - Day 5: 150.0 units of A arriving
+2025-05-27 10:35:14,190 - scheduler.optimizer - INFO - Day 6: 400.0 units of Base arriving
+2025-05-27 10:35:14,194 - scheduler.optimizer - INFO - Day 21: 360.0 units of Base arriving
+2025-05-27 10:35:14,195 - scheduler.optimizer - INFO - Day 23: 280.0 units of F arriving
+2025-05-27 10:35:14,195 - scheduler.optimizer - INFO - Day 23: 200.0 units of C arriving
+2025-05-27 10:35:14,200 - scheduler.optimizer - INFO - Setting objective function for margin optimization
+2025-05-27 10:35:14,202 - scheduler.optimizer - INFO - Objective: Maximize total margin
+2025-05-27 10:35:14,202 - scheduler.optimizer - INFO - Solving optimization model...
+2025-05-27 10:35:14,203 - scheduler.optimizer - INFO - Using solver with MIP gap=0.05 and time limit=1200 seconds
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Optimization status: Optimal
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Objective value: 31657.673061192792
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Creating optimized schedule...
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 1: Processing 96.0 units of 3
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 1: Total margin = 1334.592
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 1: Total inventory = 654.0, Processing = 96.0
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 2: Processing 96.0 units of 3
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 2: Total margin = 1334.592
+2025-05-27 10:35:14,457 - scheduler.optimizer - INFO - Day 2: Total inventory = 558.0, Processing = 96.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 3: Processing 58.0 units of 3
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 3: Total margin = 806.316
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 3: Total inventory = 500.0, Processing = 58.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 4: Processing 95.0 units of 4
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 4: Total margin = 1592.7035
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 4: Total inventory = 405.0, Processing = 95.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 5: Processing 95.0 units of 4
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 5: Total margin = 1592.7035
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 5: Total inventory = 460.0, Processing = 95.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 6: Processing 96.0 units of 1
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 6: Total margin = 1589.5104000000001
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 6: Total inventory = 764.0, Processing = 96.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 7: Processing 96.0 units of 1
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 7: Total margin = 1589.5104000000001
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 7: Total inventory = 668.0, Processing = 96.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 8: Processing 87.841705 units of 1
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 8: Total margin = 1454.430246367
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 8: Total inventory = 580.1583, Processing = 87.841705
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 9: Processing 80.555556 units of 4
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 9: Total margin = 1350.5380630068
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 9: Total inventory = 499.60274, Processing = 80.555556
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 10: Total margin = 0.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 10: Total inventory = 499.60274, Processing = 0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 11: Processing 96.0 units of 1
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 11: Total margin = 1589.5104000000001
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 11: Total inventory = 403.60274, Processing = 96.0
+2025-05-27 10:35:14,458 - scheduler.optimizer - INFO - Day 12: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 12: Total inventory = 403.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 13: Processing 96.0 units of 1
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 13: Total margin = 1589.5104000000001
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 13: Total inventory = 307.60274000000004, Processing = 96.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 14: Processing 95.0 units of 4
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 14: Total margin = 1592.7035
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 14: Total inventory = 212.60273999999998, Processing = 95.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 15: Processing 95.0 units of 4
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 15: Total margin = 1592.7035
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 15: Total inventory = 117.60274, Processing = 95.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 16: Processing 95.0 units of 4
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 16: Total margin = 1592.7035
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 16: Total inventory = 22.60274, Processing = 95.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 17: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 17: Total inventory = 22.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 18: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 18: Total inventory = 22.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 19: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 19: Total inventory = 22.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 20: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 20: Total inventory = 22.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 21: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 21: Total inventory = 382.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 22: Total margin = 0.0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 22: Total inventory = 382.60274, Processing = 0
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 23: Processing 18.150685 units of 1
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 23: Total margin = 300.528151819
+2025-05-27 10:35:14,459 - scheduler.optimizer - INFO - Day 23: Total inventory = 844.452055, Processing = 18.150685
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 24: Processing 95.0 units of 4
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 24: Total margin = 1592.7035
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 24: Total inventory = 749.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 25: Processing 95.0 units of 4
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 25: Total margin = 1592.7035
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 25: Total inventory = 654.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 26: Processing 95.0 units of 4
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 26: Total margin = 1592.7035
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 26: Total inventory = 559.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 27: Processing 95.0 units of 6
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 27: Total margin = 947.1500000000001
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 27: Total inventory = 464.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 28: Processing 95.0 units of 6
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 28: Total margin = 947.1500000000001
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 28: Total inventory = 369.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 29: Processing 95.0 units of 4
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 29: Total margin = 1592.7035
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 29: Total inventory = 274.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 30: Processing 95.0 units of 4
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 30: Total margin = 1592.7035
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 30: Total inventory = 179.452055, Processing = 95.0
+2025-05-27 10:35:14,460 - scheduler.optimizer - INFO - Day 31: Processing 90.0 units of 6
+2025-05-27 10:35:14,461 - scheduler.optimizer - INFO - Day 31: Total margin = 897.3000000000001
+2025-05-27 10:35:14,461 - scheduler.optimizer - INFO - Day 31: Total inventory = 89.452055, Processing = 90.0
+2025-05-27 10:35:14,461 - scheduler.optimizer - INFO - Optimization complete! Created 31 days of schedule
+2025-05-27 10:35:14,463 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:35:14] "POST /api/optimizer/optimize HTTP/1.1" 200 -
+2025-05-27 10:35:17,461 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:35:17] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-27 10:35:20,731 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:35:20] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-27 10:35:20,793 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 10:35:20] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:39,840 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:39] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:39,851 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:39] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:40,534 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:40] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:40,544 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:40] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:42,246 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:42] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:42,256 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:42] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:44,831 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:44] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:06:44,842 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:06:44] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:27:24,624 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:27:24] "GET /api/data HTTP/1.1" 200 -
+2025-05-27 11:27:24,680 - werkzeug - INFO - 127.0.0.1 - - [27/May/2025 11:27:24] "GET /api/data HTTP/1.1" 200 -
