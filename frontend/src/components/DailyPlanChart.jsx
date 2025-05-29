@@ -11,6 +11,10 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedTank, setSelectedTank] = useState(null)
   const [saveStatus, setSaveStatus] = useState('')
+  // Modal states
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingDay, setEditingDay] = useState(null)
+  const [modalData, setModalData] = useState({})
   
   // Initialize edited schedule when component mounts or schedule changes
   useEffect(() => {
@@ -183,76 +187,6 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
   const gradeColors = ['#0891B2', '#00D9FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
   const tankColors = ['#14B8A6', '#00D9FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
   
-  // Handle value edit in table
-  const handleValueChange = (dayIndex, key, value) => {
-    // Copy the schedule to avoid direct mutation
-    const newSchedule = [...editedSchedule]
-    const day = newSchedule[dayIndex]
-    
-    // Handle different data types
-    if (key.startsWith('inventory_')) {
-      // Edit inventory by grade
-      const grade = key.replace('inventory_', '')
-      
-      // Ensure inventory_by_grade object exists
-      if (!day.inventory_by_grade) {
-        day.inventory_by_grade = {}
-      }
-      
-      // Update the specific grade
-      const numValue = value === '' ? 0 : parseFloat(value) || 0
-      day.inventory_by_grade[grade] = numValue
-      
-      // Update total inventory
-      day.inventory = Object.values(day.inventory_by_grade).reduce((sum, val) => sum + val, 0)
-    } 
-    else if (key.startsWith('tank_')) {
-      // Handle tank edits
-      const parts = key.split('_')
-      const tankName = parts[1]
-      
-      if (parts.length === 3 && parts[2] === 'total') {
-        // Can't directly edit tank total, it's calculated from contents
-      } else if (parts.length >= 3) {
-        // Edit tank content for specific grade
-        const grade = parts.slice(2).join('_')
-        
-        if (!day.tanks[tankName]) {
-          day.tanks[tankName] = { name: tankName, content: [] }
-        }
-        
-        // Find if this grade already exists in the tank
-        const contentIndex = day.tanks[tankName].content.findIndex(item => 
-          Object.keys(item)[0] === grade
-        )
-        
-        if (contentIndex >= 0) {
-          const numValue = value === '' ? 0 : parseFloat(value) || 0
-          day.tanks[tankName].content[contentIndex] = { [grade]: numValue }
-        } else {
-          const numValue = value === '' ? 0 : parseFloat(value) || 0
-          day.tanks[tankName].content.push({ [grade]: numValue })
-        }
-        
-        // Also update corresponding inventory by grade
-        if (!day.inventory_by_grade[grade]) {
-          day.inventory_by_grade[grade] = 0
-        }
-      }
-    } 
-    else {
-      // Edit processing rates (still need to work with the original recipes)
-      if (!day.processing_rates) {
-        day.processing_rates = {}
-      }
-      const numValue = value === '' ? 0 : parseFloat(value) || 0
-      day.processing_rates[key] = numValue
-    }
-    
-    // Update edited schedule
-    setEditedSchedule(newSchedule)
-  }
-  
   // Save changes back to the server
   const saveChanges = async () => {
     try {
@@ -275,13 +209,98 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
       setTimeout(() => setSaveStatus(''), 3000)
     }
   }
+
+  // Modal functions
+  const openEditModal = (dayIndex) => {
+    const dayData = editedSchedule[dayIndex]
+    setEditingDay(dayIndex)
+    setModalData({
+      day: dayData.day,
+      inventory_by_grade: { ...dayData.inventory_by_grade },
+      processing_rates: { ...dayData.processing_rates },
+      tanks: dayData.tanks ? JSON.parse(JSON.stringify(dayData.tanks)) : {}
+    })
+    setShowEditModal(true)
+  }
+
+  const closeEditModal = () => {
+    setShowEditModal(false)
+    setEditingDay(null)
+    setModalData({})
+  }
+
+  const handleModalInputChange = (category, key, value) => {
+    const numValue = value === '' ? 0 : parseFloat(value) || 0
+    setModalData(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [key]: numValue
+      }
+    }))
+  }
+
+  const handleTankInputChange = (tankName, grade, value) => {
+    const numValue = value === '' ? 0 : parseFloat(value) || 0
+    setModalData(prev => {
+      const updatedTanks = { ...prev.tanks }
+      
+      if (!updatedTanks[tankName]) {
+        updatedTanks[tankName] = { name: tankName, content: [] }
+      }
+      
+      // Find existing content for this grade
+      const contentIndex = updatedTanks[tankName].content.findIndex(item => 
+        Object.keys(item)[0] === grade
+      )
+      
+      if (contentIndex >= 0) {
+        updatedTanks[tankName].content[contentIndex] = { [grade]: numValue }
+      } else {
+        updatedTanks[tankName].content.push({ [grade]: numValue })
+      }
+      
+      return {
+        ...prev,
+        tanks: updatedTanks
+      }
+    })
+  }
+
+  const saveModalChanges = () => {
+    if (editingDay === null) return
+    
+    const newSchedule = [...editedSchedule]
+    const day = newSchedule[editingDay]
+    
+    // Update the day with modal data
+    day.inventory_by_grade = { ...modalData.inventory_by_grade }
+    day.processing_rates = { ...modalData.processing_rates }
+    day.tanks = modalData.tanks
+    
+    // Recalculate total inventory
+    day.inventory = Object.values(day.inventory_by_grade).reduce((sum, val) => sum + val, 0)
+    
+    setEditedSchedule(newSchedule)
+    closeEditModal()
+  }
   
   // Function to render the appropriate chart based on viewType
   const renderChart = () => {
+    const handleChartClick = (data) => {
+      if (editMode && data && data.activeLabel) {
+        const dayNumber = parseInt(data.activeLabel.split(' ')[1])
+        const dayIndex = editedSchedule.findIndex(day => day.day === dayNumber)
+        if (dayIndex >= 0) {
+          openEditModal(dayIndex)
+        }
+      }
+    }
+
     switch (viewType) {
       case 'processing':
         return (
-          <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
             <YAxis tick={{ fill: 'white' }} />
@@ -307,6 +326,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 stackId="stack"
                 fill={gradeColors[index % gradeColors.length]}
                 radius={[4, 4, 0, 0]}
+                cursor={editMode ? 'pointer' : 'default'}
               />
             ))}
           </BarChart>
@@ -314,7 +334,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         
       case 'inventory':
         return (
-          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
             <YAxis tick={{ fill: 'white' }} />
@@ -338,6 +358,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
+                cursor={editMode ? 'pointer' : 'default'}
               />
             ))}
             <Line
@@ -348,6 +369,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
               strokeWidth={3}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}
+              cursor={editMode ? 'pointer' : 'default'}
             />
           </LineChart>
         )
@@ -355,7 +377,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
       case 'tanks':
         // tank chart remains the same
         return (
-          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
             <YAxis tick={{ fill: 'white' }} />
@@ -390,6 +412,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 fill={tankColors[index % tankColors.length]}
                 stroke={tankColors[index % tankColors.length]}
                 fillOpacity={0.6}
+                cursor={editMode ? 'pointer' : 'default'}
               />
             ))}
           </AreaChart>
@@ -444,8 +467,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setShowDetails(!showDetails)}
           className={`px-3 py-1.5 rounded-md text-sm font-medium ${
             showDetails
-              ? 'bg-white/30 text-white'
-              : 'bg-white/20 text-white hover:bg-white/30'
+              ? '!bg-white/30 !text-white'
+              : '!bg-white/20 !text-white hover:!bg-white/30'
           }`}
         >
           {showDetails ? 'Hide Details' : 'Show Details'}
@@ -523,56 +546,27 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 <tr 
                   key={day.day} 
                   className={`hover:bg-[#88BDBC]/10 ${
-                    editMode ? 'bg-[#88BDBC]/5' : ''
+                    editMode ? 'bg-[#88BDBC]/5 cursor-pointer' : ''
                   }`}
+                  onClick={() => editMode && openEditModal(idx)}
                 >
                   <td className="px-3 py-2 whitespace-nowrap text-sm text-[#254E58]">Day {day.day}</td>
                   {viewType === 'processing' ? (
                     processedGrades.map(grade => (
                       <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
-                        {editMode ? (
-                          <div className="flex items-center">
-                            <span className="text-[#254E58] text-xs px-2 py-1 bg-gray-100 rounded">
-                              {day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '0.0'}
-                            </span>
-                            <span className="text-xs text-gray-400 ml-1">(calc)</span>
-                          </div>
-                        ) : (
-                          day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '-'
-                        )}
+                        {day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '-'}
                       </td>
                     ))
                   ) : viewType === 'inventory' ? (
                     grades.map(grade => (
                       <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
-                        {editMode ? (
-                          <input
-                            type="number"
-                            value={editedSchedule[idx]?.inventory_by_grade?.[grade] || ''}
-                            onChange={(e) => handleValueChange(idx, `inventory_${grade}`, e.target.value)}
-                            className="w-full px-2 py-1 border border-[#88BDBC]/30 rounded text-[#254E58] text-xs focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
-                            step="0.1"
-                            min="0"
-                            placeholder="0.0"
-                          />
-                        ) : (
-                          day[`inventory_${grade}`] ? day[`inventory_${grade}`].toFixed(1) : '-'
-                        )}
+                        {day[`inventory_${grade}`] ? day[`inventory_${grade}`].toFixed(1) : '-'}
                       </td>
                     ))
                   ) : (
                     tanks.map(tank => (
                       <td key={tank} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
-                        {editMode ? (
-                          <div className="flex items-center">
-                            <span className="text-[#254E58] text-xs px-2 py-1 bg-gray-100 rounded">
-                              {day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '0.0'}
-                            </span>
-                            <span className="text-xs text-gray-400 ml-1">(calc)</span>
-                          </div>
-                        ) : (
-                          day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '-'
-                        )}
+                        {day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '-'}
                       </td>
                     ))
                   )}
@@ -598,13 +592,124 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-800">
           <p className="font-medium">Editing Mode Instructions:</p>
           <ul className="list-disc ml-5 mt-1">
-            <li>Enable "Show Details" to see the data table below the chart</li>
-            <li><strong>Inventory View:</strong> Edit inventory levels directly in the table</li>
-            <li><strong>Processing View:</strong> Grade consumption values are calculated (read-only)</li>
-            <li><strong>Tank View:</strong> Tank totals are calculated from contents (read-only)</li>
-            <li>Changes are made in real-time as you type</li>
+            <li>Click on chart elements or table rows to open the edit dialog</li>
+            <li><strong>Inventory:</strong> Edit inventory levels for each grade</li>
+            <li><strong>Processing:</strong> Edit processing rates for each recipe</li>
+            <li><strong>Tanks:</strong> Edit tank contents by grade</li>
             <li>Click "Save Changes" to persist your edits to the server</li>
           </ul>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Edit Day {modalData.day} Schedule
+              </h3>
+            </div>
+            
+            <div className="px-6 py-4 space-y-6">
+              {/* Inventory Section */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Inventory by Grade</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {grades.map(grade => (
+                    <div key={grade} className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600 mb-1">
+                        {grade}
+                      </label>
+                      <input
+                        type="number"
+                        value={modalData.inventory_by_grade?.[grade] || ''}
+                        onChange={(e) => handleModalInputChange('inventory_by_grade', grade, e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#88BDBC] focus:border-transparent"
+                        step="0.1"
+                        min="0"
+                        placeholder="0.0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Processing Rates Section */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Processing Rates</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {recipes.map(recipe => (
+                    <div key={recipe} className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600 mb-1">
+                        Recipe {recipe}
+                      </label>
+                      <input
+                        type="number"
+                        value={modalData.processing_rates?.[recipe] || ''}
+                        onChange={(e) => handleModalInputChange('processing_rates', recipe, e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#88BDBC] focus:border-transparent"
+                        step="0.1"
+                        min="0"
+                        placeholder="0.0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tanks Section */}
+              {tanks.length > 0 && (
+                <div>
+                  <h4 className="text-md font-medium text-gray-800 mb-3">Tank Contents</h4>
+                  {tanks.map(tank => (
+                    <div key={tank} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                      <h5 className="text-sm font-medium text-gray-700 mb-2">Tank {tank}</h5>
+                      <div className="grid grid-cols-2 gap-3">
+                        {grades.map(grade => {
+                          const currentAmount = modalData.tanks?.[tank]?.content?.find(item => 
+                            Object.keys(item)[0] === grade
+                          )?.[grade] || 0
+                          
+                          return (
+                            <div key={grade} className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">
+                                {grade}
+                              </label>
+                              <input
+                                type="number"
+                                value={currentAmount}
+                                onChange={(e) => handleTankInputChange(tank, grade, e.target.value)}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#88BDBC]"
+                                step="0.1"
+                                min="0"
+                                placeholder="0.0"
+                              />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={closeEditModal}
+                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveModalChanges}
+                className="px-4 py-2 bg-[#254E58] text-white rounded-md hover:bg-[#1a3640] transition"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
