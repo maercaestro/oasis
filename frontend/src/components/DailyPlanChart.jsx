@@ -23,7 +23,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
   if (!schedule || schedule.length === 0) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-slate-500">No schedule data available.</p>
+        <p className="text-white">No schedule data available.</p>
       </div>
     )
   }
@@ -166,10 +166,22 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
     )
   )]
   
-  // Generate colors for different data series
-  const recipeColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
-  const gradeColors = ['#0ea5e9', '#22c55e', '#f97316', '#ec4899', '#6366f1']
-  const tankColors = ['#4ade80', '#60a5fa', '#f472b6', '#fb923c', '#94a3b8', '#c084fc']
+  // Generate colors for different data series - Creative vibrant palette with teal harmony
+  // Option 1: Ocean-to-Sunset palette (recommended)
+  //const recipeColors = ['#254E58', '#2DD4BF', '#06B6D4', '#F59E0B', '#EC4899', '#8B5CF6']
+  //const gradeColors = ['#0891B2', '#10B981', '#F97316', '#EF4444', '#8B5CF6', '#06B6D4']
+  //const tankColors = ['#14B8A6', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
+  
+  // Alternative palettes (uncomment to try):
+  // Option 2: Jewel Tones
+  //const recipeColors = ['#254E58', '#059669', '#DC2626', '#7C3AED', '#DB2777', '#EA580C']
+  //const gradeColors = ['#0891B2', '#059669', '#DC2626', '#7C3AED', '#DB2777', '#EA580C']
+  //const tankColors = ['#14B8A6', '#059669', '#DC2626', '#7C3AED', '#DB2777', '#EA580C']
+  
+  // Option 3: Modern Tech palette
+  const recipeColors = ['#254E58', '#00D9FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+  const gradeColors = ['#0891B2', '#00D9FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+  const tankColors = ['#14B8A6', '#00D9FF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
   
   // Handle value edit in table
   const handleValueChange = (dayIndex, key, value) => {
@@ -181,7 +193,15 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
     if (key.startsWith('inventory_')) {
       // Edit inventory by grade
       const grade = key.replace('inventory_', '')
-      day.inventory_by_grade = { ...day.inventory_by_grade, [grade]: parseFloat(value) }
+      
+      // Ensure inventory_by_grade object exists
+      if (!day.inventory_by_grade) {
+        day.inventory_by_grade = {}
+      }
+      
+      // Update the specific grade
+      const numValue = value === '' ? 0 : parseFloat(value) || 0
+      day.inventory_by_grade[grade] = numValue
       
       // Update total inventory
       day.inventory = Object.values(day.inventory_by_grade).reduce((sum, val) => sum + val, 0)
@@ -207,9 +227,11 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         )
         
         if (contentIndex >= 0) {
-          day.tanks[tankName].content[contentIndex] = { [grade]: parseFloat(value) }
+          const numValue = value === '' ? 0 : parseFloat(value) || 0
+          day.tanks[tankName].content[contentIndex] = { [grade]: numValue }
         } else {
-          day.tanks[tankName].content.push({ [grade]: parseFloat(value) })
+          const numValue = value === '' ? 0 : parseFloat(value) || 0
+          day.tanks[tankName].content.push({ [grade]: numValue })
         }
         
         // Also update corresponding inventory by grade
@@ -220,7 +242,11 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
     } 
     else {
       // Edit processing rates (still need to work with the original recipes)
-      day.processing_rates = { ...day.processing_rates, [key]: parseFloat(value) }
+      if (!day.processing_rates) {
+        day.processing_rates = {}
+      }
+      const numValue = value === '' ? 0 : parseFloat(value) || 0
+      day.processing_rates[key] = numValue
     }
     
     // Update edited schedule
@@ -257,8 +283,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         return (
           <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="dayLabel" />
-            <YAxis />
+            <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
+            <YAxis tick={{ fill: 'white' }} />
             <Tooltip 
               formatter={(value, name) => {
                 // Format differently based on if it's a grade or recipe
@@ -281,7 +307,6 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 stackId="stack"
                 fill={gradeColors[index % gradeColors.length]}
                 radius={[4, 4, 0, 0]}
-                onClick={(data) => editMode && setSelectedDay(data.day - 1)}
               />
             ))}
           </BarChart>
@@ -291,8 +316,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         return (
           <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="dayLabel" />
-            <YAxis />
+            <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
+            <YAxis tick={{ fill: 'white' }} />
             <Tooltip 
               formatter={(value, name) => [
                 `${value.toFixed(1)}`, 
@@ -313,7 +338,6 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                onClick={(data) => editMode && setSelectedDay(data.day - 1)}
               />
             ))}
             <Line
@@ -333,8 +357,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         return (
           <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="dayLabel" />
-            <YAxis />
+            <XAxis dataKey="dayLabel" tick={{ fill: 'white' }} />
+            <YAxis tick={{ fill: 'white' }} />
             <Tooltip 
               formatter={(value, name) => {
                 const niceName = name.startsWith('tank_') 
@@ -366,12 +390,6 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                 fill={tankColors[index % tankColors.length]}
                 stroke={tankColors[index % tankColors.length]}
                 fillOpacity={0.6}
-                onClick={(data) => {
-                  if (editMode) {
-                    setSelectedDay(data.day - 1)
-                    setSelectedTank(tank)
-                  }
-                }}
               />
             ))}
           </AreaChart>
@@ -393,8 +411,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setViewType('processing')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'processing' 
-              ? '!bg-emerald-600 text-white' 
-              : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
+              ? '!bg-[#254E58] text-white' 
+              : 'bg-[#88BDBC]/20 text-[#254E58] hover:bg-[#88BDBC]/30'
           }`}
         >
           Grade Processing
@@ -403,8 +421,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setViewType('inventory')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'inventory' 
-              ? '!bg-emerald-600 text-white' 
-              : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
+              ? '!bg-[#254E58] text-white' 
+              : 'bg-[#88BDBC]/20 text-[#254E58] hover:bg-[#88BDBC]/30'
           }`}
         >
           Inventory Levels
@@ -413,8 +431,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setViewType('tanks')}
           className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
             viewType === 'tanks' 
-              ? '!bg-emerald-600 text-white' 
-              : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
+              ? '!bg-[#254E58] text-white' 
+              : 'bg-[#88BDBC]/20 text-[#254E58] hover:bg-[#88BDBC]/30'
           }`}
         >
           Tank Inventory
@@ -426,8 +444,8 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setShowDetails(!showDetails)}
           className={`px-3 py-1.5 rounded-md text-sm font-medium ${
             showDetails
-              ? 'bg-slate-200 text-slate-800'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              ? 'bg-white/30 text-white'
+              : 'bg-white/20 text-white hover:bg-white/30'
           }`}
         >
           {showDetails ? 'Hide Details' : 'Show Details'}
@@ -437,7 +455,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
           onClick={() => setEditMode(!editMode)}
           className={`px-3 py-1.5 rounded-md text-sm font-medium ${
             editMode
-              ? '!bg-blue-500 text-white'
+              ? '!bg-[#88BDBC] text-white'
               : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
           }`}
         >
@@ -467,191 +485,75 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>
-        
-        {/* Edit tooltip if in edit mode and day selected */}
-        {editMode && selectedDay !== null && (
-          <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-slate-200 max-w-md">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Editing Day {editedSchedule[selectedDay]?.day}</h3>
-              <button 
-                onClick={() => setSelectedDay(null)}
-                className="text-slate-500 hover:text-slate-700"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 011.414 1.414L11.414 10l4.293 4.293a1 1 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 01-1.414-1.414L8.586 10 4.293 5.707a1 1 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-            
-            {viewType === 'processing' && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-600">Recipe Processing Rates</h4>
-                {recipes.map((recipe) => (
-                  <div key={recipe} className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: recipeColors[recipes.indexOf(recipe) % recipeColors.length] }}
-                    ></div>
-                    <label className="text-sm">{recipe}:</label>
-                    <input
-                      type="number"
-                      value={editedSchedule[selectedDay]?.processing_rates?.[recipe] || 0}
-                      onChange={(e) => handleValueChange(selectedDay, recipe, e.target.value)}
-                      className="border border-slate-300 rounded px-2 py-1 text-sm w-24"
-                      step="0.1"
-                      min="0"
-                    />
-                  </div>
-                ))}
-                
-                <h4 className="text-sm font-medium text-slate-600 mt-4">Resulting Grade Processing</h4>
-                {processedGrades.map((grade) => {
-                  const gradeConsumption = calculateGradeConsumption(editedSchedule[selectedDay]);
-                  return (
-                    <div key={grade} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: gradeColors[processedGrades.indexOf(grade) % gradeColors.length] }}
-                      ></div>
-                      <label className="text-sm">{grade}:</label>
-                      <span className="text-sm">{(gradeConsumption[grade] || 0).toFixed(1)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            
-            {viewType === 'inventory' && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-600">Inventory Levels</h4>
-                {grades.map((grade) => (
-                  <div key={grade} className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: gradeColors[grades.indexOf(grade) % gradeColors.length] }}
-                    ></div>
-                    <label className="text-sm">{grade}:</label>
-                    <input
-                      type="number"
-                      value={editedSchedule[selectedDay]?.inventory_by_grade?.[grade] || 0}
-                      onChange={(e) => handleValueChange(selectedDay, `inventory_${grade}`, e.target.value)}
-                      className="border border-slate-300 rounded px-2 py-1 text-sm w-24"
-                      step="0.1"
-                      min="0"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {viewType === 'tanks' && selectedTank && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-slate-600">Tank {selectedTank} Contents</h4>
-                {(editedSchedule[selectedDay]?.tanks?.[selectedTank]?.content || []).map((content, idx) => {
-                  const grade = Object.keys(content)[0];
-                  return (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: gradeColors[idx % gradeColors.length] }}
-                      ></div>
-                      <label className="text-sm">{grade}:</label>
-                      <input
-                        type="number"
-                        value={content[grade] || 0}
-                        onChange={(e) => handleValueChange(
-                          selectedDay, 
-                          `tank_${selectedTank}_${grade}`, 
-                          e.target.value
-                        )}
-                        className="border border-slate-300 rounded px-2 py-1 text-sm w-24"
-                        step="0.1"
-                        min="0"
-                      />
-                    </div>
-                  );
-                })}
-                <button
-                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                  onClick={() => {
-                    const newSchedule = [...editedSchedule];
-                    const day = newSchedule[selectedDay];
-                    if (!day.tanks[selectedTank].content) {
-                      day.tanks[selectedTank].content = [];
-                    }
-                    day.tanks[selectedTank].content.push({ "New Grade": 0 });
-                    setEditedSchedule(newSchedule);
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Add Grade
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Detailed data table - updated for processing view to show grades */}
       {showDetails && (
-        <div className="h-64 overflow-y-auto border border-slate-200 rounded-md">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50 sticky top-0">
+        <div className="h-64 overflow-y-auto border border-[#88BDBC]/30 rounded-md backdrop-blur-sm">
+          <table className="min-w-full divide-y divide-[#88BDBC]/20">
+            <thead className="bg-[#88BDBC] sticky top-0">
               <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Day</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Day</th>
                 {viewType === 'processing' ? (
                   processedGrades.map(grade => (
-                    <th key={grade} className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th key={grade} className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                       {grade}
                     </th>
                   ))
                 ) : viewType === 'inventory' ? (
                   grades.map(grade => (
-                    <th key={grade} className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th key={grade} className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                       {grade}
                     </th>
                   ))
                 ) : (
                   tanks.map(tank => (
-                    <th key={tank} className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th key={tank} className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                       {tank}
                     </th>
                   ))
                 )}
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
                   {viewType === 'processing' ? 'Total' : viewType === 'inventory' ? 'Total Inventory' : 'Total Tank Volume'}
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
+            <tbody className="bg-white divide-y divide-[#88BDBC]/20">
               {chartData.map((day, idx) => (
                 <tr 
                   key={day.day} 
-                  className={`hover:bg-slate-50 ${
-                    editMode && selectedDay === idx ? 'bg-blue-50' : ''
+                  className={`hover:bg-[#88BDBC]/10 ${
+                    editMode ? 'bg-[#88BDBC]/5' : ''
                   }`}
-                  onClick={() => editMode && setSelectedDay(idx)}
                 >
-                  <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-900">Day {day.day}</td>
+                  <td className="px-3 py-2 whitespace-nowrap text-sm text-[#254E58]">Day {day.day}</td>
                   {viewType === 'processing' ? (
                     processedGrades.map(grade => (
-                      <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
-                        {day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '-'}
+                      <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
+                        {editMode ? (
+                          <div className="flex items-center">
+                            <span className="text-[#254E58] text-xs px-2 py-1 bg-gray-100 rounded">
+                              {day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '0.0'}
+                            </span>
+                            <span className="text-xs text-gray-400 ml-1">(calc)</span>
+                          </div>
+                        ) : (
+                          day[`grade_${grade}`] ? day[`grade_${grade}`].toFixed(1) : '-'
+                        )}
                       </td>
                     ))
                   ) : viewType === 'inventory' ? (
                     grades.map(grade => (
-                      <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
+                      <td key={grade} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
                         {editMode ? (
                           <input
                             type="number"
-                            value={day[`inventory_${grade}`] || 0}
+                            value={editedSchedule[idx]?.inventory_by_grade?.[grade] || ''}
                             onChange={(e) => handleValueChange(idx, `inventory_${grade}`, e.target.value)}
-                            className="w-full px-2 py-1 border border-slate-300 rounded"
+                            className="w-full px-2 py-1 border border-[#88BDBC]/30 rounded text-[#254E58] text-xs focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
                             step="0.1"
                             min="0"
+                            placeholder="0.0"
                           />
                         ) : (
                           day[`inventory_${grade}`] ? day[`inventory_${grade}`].toFixed(1) : '-'
@@ -660,12 +562,21 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
                     ))
                   ) : (
                     tanks.map(tank => (
-                      <td key={tank} className="px-3 py-2 whitespace-nowrap text-sm text-slate-500">
-                        {day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '-'}
+                      <td key={tank} className="px-3 py-2 whitespace-nowrap text-sm text-gray-600">
+                        {editMode ? (
+                          <div className="flex items-center">
+                            <span className="text-[#254E58] text-xs px-2 py-1 bg-gray-100 rounded">
+                              {day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '0.0'}
+                            </span>
+                            <span className="text-xs text-gray-400 ml-1">(calc)</span>
+                          </div>
+                        ) : (
+                          day[`tank_${tank}_total`] ? day[`tank_${tank}_total`].toFixed(1) : '-'
+                        )}
                       </td>
                     ))
                   )}
-                  <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-slate-900">
+                  <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-[#254E58]">
                     {viewType === 'processing' 
                       ? day.totalProcessing.toFixed(1)
                       : viewType === 'inventory'
@@ -687,10 +598,12 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-800">
           <p className="font-medium">Editing Mode Instructions:</p>
           <ul className="list-disc ml-5 mt-1">
-            <li>Click on the chart or table rows to select a day to edit</li>
-            <li>Modify values directly in the table or in the edit panel</li>
-            <li>Click "Save Changes" to persist your edits</li>
-            <li>Tank inventory values are calculated from individual grade contents</li>
+            <li>Enable "Show Details" to see the data table below the chart</li>
+            <li><strong>Inventory View:</strong> Edit inventory levels directly in the table</li>
+            <li><strong>Processing View:</strong> Grade consumption values are calculated (read-only)</li>
+            <li><strong>Tank View:</strong> Tank totals are calculated from contents (read-only)</li>
+            <li>Changes are made in real-time as you type</li>
+            <li>Click "Save Changes" to persist your edits to the server</li>
           </ul>
         </div>
       )}

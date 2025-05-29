@@ -282,7 +282,7 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
     return (
       <div className="mt-2 relative">
         {/* Route timeline visualization */}
-        <div className="h-3 relative w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-3 relative w-full bg-white/20 rounded-full overflow-hidden">
           {vessel.route.map((segment, index) => {
             // Calculate positions for the entire journey
             const startDay = segment.day - segment.travel_days;
@@ -345,7 +345,7 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
         </div>
         
         {/* Travel indicators with day labels */}
-        <div className="mt-1 text-xs text-gray-500">
+        <div className="mt-1 text-xs text-white">
           {vessel.route.map((segment, index) => {
             const startDay = segment.day - segment.travel_days;
             const startPosition = dayToPosition(startDay) - dayToPosition(vessel.arrival_day);
@@ -358,10 +358,10 @@ function VesselSchedule({ vessels: initialVessels, onVesselUpdate }) {
                 style={{ left: `${midPosition}px`, transform: 'translateX(-50%)' }}
               >
                 <div className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-blue-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-[#254E58]">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
-                  <span className="text-[10px] text-blue-600">{segment.travel_days}d</span>
+                  <span className="text-[10px] text-[#254E58]">{segment.travel_days}d</span>
                 </div>
               </div>
             );
@@ -410,7 +410,7 @@ const renderDailyLocationBar = (vessel) => {
   
   return (
     <div className="mt-2 mb-1">
-      <div className="text-xs text-gray-500 mb-1">Daily Location:</div>
+      <div className="text-xs text-white mb-1">Daily Location:</div>
       <div className="flex h-4 w-full rounded-md overflow-hidden">
         {days.map(day => {
           // Find vessel location for this day
@@ -450,7 +450,7 @@ const renderDailyLocationBar = (vessel) => {
             >
               {/* Day number label - only show every few days to avoid crowding */}
               {day % 3 === 0 && (
-                <span className={`absolute ${isInTransit ? 'text-white' : 'text-gray-700'}`}>
+                <span className={`absolute ${isInTransit ? 'text-white' : 'text-white'}`}>
                   {day}
                 </span>
               )}
@@ -467,8 +467,8 @@ const renderDailyLocationBar = (vessel) => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-          <p className="mt-4 text-slate-500 font-medium">Loading vessel data...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#88BDBC] border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <p className="mt-4 text-white font-medium">Loading vessel data...</p>
         </div>
       </div>
     )
@@ -479,13 +479,13 @@ const renderDailyLocationBar = (vessel) => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center p-6">
-          <div className="bg-blue-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-blue-500">
+          <div className="bg-[#88BDBC]/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 border border-[#88BDBC]/30">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-[#88BDBC]">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-800 mb-2">No Vessels Found</h3>
-          <p className="text-gray-500">There are no vessels scheduled at this time.</p>
+          <h3 className="text-lg font-medium text-[#254E58] mb-2">No Vessels Found</h3>
+          <p className="text-white">There are no vessels scheduled at this time.</p>
         </div>
       </div>
     )
@@ -494,7 +494,7 @@ const renderDailyLocationBar = (vessel) => {
   return (
     <div className="vessel-schedule h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Vessel Schedule</h2>
+        <h2 className="text-xl font-semibold text-[#254E58]">Vessel Schedule</h2>
         <div className="flex gap-2">
           <button 
             onClick={() => {
@@ -503,7 +503,7 @@ const renderDailyLocationBar = (vessel) => {
                 startDay: Math.max(1, prev.startDay - 7)
               }))
             }}
-            className="px-3 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+            className="px-3 py-1 rounded bg-[#88BDBC]/20 text-[#254E58] hover:bg-[#88BDBC]/30 backdrop-blur-sm border border-[#88BDBC]/30"
           >
             ← Previous Week
           </button>
@@ -514,7 +514,7 @@ const renderDailyLocationBar = (vessel) => {
                 startDay: prev.startDay + 7
               }))
             }}
-            className="px-3 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+            className="px-3 py-1 rounded bg-[#88BDBC]/20 text-[#254E58] hover:bg-[#88BDBC]/30 backdrop-blur-sm border border-[#88BDBC]/30"
           >
             Next Week →
           </button>
@@ -527,24 +527,24 @@ const renderDailyLocationBar = (vessel) => {
       {/* Main content with vertical layout */}
       <div className="flex flex-col h-full">
         {/* Timeline container with both horizontal and vertical scrolling */}
-        <div className="timeline-container flex-grow overflow-x-auto overflow-y-auto border rounded-lg mb-4">
+        <div className="timeline-container flex-grow overflow-x-auto overflow-y-auto border border-[#88BDBC]/30 rounded-lg mb-4 bg-white/90 backdrop-blur-sm">
           <div 
             ref={timelineRef}
             className="relative"
             style={{ width: `${timelineWidth}px`, minHeight: '300px' }}
           >
             {/* Timeline header with days - make it sticky */}
-            <div className="timeline-header sticky top-0 bg-white z-10 border-b">
+            <div className="timeline-header sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-[#88BDBC]/30">
               <div className="flex">
                 {days.map((day, index) => (
                   <div 
                     key={index}
-                    className={`text-center border-r py-2 flex-shrink-0 ${
-                      (day % 7 === 0 || day % 7 === 1) ? 'bg-slate-50' : ''
+                    className={`text-center border-r border-[#88BDBC]/20 py-2 flex-shrink-0 ${
+                      (day % 7 === 0 || day % 7 === 1) ? 'bg-[#88BDBC]/10' : ''
                     }`}
                     style={{ width: `${timelineConfig.dayWidth}px` }}
                   >
-                    <div className="font-medium">Day {day}</div>
+                    <div className="font-medium text-[#254E58]">Day {day}</div>
                   </div>
                 ))}
               </div>
@@ -583,10 +583,10 @@ const renderDailyLocationBar = (vessel) => {
                       key={vessel.id} 
                       className="vessel-row relative mb-4 h-16" // Reduced height for cleaner look
                     >
-                      <div className="absolute left-0 h-full flex items-center px-2 text-sm font-medium text-gray-700 w-40">
+                      <div className="absolute left-0 h-full flex items-center px-2 text-sm font-medium text-[#254E58] w-40">
                         <div className="flex flex-col">
                           <span className="font-medium">{vessel.name}</span>
-                          <span className="text-xs text-gray-500">{vessel.volume} kbbl</span>
+                          <span className="text-xs text-white">{vessel.volume} kbbl</span>
                         </div>
                       </div>
                       
@@ -595,8 +595,8 @@ const renderDailyLocationBar = (vessel) => {
                           <div 
                             className={`vessel-item absolute rounded-md transition-all shadow-sm hover:shadow ${
                               editingVessel && editingVessel.id === vessel.id 
-                                ? 'border-2 border-blue-500 shadow-md' 
-                                : 'border border-blue-100 bg-blue-50 hover:bg-blue-100'
+                                ? 'border-2 border-[#88BDBC] shadow-md' 
+                                : 'border border-[#88BDBC]/30 bg-[#88BDBC]/20 hover:bg-[#88BDBC]/30 backdrop-blur-sm'
                             }`}
                             style={{ 
                               width: `${width}px`, 
@@ -608,14 +608,14 @@ const renderDailyLocationBar = (vessel) => {
                             {/* Simple vessel display - just name and volume */}
                             <div className="h-full flex items-center px-3 justify-between">
                               <div className="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-blue-600 mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-[#254E58] mr-2">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                 </svg>
-                                <span className="font-medium text-sm">{vessel.name}</span>
+                                <span className="font-medium text-sm text-[#254E58]">{vessel.name}</span>
                               </div>
                               
                               <div className="flex items-center">
-                                <span className="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
+                                <span className="text-xs text-[#88BDBC] bg-white/90 px-2 py-0.5 rounded-full border border-[#88BDBC]/30">
                                   {vessel.volume} kbbl
                                 </span>
                                 
@@ -623,7 +623,7 @@ const renderDailyLocationBar = (vessel) => {
                                 {vessel.route && vessel.route.length > 0 && (
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); toggleVesselDetails(vessel.id); }}
-                                    className="ml-2 text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-100"
+                                    className="ml-2 text-[#88BDBC] hover:text-[#254E58] p-1 rounded-full hover:bg-white/20"
                                     title="Show route details"
                                   >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -636,38 +636,38 @@ const renderDailyLocationBar = (vessel) => {
                             
                             {/* Expanded details popup - keep this functionality */}
                             {expandedVesselDetails[vessel.id] && (
-                              <div className="absolute top-full left-0 z-20 bg-white rounded-md shadow-lg border border-gray-200 p-3 w-80 mt-2">
-                                <h4 className="font-semibold text-gray-800 mb-2">Vessel Route Details</h4>
+                              <div className="absolute top-full left-0 z-20 bg-white/95 backdrop-blur-md rounded-md shadow-lg border border-[#88BDBC]/30 p-3 w-80 mt-2">
+                                <h4 className="font-semibold text-[#254E58] mb-2">Vessel Route Details</h4>
                                 <div className="space-y-2">
                                   {vessel.route.map((segment, index) => (
                                     <div key={index} className="text-sm">
                                       <div className="flex items-center">
                                         <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: getLocationColor(segment.from) }}></div>
-                                        <span className="font-medium">{segment.from}</span>
-                                        <span className="text-gray-500 ml-1">(Day {segment.day - segment.travel_days})</span>
+                                        <span className="font-medium text-[#254E58]">{segment.from}</span>
+                                        <span className="text-white ml-1">(Day {segment.day - segment.travel_days})</span>
                                       </div>
                                       <div className="ml-5 my-1 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-gray-400 mr-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3 text-white mr-1">
                                           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
                                         </svg>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs text-white">
                                           Traveling for {segment.travel_days} days
                                         </span>
                                       </div>
                                       <div className="flex items-center">
                                         <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: getLocationColor(segment.to) }}></div>
-                                        <span className="font-medium">{segment.to}</span>
-                                        <span className="text-gray-500 ml-1">(Day {segment.day})</span>
+                                        <span className="font-medium text-[#254E58]">{segment.to}</span>
+                                        <span className="text-white ml-1">(Day {segment.day})</span>
                                       </div>
                                       {index < vessel.route.length - 1 && (
-                                        <div className="h-4 border-l border-dashed border-gray-300 ml-1.5"></div>
+                                        <div className="h-4 border-l border-dashed border-[#88BDBC]/30 ml-1.5"></div>
                                       )}
                                     </div>
                                   ))}
                                 </div>
                                 <button
                                   onClick={() => toggleVesselDetails(vessel.id)}
-                                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                                  className="absolute top-2 right-2 text-white hover:text-[#254E58]"
                                 >
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -687,16 +687,16 @@ const renderDailyLocationBar = (vessel) => {
         </div>
         
         {/* Edit form at the bottom - always visible */}
-        <div className="border rounded-lg bg-white p-4 h-[280px] overflow-y-auto">
+        <div className="border border-[#88BDBC]/30 rounded-lg bg-white/95 backdrop-blur-sm p-4 h-[280px] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className="text-lg font-semibold text-[#254E58]">
                 {isCreatingVessel ? 'Create New Vessel' : editingVessel ? `Edit ${editingVessel.name}` : 'Vessel Editor'}
               </h3>
               {!editingVessel && (
                 <button
                   onClick={handleCreateNewVessel}
-                  className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-gray-700 rounded flex items-center gap-1.5 text-sm"
+                  className="px-3 py-1.5 bg-gradient-to-r from-[#88BDBC] to-[#254E58] hover:from-[#254E58] hover:to-[#88BDBC] text-white rounded flex items-center gap-1.5 text-sm transition-all duration-200 shadow-lg"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -708,7 +708,7 @@ const renderDailyLocationBar = (vessel) => {
             {editingVessel && (
               <button 
                 onClick={handleCloseEdit}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white hover:text-[#254E58]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -718,8 +718,8 @@ const renderDailyLocationBar = (vessel) => {
           </div>
           
           {!editingVessel ? (
-            <div className="flex flex-col items-center justify-center h-[180px] text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mb-2 text-gray-400">
+            <div className="flex flex-col items-center justify-center h-[180px] text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mb-2 text-[#88BDBC]">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
               </svg>
               <p className="text-center">Double-click on a vessel to edit its details or create a new vessel</p>
@@ -729,7 +729,7 @@ const renderDailyLocationBar = (vessel) => {
               {/* Vessel details */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1">
-                  <label className="block text-gray-700 text-sm font-bold mb-1">
+                  <label className="block text-[#254E58] text-sm font-bold mb-1">
                     Vessel Name
                   </label>
                   <input
@@ -737,12 +737,12 @@ const renderDailyLocationBar = (vessel) => {
                     name="name"
                     value={editFormData.name || ''}
                     onChange={handleFormChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow appearance-none border border-[#88BDBC]/30 rounded w-full py-2 px-3 text-[#254E58] leading-tight focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 bg-white/90"
                   />
                 </div>
                 
                 <div className="col-span-1">
-                  <label className="block text-gray-700 text-sm font-bold mb-1">
+                  <label className="block text-[#254E58] text-sm font-bold mb-1">
                     Arrival Day
                   </label>
                   <input
@@ -750,12 +750,12 @@ const renderDailyLocationBar = (vessel) => {
                     name="arrival_day"
                     value={editFormData.arrival_day || ''}
                     onChange={handleFormChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow appearance-none border border-[#88BDBC]/30 rounded w-full py-2 px-3 text-[#254E58] leading-tight focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 bg-white/90"
                   />
                 </div>
                 
                 <div className="col-span-1">
-                  <label className="block text-gray-700 text-sm font-bold mb-1">
+                  <label className="block text-[#254E58] text-sm font-bold mb-1">
                     Departure Day
                   </label>
                   <input
@@ -763,7 +763,7 @@ const renderDailyLocationBar = (vessel) => {
                     name="departure_day"
                     value={editFormData.departure_day || ''}
                     onChange={handleFormChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow appearance-none border border-[#88BDBC]/30 rounded w-full py-2 px-3 text-[#254E58] leading-tight focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 bg-white/90"
                   />
                 </div>
               </div>
@@ -771,12 +771,12 @@ const renderDailyLocationBar = (vessel) => {
               {/* Cargo section */}
               <div className="mt-4">
                 <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-semibold text-gray-700">Cargo</h4>
+                  <h4 className="font-semibold text-[#254E58]">Cargo</h4>
                   {editFormData.cargo && editFormData.cargo.length < 3 && (
                     <button
                       type="button"
                       onClick={handleAddCargo}
-                      className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 flex items-center gap-1"
+                      className="px-2 py-1 bg-[#88BDBC]/20 text-[#254E58] rounded text-sm hover:bg-[#88BDBC]/30 backdrop-blur-sm border border-[#88BDBC]/30 flex items-center gap-1"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -789,22 +789,22 @@ const renderDailyLocationBar = (vessel) => {
                 {/* Cargo items */}
                 <div className="space-y-3">
                   {editFormData.cargo && editFormData.cargo.map((cargo, index) => (
-                    <div key={index} className="grid grid-cols-5 gap-3 items-end bg-gray-50 p-2 rounded">
+                    <div key={index} className="grid grid-cols-5 gap-3 items-end bg-[#88BDBC]/10 p-2 rounded border border-[#88BDBC]/20 backdrop-blur-sm">
                       <div className="col-span-2">
-                        <label className="block text-gray-700 text-xs font-medium mb-1">
+                        <label className="block text-[#254E58] text-xs font-medium mb-1">
                           Crude Type
                         </label>
                         <input
                           type="text"
                           value={cargo.grade || ''}
                           onChange={(e) => handleCargoChange(index, 'grade', e.target.value)}
-                          className="shadow appearance-none border rounded w-full py-1.5 px-2 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
+                          className="shadow appearance-none border border-[#88BDBC]/30 rounded w-full py-1.5 px-2 text-[#254E58] text-sm leading-tight focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 bg-white/90"
                         />
                       </div>
                       
                       <div className="col-span-2">
-                        <label className="block text-gray-700 text-xs font-medium mb-1">
-                          Volume (kbbl) <span className="text-gray-400 font-normal">max 700</span>
+                        <label className="block text-[#254E58] text-xs font-medium mb-1">
+                          Volume (kbbl) <span className="text-white font-normal">max 700</span>
                         </label>
                         <input
                           type="number"
@@ -812,7 +812,7 @@ const renderDailyLocationBar = (vessel) => {
                           max="700"
                           value={cargo.volume || 0}
                           onChange={(e) => handleCargoChange(index, 'volume', e.target.value)}
-                          className="shadow appearance-none border rounded w-full py-1.5 px-2 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
+                          className="shadow appearance-none border border-[#88BDBC]/30 rounded w-full py-1.5 px-2 text-[#254E58] text-sm leading-tight focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 bg-white/90"
                         />
                       </div>
                       
@@ -821,7 +821,7 @@ const renderDailyLocationBar = (vessel) => {
                           <button
                             type="button"
                             onClick={() => handleRemoveCargo(index)}
-                            className="h-8 w-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded"
+                            className="h-8 w-8 flex items-center justify-center text-red-400 hover:bg-red-50 rounded"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -837,8 +837,8 @@ const renderDailyLocationBar = (vessel) => {
               {/* Route information (read-only) */}
               {editingVessel && editingVessel.route && editingVessel.route.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="font-semibold text-gray-700 mb-2">Route Information:</h4>
-                  <div className="bg-gray-50 p-3 rounded text-sm">
+                  <h4 className="font-semibold text-[#254E58] mb-2">Route Information:</h4>
+                  <div className="bg-[#88BDBC]/10 p-3 rounded text-sm border border-[#88BDBC]/20 backdrop-blur-sm">
                     <div className="space-y-2">
                       {editingVessel.route.map((segment, index) => (
                         <div key={index} className="flex items-center">
@@ -846,16 +846,16 @@ const renderDailyLocationBar = (vessel) => {
                             className="w-3 h-3 rounded-full mr-2 flex-shrink-0" 
                             style={{ backgroundColor: getLocationColor(segment.from) }}
                           ></div>
-                          <span>
+                          <span className="text-[#254E58]">
                             {segment.from} → {segment.to} 
-                            <span className="text-gray-500 ml-2">
+                            <span className="text-white ml-2">
                               (Day {segment.day - segment.travel_days} - Day {segment.day}, {segment.travel_days} days)
                             </span>
                           </span>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-white">
                       Route information is generated by the vessel optimizer and cannot be edited manually.
                     </div>
                   </div>
@@ -863,17 +863,17 @@ const renderDailyLocationBar = (vessel) => {
               )}
               
               {/* Form buttons */}
-              <div className="flex justify-end gap-2 pt-2 border-t mt-4">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#88BDBC]/30 mt-4">
                 <button
                   type="button"
                   onClick={handleCloseEdit}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-white/20 text-[#254E58] rounded hover:bg-white/30 border border-white/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-gray-800 rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-lg"
                 >
                   {isCreatingVessel ? 'Create Vessel' : 'Save Changes'}
                 </button>
@@ -883,13 +883,13 @@ const renderDailyLocationBar = (vessel) => {
         </div>
       </div>
       {/* Location color legend */}
-      <div className="mt-4 pt-3 border-t border-gray-200">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Location Legend:</h4>
+      <div className="mt-4 pt-3 border-t border-[#88BDBC]/30">
+        <h4 className="text-sm font-medium text-[#254E58] mb-2">Location Legend:</h4>
         <div className="flex flex-wrap gap-x-4 gap-y-2">
           {Object.entries(locationColors).map(([location, color]) => (
             <div key={location} className="flex items-center">
               <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: color }}></div>
-              <span className="text-xs text-slate-600">{location}</span>
+              <span className="text-xs text-white">{location}</span>
             </div>
           ))}
         </div>

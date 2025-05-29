@@ -4,7 +4,7 @@ import VesselSchedule from './components/VesselSchedule'
 import DataEditor from './components/DataEditor'
 import Chatbox from './components/Chatbox'
 import axios from 'axios'
-import logo from './assets/logo_oasis2.png'
+import logo from '/oasis-new.png'
 import ScheduleDashboard from './components/ScheduleDashboard';
 
 function App() {
@@ -210,32 +210,40 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-slate-100 to-sky-100 text-slate-800">
-      {/* Enhanced header with gradient */}
-      <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white p-4 shadow-lg sticky top-0 z-50">
+    <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-[#112D32] via-[#254E58] to-[#4F4A41] text-white">
+      {/* Enhanced header with teal-brown theme */}
+      <div className="bg-gradient-to-r from-[#112D32] via-[#254E58] to-[#4F4A41] text-white p-6 shadow-2xl sticky top-0 z-50 border-b border-[#88BDBC]/30">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <img 
-              src={logo} 
-              alt="OASIS Logo" 
-              className="h-12 w-auto" // Slightly reduced logo size for better balance
-            />
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">OASIS</h1>
-              <h3 className="text-sm font-light text-emerald-100">Refinery Scheduling & Optimization</h3>
+          <div className="flex items-center gap-4">
+            {/* Enhanced logo container with teal glassmorphic effect */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#88BDBC] to-[#254E58] rounded-xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+              <div className="relative bg-white/10 backdrop-blur-md rounded-xl p-3 border border-[#88BDBC]/20 shadow-lg">
+                <img 
+                  src={logo} 
+                  alt="OASIS Logo" 
+                  className="h-6 w-auto drop-shadow-lg group-hover:scale-105 transition-transform duration-300" 
+                />
+              </div>
+            </div>
+            {/* Enhanced typography with teal gradient */}
+            <div className="ml-2">
+              <h3 className="text-sm font-medium !text-white tracking-wider">
+                Refinery Scheduling & Optimization
+              </h3>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Optimization buttons */}
+          <div className="flex items-center gap-4">
+            {/* Enhanced optimization buttons with teal-brown glassmorphic design */}
             <button
               onClick={handleOptimizeVessels}
-              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 !bg-[#254E58] backdrop-blur-md border !border-[#88bdbc] rounded-lg text-sm font-semibold !text-white shadow-lg hover:!bg-[#88BDBC] hover:!border-[#254E58] transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 disabled:opacity-50 disabled:cursor-not-allowed group"
               disabled={isOptimizing}
             >
               {isOptimizingVessels ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <div className="dual-ring-small"></div>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 group-hover:scale-110 transition-transform">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5" />
                 </svg>
               )}
@@ -243,13 +251,13 @@ function App() {
             </button>
             <button
               onClick={handleOptimizeSchedule}
-              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 !bg-[#254E58] backdrop-blur-md border !border-[#88bdbc] rounded-lg text-sm font-semibold !text-white shadow-lg hover:!bg-[#88BDBC] hover:!border-[#254E58] transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 disabled:opacity-50 disabled:cursor-not-allowed group"
               disabled={isOptimizing}
             >
               {isOptimizingSchedule ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <div className="dual-ring-small"></div>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 group-hover:scale-110 transition-transform">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5" />
                 </svg>
               )}
@@ -257,13 +265,13 @@ function App() {
             </button>
             <button
               onClick={handleRunScheduler}
-              className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg text-sm font-semibold text-white shadow-md hover:from-teal-600 hover:to-cyan-700 transition-all duration-150 ease-in-out flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 !bg-[#254E58] backdrop-blur-md border !border-[#88bdbc] rounded-lg text-sm font-semibold !text-white shadow-lg hover:!bg-[#88BDBC] hover:!border-[#254E58] transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50 disabled:opacity-50 disabled:cursor-not-allowed group"
               disabled={isOptimizing}
             >
               {isRunningScheduler ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></span>
+                <div className="dual-ring-small"></div>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 group-hover:scale-110 transition-transform">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                 </svg>
               )}
@@ -273,12 +281,12 @@ function App() {
         </div>
       </div>
 
-      {/* Add this after the header section to show optimization messages */}
+      {/* Enhanced notification messages with teal-brown theme */}
       {optimizationMessage && (
-        <div className={`p-4 m-4 rounded-lg text-sm font-medium shadow-lg border ${ 
+        <div className={`p-4 m-4 rounded-lg text-sm font-medium shadow-lg border backdrop-blur-md ${ 
           optimizationMessage.type === 'success' 
-            ? 'bg-gradient-to-r from-green-50 via-green-100 to-green-50 text-green-700 border-green-300' 
-            : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 text-red-700 border-red-300'
+            ? 'bg-[#88BDBC]/20 text-[#88BDBC] border-[#88BDBC]/30' 
+            : 'bg-red-500/20 text-red-200 border-red-400/30'
         }`}>
           <div className="flex items-center">
             {optimizationMessage.type === 'success' ? (
@@ -292,7 +300,7 @@ function App() {
             )}
             <span className="flex-grow">{optimizationMessage.text}</span>
             <button 
-              className={`ml-auto text-${optimizationMessage.type === 'success' ? 'green' : 'red'}-500 hover:text-${optimizationMessage.type === 'success' ? 'green' : 'red'}-700 p-1 rounded-full hover:bg-${optimizationMessage.type === 'success' ? 'green' : 'red'}-100 transition-colors`}
+              className={`ml-auto ${optimizationMessage.type === 'success' ? 'text-[#88BDBC] hover:text-white' : 'text-red-300 hover:text-red-100'} p-1 rounded-full hover:bg-white/10 transition-colors`}
               onClick={() => setOptimizationMessage(null)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -303,18 +311,18 @@ function App() {
         </div>
       )}
 
-      {/* Main content area with chat on right */}
-      <div className="flex-grow flex overflow-hidden"> {/* Added overflow-hidden here */}
-        {/* Left main content - 75% width */}
-        <div className="w-3/4 p-5 overflow-y-auto flex flex-col space-y-6"> {/* Added space-y-6 for spacing between elements */}
-          {/* View/Edit tabs with enhanced styling */}
-          <div className="flex gap-3">
+      {/* Main content area with chat on right - enhanced dark theme */}
+      <div className="flex-grow flex overflow-hidden">
+        {/* Left main content - 75% width with teal glassmorphic styling */}
+        <div className="w-3/4 p-6 overflow-y-auto flex flex-col space-y-6">
+          {/* View/Edit tabs with teal-brown theme */}
+          <div className="flex gap-4">
             <button 
               onClick={() => setAppMode('view')}
-              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 ${ 
+              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 backdrop-blur-md border ${ 
                 appMode === 'view' 
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg transform hover:scale-105 focus:ring-teal-400' 
-                  : 'bg-white text-slate-700 hover:bg-slate-50 shadow focus:ring-slate-300'
+                  ? '!bg-gradient-to-r !from-[#88BDBC] !to-[#254E58] !text-gray-50 shadow-lg !border-[#88BDBC] focus:!ring-[#88BDBC]' 
+                  : '!bg-white/10 !text-[#88BDBC] hover:!bg-[#88BDBC]/20 !border-white/20 hover:!border-[#88BDBC]/30 focus:!ring-[#88BDBC]/30'
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -325,10 +333,10 @@ function App() {
             </button>
             <button 
               onClick={() => setAppMode('edit')}
-              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 ${ 
+              className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 backdrop-blur-md border ${ 
                 appMode === 'edit' 
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg transform hover:scale-105 focus:ring-teal-400' 
-                  : 'bg-white text-slate-700 hover:bg-slate-50 shadow focus:ring-slate-300'
+                  ? '!bg-gradient-to-r !from-[#88BDBC] !to-[#254E58] !text-gray-50 shadow-lg !border-[#88BDBC] focus:!ring-[#88BDBC]' 
+                  : '!bg-white/10 !text-[#88BDBC] hover:!bg-white/20 !border-white/20 hover:!border-white/30 focus:!ring-white/30'
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -338,15 +346,15 @@ function App() {
             </button>
           </div>
 
-          {/* VIEW MODE: Visualization selector tabs */}
+          {/* VIEW MODE: Visualization selector tabs with teal-brown theme */}
           {appMode === 'view' && (
-            <div className="bg-slate-200/80 p-1.5 rounded-lg flex gap-1 w-fit shadow-inner">
+            <div className="bg-white/10 backdrop-blur-md p-2 rounded-lg flex gap-2 w-fit shadow-lg border border-[#88BDBC]/20">
               <button 
                 onClick={() => setVisualizationView('dailyPlan')}
                 className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${ 
                   visualizationView === 'dailyPlan' 
-                    ? 'bg-gradient-to-r from-white to-slate-50 text-emerald-700 shadow-md' 
-                    : 'text-slate-600 hover:bg-slate-300/70 hover:text-slate-800'
+                    ? '!bg-[#88BDBC] !text-white shadow-md backdrop-blur-sm border !border-[#88BDBC]' 
+                    : '!text-[#254e58] hover:!bg-[#254E58] hover:!text-white'
                 }`}
               >
                 Daily Plan
@@ -355,8 +363,8 @@ function App() {
                 onClick={() => setVisualizationView('vessels')}
                 className={`px-5 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${ 
                   visualizationView === 'vessels' 
-                    ? 'bg-gradient-to-r from-white to-slate-50 text-emerald-700 shadow-md' 
-                    : 'text-slate-600 hover:bg-slate-300/70 hover:text-slate-800'
+                    ? '!bg-[#88BDBC] !text-white shadow-md backdrop-blur-sm border !border-[#88BDBC]' 
+                    : '!text-[#254e58] hover:!bg-[#254E58] hover:!text-white'
                 }`}
               >
                 Vessel Schedule
@@ -364,34 +372,68 @@ function App() {
             </div>
           )}
 
-          {/* EDIT MODE: Data type selector tabs */}
+          {/* EDIT MODE: Data type radio buttons with teal-brown theme */}
           {appMode === 'edit' && (
-            <div className="flex flex-col gap-0"> {/* Reduced gap */}
-              <div className="flex gap-0 border-b border-slate-300"> {/* Removed gap, adjusted border */}
-                <button 
-                  onClick={() => setEditorMode('input')}
-                  className={`px-5 py-3 rounded-tl-lg rounded-tr-lg text-sm font-semibold transition-all duration-200 ease-in-out border-b-2 ${ 
-                    editorMode === 'input' 
-                      ? 'bg-gradient-to-b from-white to-slate-50 text-emerald-700 border-emerald-600 shadow-sm' 
-                      : 'bg-slate-200/70 text-slate-500 hover:bg-slate-300/70 hover:text-slate-700 border-transparent'
-                  }`}
-                >
-                  Input Data
-                </button>
-                <button 
-                  onClick={() => setEditorMode('plant')}
-                  className={`px-5 py-3 rounded-tl-lg rounded-tr-lg text-sm font-semibold transition-all duration-200 ease-in-out border-b-2 ${ 
-                    editorMode === 'plant' 
-                      ? 'bg-gradient-to-b from-white to-slate-50 text-emerald-700 border-emerald-600 shadow-sm' 
-                      : 'bg-slate-200/70 text-slate-500 hover:bg-slate-300/70 hover:text-slate-700 border-transparent'
-                  }`}
-                >
-                  Plant Data
-                </button>
+            <div className="flex flex-col gap-0">
+              <div className="flex justify-between items-center pb-3">
+                <h3 className="text-lg font-semibold text-[#88BDBC]">Data Editor</h3>
+                
+                {/* Radio buttons for Input/Plant data */}
+                <div className="flex items-center gap-6 bg-[#254E58]/20 backdrop-blur-sm p-2 rounded-lg border border-[#88BDBC]/20">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="editorMode"
+                      value="input"
+                      checked={editorMode === 'input'}
+                      onChange={() => setEditorMode('input')}
+                      className="sr-only"
+                    />
+                    <div className={`w-4 h-4 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                      editorMode === 'input' 
+                        ? 'border-[#88BDBC] bg-gradient-to-r from-[#88BDBC] to-[#254E58]' 
+                        : 'border-white/50 bg-transparent group-hover:border-[#88BDBC]/50'
+                    }`}>
+                      {editorMode === 'input' && (
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors ${
+                      editorMode === 'input' ? 'text-[#88BDBC]' : 'text-white group-hover:text-[#88BDBC]'
+                    }`}>
+                      Input Data
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="editorMode"
+                      value="plant"
+                      checked={editorMode === 'plant'}
+                      onChange={() => setEditorMode('plant')}
+                      className="sr-only"
+                    />
+                    <div className={`w-4 h-4 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                      editorMode === 'plant' 
+                        ? 'border-[#88BDBC] bg-gradient-to-r from-[#88BDBC] to-[#254E58]' 
+                        : 'border-white/50 bg-transparent group-hover:border-[#88BDBC]/50'
+                    }`}>
+                      {editorMode === 'plant' && (
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors ${
+                      editorMode === 'plant' ? 'text-[#88BDBC]' : 'text-white group-hover:text-[#88BDBC]'
+                    }`}>
+                      Plant Data
+                    </span>
+                  </label>
+                </div>
               </div>
 
-              {/* Sub-tabs container with a subtle background */}
-              <div className="bg-slate-50 p-3 rounded-b-lg shadow-inner">
+              {/* Sub-tabs container with teal-brown theme */}
+              <div className="bg-white/10 backdrop-blur-md p-2 rounded-lg flex gap-2 w-fit shadow-lg border border-[#88BDBC]/20">
                 {/* Input data editor sub-tabs */}
                 {editorMode === 'input' && (
                   <div className="flex gap-2 flex-wrap">
@@ -401,8 +443,8 @@ function App() {
                         onClick={() => setActiveEditor(editor)}
                         className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 ${ 
                           activeEditor === editor 
-                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white focus:ring-teal-400 transform hover:scale-105' 
-                            : 'bg-white text-emerald-700 hover:bg-emerald-50 focus:ring-emerald-300'
+                            ? '!bg-[#88BDBC] !text-white shadow-md backdrop-blur-sm border !border-[#88BDBC]' 
+                            : '!text-[#254e58] hover:!bg-[#254E58] hover:!text-white'
                         }`}
                       >
                         {editor.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -420,8 +462,8 @@ function App() {
                         onClick={() => setActiveEditor(editor)}
                         className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ease-in-out shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 ${ 
                           activeEditor === editor 
-                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white focus:ring-teal-400 transform hover:scale-105' 
-                            : 'bg-white text-emerald-700 hover:bg-emerald-50 focus:ring-emerald-300'
+                            ? '!bg-[#88BDBC] !text-white shadow-md backdrop-blur-sm border !border-[#88BDBC]' 
+                            : '!text-[#254e58] hover:!bg-[#254E58] hover:!text-white'
                         }`}
                       >
                         {editor.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -433,19 +475,19 @@ function App() {
             </div>
           )}
 
-          {/* Main content area with enhanced card styling */}
-          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl shadow-xl p-6 flex-grow border border-slate-200/80"> {/* Enhanced shadow, border, padding */}
+          {/* Main content area with enhanced glassmorphic styling */}
+          <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-6 flex-grow border border-white/20">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center">
-                  <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                  <p className="mt-5 text-slate-600 font-semibold text-lg">Loading data...</p>
+                  <div className="dual-ring-large"></div>
+                  <p className="mt-5 text-[#88BDBC] font-semibold text-lg">Loading data...</p>
                 </div>
               </div>
             ) : error ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-red-500 text-center max-w-md bg-red-50 p-6 rounded-lg border border-red-100">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="text-red-300 text-center max-w-md bg-red-500/20 backdrop-blur-md p-6 rounded-lg border border-red-400/30">
+                  <div className="w-16 h-16 bg-red-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>
@@ -540,16 +582,16 @@ function App() {
           </div>
         </div>
         
-        {/* Right sidebar - Dashboard and Chat - 25% width with enhanced styling */}
-        <div className="w-1/4 p-4 border-l border-slate-300 flex flex-col bg-slate-50/50"> {/* Subtle bg for chat sidebar */}
+        {/* Right sidebar - Dashboard and Chat - 25% width with teal-brown theme */}
+        <div className="w-1/4 p-4 border-l border-[#88BDBC]/30 flex flex-col bg-[#254E58]/20 backdrop-blur-sm"> {/* Teal-brown bg for chat sidebar */}
     
           {/* Chat section - remaining space */}
           <div className="flex-grow flex flex-col">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-semibold text-slate-700">Assistant</h3>
+              <h3 className="text-xl font-semibold text-[#88BDBC]">Assistant</h3>
               <button 
                 onClick={() => setShowChat(!showChat)}
-                className="text-emerald-600 hover:text-emerald-800 text-sm flex items-center p-1 rounded-md hover:bg-emerald-100 transition-colors"
+                className="text-[#88BDBC] hover:text-white text-sm flex items-center p-1 rounded-md hover:bg-[#88BDBC]/20 transition-colors"
               >
                 {showChat ? (
                   <>

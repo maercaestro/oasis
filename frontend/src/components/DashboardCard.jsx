@@ -2,19 +2,19 @@ import React from 'react';
 
 // Named export for DashboardCard component
 export const DashboardCard = ({ title, value, unit, change, icon, className = "" }) => {
-  const getChangeColor = () => !change ? 'text-gray-500' : change > 0 ? 'text-green-500' : 'text-red-500';
+  const getChangeColor = () => !change ? 'text-white/70' : change > 0 ? 'text-[#88BDBC]' : 'text-red-400';
   const getChangeIcon = () => !change ? '' : change > 0 ? '↑' : '↓';
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-3 border border-gray-100 ${className}`}>
+    <div className={`bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-3 hover:bg-white/15 transition-all duration-200 shadow-lg ${className}`}>
       <div className="flex items-center justify-between">
-        <h3 className="text-gray-500 text-xs font-medium">{title}</h3>
-        {icon && <span className="text-sm text-gray-400">{icon}</span>}
+        <h3 className="text-white/80 text-xs font-medium">{title}</h3>
+        {icon && <span className="text-sm text-[#88BDBC]">{icon}</span>}
       </div>
       <div className="mt-1">
         <div className="flex items-end">
-          <p className="text-lg font-bold text-gray-900">{value}</p>
-          {unit && <p className="ml-1 text-gray-500 text-xs">{unit}</p>}
+          <p className="text-lg font-bold text-white">{value}</p>
+          {unit && <p className="ml-1 text-white/70 text-xs">{unit}</p>}
         </div>
         {change !== undefined && (
           <p className={`text-xs ${getChangeColor()} flex items-center`}>

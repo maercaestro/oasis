@@ -57,7 +57,7 @@ function DataEditor({ dataType, data, onSave }) {
   }
   
   if (!data) {
-    return <p className="text-slate-500">No data available to edit.</p>
+    return <p className="text-white">No data available to edit.</p>
   }
   
   // Render editor based on selected tab/dataType
@@ -105,17 +105,17 @@ function DataEditor({ dataType, data, onSave }) {
         <button
           onClick={handleSaveData}
           disabled={isSubmitting}
-          className="px-4 py-2 !bg-emerald-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition"
+          className="px-4 py-2 !bg-gradient-to-r !from-[#88BDBC] to-[#254E58] text-white font-medium rounded-lg hover:from-[#254E58] hover:to-[#88BDBC] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
         >
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>
 
         {successMessage && (
-          <span className="ml-3 text-green-600 text-sm">{successMessage}</span>
+          <span className="ml-3 text-[#88BDBC] text-sm font-medium">{successMessage}</span>
         )}
 
         {error && (
-          <span className="ml-3 text-red-600 text-sm">{error}</span>
+          <span className="ml-3 text-red-400 text-sm font-medium">{error}</span>
         )}
       </div>
     </div>
@@ -174,7 +174,7 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
   if (Object.keys(tanksData).length === 0 && !isAddingTank) {
     return (
       <div className="text-center p-8">
-        <p className="text-slate-500 mb-4">No tank data available to edit.</p>
+        <p className="text-white mb-4">No tank data available to edit.</p>
         <button
           onClick={() => setIsAddingTank(true)}
           className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
@@ -302,33 +302,33 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-400/20 backdrop-blur-sm border border-red-400/30 text-red-400 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
       
       {/* Add new tank form */}
       {isAddingTank && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <h3 className="font-medium text-slate-800 mb-3">Add New Tank</h3>
+        <div className="bg-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg p-4 mb-4 backdrop-blur-sm">
+          <h3 className="font-medium text-[#88BDBC] mb-3">Add New Tank</h3>
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={newTankName}
               onChange={(e) => setNewTankName(e.target.value)}
               placeholder="Enter tank name"
-              className="flex-grow px-3 py-2 border border-slate-300 rounded"
+              className="flex-grow px-3 py-2 bg-white/90 border border-[#88BDBC]/30 rounded focus:ring-2 focus:ring-[#88BDBC]/50 text-[#112D32]"
               autoFocus
             />
             <button
               onClick={addNewTank}
-              className="px-3 py-2 !bg-emerald-600 text-white rounded hover:bg-green-700"
+              className="px-3 py-2 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200"
             >
               Add Tank
             </button>
             <button
               onClick={() => setIsAddingTank(false)}
-              className="px-3 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              className="px-3 py-2 bg-white/20 text-white rounded hover:bg-white/30 transition-colors"
             >
               Cancel
             </button>
@@ -341,7 +341,7 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setIsAddingTank(true)}
-            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
           >
             + Add New Tank
           </button>
@@ -354,13 +354,13 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
         const tankContent = tank.content || [];
         
         return (
-          <div key={tankName} className="border border-slate-200 rounded-lg p-4">
+          <div key={tankName} className="border border-[#88BDBC]/30 rounded-lg p-4 bg-white/90 backdrop-blur-sm">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-800">{tankName}</h3>
+                <h3 className="font-bold text-[#254E58]">{tankName}</h3>
                 <button
                   onClick={() => deleteTank(tankName)}
-                  className="p-1 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
+                  className="p-1 text-red-400 hover:text-red-600 rounded-full hover:bg-red-400/20"
                   title="Delete Tank"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -368,19 +368,19 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
                   </svg>
                 </button>
               </div>
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-white">
                 Capacity: 
                 <input
                   type="number"
                   value={tank.capacity || 0}
                   onChange={(e) => handleTankPropertyChange(tankName, 'capacity', parseFloat(e.target.value))}
-                  className="ml-1 w-24 px-2 py-1 border border-slate-300 rounded"
+                  className="ml-1 w-24 px-2 py-1 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                 />
               </div>
             </div>
             
             <div className="space-y-2">
-              <div className="text-sm font-medium text-slate-700">Tank Contents:</div>
+              <div className="text-sm font-medium text-[#254E58]">Tank Contents:</div>
               {tankContent.map((contentItem, idx) => {
                 const grade = contentItem ? Object.keys(contentItem)[0] : "";
                 const volume = contentItem ? Object.values(contentItem)[0] : 0;
@@ -390,7 +390,7 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
                     <select
                       value={grade}
                       onChange={(e) => handleContentChange(tankName, idx, e.target.value, volume)}
-                      className="flex-grow px-2 py-1.5 border border-slate-300 rounded text-sm"
+                      className="flex-grow px-2 py-1.5 border border-[#88BDBC]/30 rounded text-sm bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                     >
                       <option value="">Select grade...</option>
                       {allGrades.length > 0 ? (
@@ -406,13 +406,13 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
                       type="number"
                       value={volume}
                       onChange={(e) => handleContentChange(tankName, idx, grade, e.target.value)}
-                      className="w-24 px-2 py-1.5 border border-slate-300 rounded text-sm"
+                      className="w-24 px-2 py-1.5 border border-[#88BDBC]/30 rounded text-sm bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                       placeholder="Volume"
                     />
                     
                     <button
                       onClick={() => removeContent(tankName, idx)}
-                      className="p-1.5 text-red-500 hover:text-red-700"
+                      className="p-1.5 text-red-400 hover:text-red-600"
                       title="Remove"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -425,7 +425,7 @@ function TankDataEditor({ tanks, setTanks, crudes }) {
               
               <button
                 onClick={() => addNewContent(tankName)}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                className="text-sm text-[#88BDBC] hover:text-[#254E58] flex items-center gap-1"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -455,7 +455,7 @@ function VesselDataEditor({ vessels, setVessels }) {
   }
   
   if (vesselsData.length === 0) {
-    return <p className="text-slate-500">No vessel data available to edit.</p>
+    return <p className="text-white">No vessel data available to edit.</p>
   }
 
   // Add missing handler functions
@@ -660,35 +660,35 @@ function VesselDataEditor({ vessels, setVessels }) {
   return (
     <div className="space-y-6 max-h-96 overflow-y-auto pr-2">
       {vesselsData.map(vessel => (
-        <div key={vessel.vessel_id || Math.random()} className="border border-slate-200 rounded-lg p-4">
+        <div key={vessel.vessel_id || Math.random()} className="border border-[#88BDBC]/30 rounded-lg p-4 bg-white/90 backdrop-blur-sm">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-slate-800">{vessel.vessel_id || "New Vessel"}</h3>
+            <h3 className="font-bold text-[#254E58]">{vessel.vessel_id || "New Vessel"}</h3>
             
             <div className="flex items-center gap-3">
               <div className="text-sm">
-                <span className="text-slate-500">Arrival:</span>
+                <span className="text-white">Arrival:</span>
                 <input
                   type="number"
                   value={vessel.arrival_day || 0}
                   onChange={(e) => handleVesselChange(vessel.vessel_id, 'arrival_day', parseInt(e.target.value) || 0)}
-                  className="ml-1 w-16 px-2 py-1 border border-slate-300 rounded"
+                  className="ml-1 w-16 px-2 py-1 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                 />
               </div>
               
               <div className="text-sm">
-                <span className="text-slate-500">Capacity:</span>
+                <span className="text-white">Capacity:</span>
                 <input
                   type="number"
                   value={vessel.capacity || 0}
                   onChange={(e) => handleVesselChange(vessel.vessel_id, 'capacity', parseFloat(e.target.value) || 0)}
-                  className="ml-1 w-20 px-2 py-1 border border-slate-300 rounded"
+                  className="ml-1 w-20 px-2 py-1 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                 />
               </div>
             </div>
           </div>
           
           <div className="mb-4">
-            <div className="text-sm font-medium text-slate-700 mb-2">Cargo Items:</div>
+            <div className="text-sm font-medium text-[#254E58] mb-2">Cargo Items:</div>
             
             {/* Handle case where vessel.cargo is undefined */}
             {(vessel.cargo || []).map((cargoItem, idx) => {
@@ -697,14 +697,14 @@ function VesselDataEditor({ vessels, setVessels }) {
               const ldrEndDay = cargoItem.ldr ? Object.values(cargoItem.ldr)[0] || 0 : 0;
               
               return (
-                <div key={idx} className="bg-slate-50 p-3 rounded-lg mb-3 border border-slate-200">
+                <div key={idx} className="bg-[#88BDBC]/10 p-3 rounded-lg mb-3 border border-[#88BDBC]/20 backdrop-blur-sm">
                   <div className="grid grid-cols-2 gap-3 mb-2">
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Grade</label>
+                      <label className="block text-xs text-white mb-1">Grade</label>
                       <select
                         value={cargoItem.grade || ""}
                         onChange={(e) => handleCargoChange(vessel.vessel_id, idx, 'grade', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-slate-300 rounded"
+                        className="w-full px-2 py-1.5 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                       >
                         <option value="">Select grade...</option>
                         {allGrades.map(g => (
@@ -714,21 +714,21 @@ function VesselDataEditor({ vessels, setVessels }) {
                     </div>
                     
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Volume</label>
+                      <label className="block text-xs text-white mb-1">Volume</label>
                       <input
                         type="number"
                         value={cargoItem.volume || 0}
                         onChange={(e) => handleCargoChange(vessel.vessel_id, idx, 'volume', parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1.5 border border-slate-300 rounded"
+                        className="w-full px-2 py-1.5 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Origin</label>
+                      <label className="block text-xs text-white mb-1">Origin</label>
                       <select
                         value={cargoItem.origin || ""}
                         onChange={(e) => handleCargoChange(vessel.vessel_id, idx, 'origin', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-slate-300 rounded"
+                        className="w-full px-2 py-1.5 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                       >
                         <option value="">Select origin...</option>
                         {allOrigins.map(o => (
@@ -738,20 +738,20 @@ function VesselDataEditor({ vessels, setVessels }) {
                     </div>
                     
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Loading (Start-End)</label>
+                      <label className="block text-xs text-white mb-1">Loading (Start-End)</label>
                       <div className="flex items-center">
                         <input
                           type="number"
                           value={ldrStartDay}
                           onChange={(e) => handleLdrChange(vessel.vessel_id, idx, parseInt(e.target.value) || 0, ldrEndDay)}
-                          className="w-16 px-2 py-1.5 border border-slate-300 rounded-l"
+                          className="w-16 px-2 py-1.5 border border-[#88BDBC]/30 rounded-l bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                         />
-                        <span className="px-2 text-slate-400">-</span>
+                        <span className="px-2 text-white">-</span>
                         <input
                           type="number"
                           value={ldrEndDay}
                           onChange={(e) => handleLdrChange(vessel.vessel_id, idx, ldrStartDay, parseInt(e.target.value) || 0)}
-                          className="w-16 px-2 py-1.5 border border-slate-300 rounded-r"
+                          className="w-16 px-2 py-1.5 border border-[#88BDBC]/30 rounded-r bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
                         />
                       </div>
                     </div>
@@ -759,7 +759,7 @@ function VesselDataEditor({ vessels, setVessels }) {
                   
                   <button
                     onClick={() => removeCargo(vessel.vessel_id, idx)}
-                    className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+                    className="text-sm text-red-400 hover:text-red-600 flex items-center gap-1"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -772,7 +772,7 @@ function VesselDataEditor({ vessels, setVessels }) {
             
             <button
               onClick={() => addNewCargo(vessel.vessel_id)}
-              className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              className="text-sm text-[#88BDBC] hover:text-[#254E58] flex items-center gap-1"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -783,36 +783,36 @@ function VesselDataEditor({ vessels, setVessels }) {
           
           <div className="grid grid-cols-2 gap-3">
             <div className="text-sm">
-              <span className="text-slate-500">Cost:</span>
+              <span className="text-white">Cost:</span>
               <input
                 type="number"
                 value={vessel.cost || 0}
                 onChange={(e) => handleVesselChange(vessel.vessel_id, 'cost', parseFloat(e.target.value) || 0)}
-                className="ml-1 w-24 px-2 py-1 border border-slate-300 rounded"
+                className="ml-1 w-24 px-2 py-1 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
               />
             </div>
             
             <div className="text-sm">
-              <span className="text-slate-500">Days Held:</span>
+              <span className="text-white">Days Held:</span>
               <input
                 type="number"
                 value={vessel.days_held || 0}
                 onChange={(e) => handleVesselChange(vessel.vessel_id, 'days_held', parseInt(e.target.value) || 0)}
-                className="ml-1 w-16 px-2 py-1 border border-slate-300 rounded"
+                className="ml-1 w-16 px-2 py-1 border border-[#88BDBC]/30 rounded bg-white/90 text-[#254E58] focus:ring-2 focus:ring-[#88BDBC]/50"
               />
             </div>
           </div>
           {vessel.route && vessel.route.length > 0 && (
             <div className="mt-4">
-              <div className="text-sm font-medium text-slate-700 mb-2 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="text-sm font-medium text-[#254E58] mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-[#88BDBC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
                 Route Information:
               </div>
-              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <div className="bg-[#88BDBC]/20 p-3 rounded-lg border border-[#88BDBC]/30 backdrop-blur-sm">
                 {/* Route timeline visualization - make taller and add border */}
-                <div className="h-5 relative w-full bg-gray-100 rounded-full overflow-hidden mb-3 border border-gray-300">
+                <div className="h-5 relative w-full bg-white/20 rounded-full overflow-hidden mb-3 border border-white/30">
                   {/* First determine the maximum day in the route for scaling */}
                   {(() => {
                     // Find last day in route for scaling
@@ -888,28 +888,28 @@ function VesselDataEditor({ vessels, setVessels }) {
                 </div>
 
                 {/* Day markers */}
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-white mt-1">
                   <span>Day 0</span>
                   <span>Day {vessel.arrival_day || 30}</span>
                 </div>
                 
                 {/* Route details as text */}
-                <div className="space-y-2 mt-3 pt-2 border-t border-slate-200">
+                <div className="space-y-2 mt-3 pt-2 border-t border-[#88BDBC]/30">
                   {vessel.route.map((segment, index) => (
                     <div key={`detail-${index}`} className="flex items-center">
                       <div 
                         className="w-3 h-3 rounded-full mr-2 flex-shrink-0 border border-white shadow-sm" 
                         style={{ backgroundColor: getLocationColor(segment.from) }}
                       ></div>
-                      <span className="font-medium">{segment.from} → {segment.to}</span>
-                      <span className="ml-2 text-slate-500">
+                      <span className="font-medium text-[#254E58]">{segment.from} → {segment.to}</span>
+                      <span className="ml-2 text-white">
                         (Days {segment.day - segment.travel_days} - {segment.day})
                       </span>
                     </div>
                   ))}
                 </div>
                 
-                <div className="mt-2 text-xs text-slate-500 italic">
+                <div className="mt-2 text-xs text-white italic">
                   Route information is generated by the vessel optimizer.
                 </div>
               </div>
@@ -959,7 +959,7 @@ function PlantDataEditor({ plants, setPlants }) {
   const plant = plants || {};
   
   if (Object.keys(plant).length === 0) {
-    return <p className="text-slate-500">No plant data available to edit.</p>
+    return <p className="text-white">No plant data available to edit.</p>
   }
 
   const handlePlantChange = (property, value) => {
@@ -973,24 +973,24 @@ function PlantDataEditor({ plants, setPlants }) {
 
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Refinery Configuration</h3>
+      <div className="bg-white/90 rounded-lg border border-[#88BDBC]/30 p-6 backdrop-blur-sm">
+        <h3 className="text-lg font-semibold text-[#254E58] mb-4">Refinery Configuration</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1">
+            <label className="block text-sm font-medium text-[#254E58] mb-1">
               Plant Name
             </label>
             <input
               type="text"
               value={plant.name || ''}
               onChange={(e) => handlePlantChange('name', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1">
+            <label className="block text-sm font-medium text-[#254E58] mb-1">
               Processing Capacity (kbbl/day)
             </label>
             <input
@@ -998,12 +998,12 @@ function PlantDataEditor({ plants, setPlants }) {
               step="0.1"
               value={plant.capacity || 0}
               onChange={(e) => handlePlantChange('capacity', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1">
+            <label className="block text-sm font-medium text-[#254E58] mb-1">
               Base Crude Capacity (kbbl/day)
             </label>
             <input
@@ -1011,12 +1011,12 @@ function PlantDataEditor({ plants, setPlants }) {
               step="0.1"
               value={plant.base_crude_capacity || 0}
               onChange={(e) => handlePlantChange('base_crude_capacity', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1">
+            <label className="block text-sm font-medium text-[#254E58] mb-1">
               Maximum Inventory (kbbl)
             </label>
             <input
@@ -1024,14 +1024,14 @@ function PlantDataEditor({ plants, setPlants }) {
               step="0.1"
               value={plant.max_inventory || 0}
               onChange={(e) => handlePlantChange('max_inventory', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
           </div>
         </div>
         
-        <div className="mt-6 bg-blue-50 p-4 rounded-md text-sm text-blue-800">
+        <div className="mt-6 bg-[#88BDBC]/20 p-4 rounded-md text-sm text-[#254E58] backdrop-blur-sm border border-[#88BDBC]/30">
           <div className="flex items-start">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#88BDBC] mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p>
@@ -1057,10 +1057,10 @@ function CrudeDataEditor({ crudes, setCrudes }) {
   if (Object.keys(crudesData).length === 0 && !isAddingCrude) {
     return (
       <div className="text-center p-8">
-        <p className="text-slate-500 mb-4">No crude data available.</p>
+        <p className="text-white mb-4">No crude data available.</p>
         <button
           onClick={() => setIsAddingCrude(true)}
-          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200"
         >
           + Add First Crude
         </button>
@@ -1197,36 +1197,36 @@ function CrudeDataEditor({ crudes, setCrudes }) {
       </div>
       
       {isAddingCrude && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <h3 className="font-bold text-slate-800 mb-3">Add New Crude</h3>
+        <div className="bg-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg p-4 mb-4 backdrop-blur-sm">
+          <h3 className="font-bold text-[#254E58] mb-3">Add New Crude</h3>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Name</label>
+              <label className="block text-xs text-white mb-1">Name</label>
               <input
                 type="text"
                 value={newCrude.name}
                 onChange={(e) => handleNewCrudeChange('name', e.target.value)}
-                className="w-full px-2 py-1 border border-slate-300 rounded"
+                className="w-full px-2 py-1 border border-[#88BDBC]/30 rounded"
                 placeholder="Crude name"
                 autoFocus
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Margin ($/bbl)</label>
+              <label className="block text-xs text-white mb-1">Margin ($/bbl)</label>
               <input
                 type="number"
                 step="0.1"
                 value={newCrude.margin}
                 onChange={(e) => handleNewCrudeChange('margin', e.target.value)}
-                className="w-full px-2 py-1 border border-slate-300 rounded"
+                className="w-full px-2 py-1 border border-[#88BDBC]/30 rounded"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Origin</label>
+              <label className="block text-xs text-white mb-1">Origin</label>
               <select
                 value={newCrude.origin}
                 onChange={(e) => handleNewCrudeChange('origin', e.target.value)}
-                className="w-full px-2 py-1 border border-slate-300 rounded"
+                className="w-full px-2 py-1 border border-[#88BDBC]/30 rounded"
               >
                 {terminals.map(terminal => (
                   <option key={terminal} value={terminal}>{terminal}</option>
@@ -1237,13 +1237,13 @@ function CrudeDataEditor({ crudes, setCrudes }) {
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={cancelAddCrude}
-              className="px-3 py-1 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300"
+              className="px-3 py-1 bg-white/20 text-white rounded text-sm hover:bg-white/30"
             >
               Cancel
             </button>
             <button
               onClick={saveNewCrude}
-              className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-blue-700"
+              className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC]"
             >
               Save Crude
             </button>
@@ -1251,16 +1251,16 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         </div>
       )}
       
-      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+      <table className="min-w-full divide-y divide-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg overflow-hidden backdrop-blur-sm">
+        <thead className="bg-[#88BDBC]/10">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Margin ($/bbl)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Margin ($/bbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-slate-100">
+        <tbody className="bg-white divide-y divide-[#88BDBC]/10">
           {Object.entries(crudesData).map(([crudeId, crude]) => (
             <tr key={crudeId}>
               <td className="px-6 py-4 whitespace-nowrap">
