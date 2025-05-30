@@ -1,0 +1,29 @@
+{
+    "Parcel_001": {
+      "grade": "Arabian Light",
+      "volume": 500.0,
+      "ldr": {
+        "5": 8
+      },
+      "origin": "Sabah",
+      "vessel_id": null
+    },
+    "Parcel_002": {
+      "grade": "Brent",
+      "volume": 300.0,
+      "ldr": {
+        "12": 15
+      },
+      "origin": "Sarawak",
+      "vessel_id": null
+    },
+    "Parcel_003": {
+      "grade": "Russian Urals",
+      "volume": 450.0,
+      "ldr": {
+        "18": 22
+      },
+      "origin": "Sabah",
+      "vessel_id": null
+    }
+  }

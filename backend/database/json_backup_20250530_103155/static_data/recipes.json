@@ -1,0 +1,51 @@
+{
+  "0": {
+    "max_rate": 87,
+    "name": "0",
+    "primary_fraction": 1,
+    "primary_grade": "Base",
+    "secondary_grade": null
+  },
+  "1": {
+    "max_rate": 96,
+    "name": "1",
+    "primary_fraction": 0.73,
+    "primary_grade": "Base",
+    "secondary_grade": "A"
+  },
+  "2": {
+    "max_rate": 95,
+    "name": "2",
+    "primary_fraction": 0.73,
+    "primary_grade": "Base",
+    "secondary_grade": "B"
+  },
+  "3": {
+    "max_rate": 96,
+    "name": "3",
+    "primary_fraction": 0.6,
+    "primary_grade": "B",
+    "secondary_grade": "D"
+  },
+  "4": {
+    "max_rate": 95,
+    "name": "4",
+    "primary_fraction": 0.73,
+    "primary_grade": "Base",
+    "secondary_grade": "C"
+  },
+  "5": {
+    "max_rate": 95,
+    "name": "5",
+    "primary_fraction": 1,
+    "primary_grade": "E",
+    "secondary_grade": null
+  },
+  "6": {
+    "max_rate": 95,
+    "name": "6",
+    "primary_fraction": 1,
+    "primary_grade": "F",
+    "secondary_grade": null
+  }
+}

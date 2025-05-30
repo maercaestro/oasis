@@ -1,0 +1,27 @@
+{
+  "PM_Refinery": {
+    "from": "Peninsular Malaysia",
+    "to": "Refinery",
+    "time_travel": 2
+  },
+  "Sabah_Refinery": {
+    "from": "Sabah", 
+    "to": "Refinery",
+    "time_travel": 3.5
+  },
+  "Sabah_PM": {
+    "from": "Sabah",
+    "to": "Peninsular Malaysia",
+    "time_travel": 3
+  },
+  "Sabah_Sarawak": {
+    "from": "Sabah",
+    "to": "Sarawak",
+    "time_travel": 1
+  },
+  "Sarawak_Refinery": {
+    "from": "Sarawak",
+    "to": "Refinery",
+    "time_travel": 3
+  }
+}

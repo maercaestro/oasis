@@ -1,0 +1,47 @@
+{
+  "Tank1": {
+    "capacity": 250,
+    "content": [
+      {
+        "Base": 250
+      }
+    ],
+    "name": "Tank1"
+  },
+  "Tank2": {
+    "capacity": 250,
+    "content": [
+      {
+        "Base": 100
+      }
+    ],
+    "name": "Tank2"
+  },
+  "Tank3": {
+    "capacity": 250,
+    "content": [
+      {
+        "B": 150
+      }
+    ],
+    "name": "Tank3"
+  },
+  "Tank4": {
+    "capacity": 250,
+    "content": [
+      {
+        "C": 150
+      }
+    ],
+    "name": "Tank4"
+  },
+  "Tank5": {
+    "capacity": 180,
+    "content": [
+      {
+        "D": 100
+      }
+    ],
+    "name": "Tank5"
+  }
+}

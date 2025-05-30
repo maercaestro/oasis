@@ -41,9 +41,11 @@ def ensure_migration():
         return False
     return True
 
-# Initialize migration check at module level
-if not ensure_migration():
-    print("Warning: Database migration not completed. Some features may not work.")
+@app.before_first_request
+def initialize_app():
+    """Initialize application on first request."""
+    if not ensure_migration():
+        raise RuntimeError("Database migration required before starting API")
 
 # ==============================================================================
 # DATABASE-POWERED DATA ENDPOINTS
@@ -383,134 +385,43 @@ def run_scheduler():
         )
         
         # Run scheduling
-        result = scheduler.run(horizon_days, save_output=True)
+        schedule = scheduler.schedule(horizon_days)
         
-        # The run method returns a list of daily plans in JSON format
+        # Convert schedule to JSON-serializable format
+        schedule_json = []
+        for day, daily_plan in schedule.items():
+            plan_dict = {
+                'day': day,
+                'processing_rates': daily_plan.processing_rates,
+                'inventory': daily_plan.inventory,
+                'inventory_by_grade': daily_plan.inventory_by_grade,
+                'daily_margin': daily_plan.daily_margin,
+                'tanks': {}
+            }
+            
+            # Convert tanks to dict
+            for tank_name, tank in daily_plan.tanks.items():
+                plan_dict['tanks'][tank_name] = {
+                    'name': tank.name,
+                    'capacity': tank.capacity,
+                    'content': tank.content
+                }
+            
+            schedule_json.append(plan_dict)
+        
+        # Sort by day
+        schedule_json.sort(key=lambda x: x['day'])
+        
         return jsonify({
-            'success': True,
-            'schedule': result,
+            'schedule': schedule_json,
             'horizon_days': horizon_days,
+            'total_days': len(schedule_json),
             'timestamp': datetime.now().isoformat(),
             'source': 'database'
         })
         
     except Exception as e:
         return jsonify({'error': f'Scheduler failed: {str(e)}'}), 500
-
-@app.route('/api/optimizer/optimize', methods=['POST'])
-def optimize_schedule():
-    """Run schedule optimizer with database data."""
-    try:
-        data = request.get_json() or {}
-        horizon_days = data.get('days', 30)
-        objective = data.get('objective', 'margin')  # 'margin' or 'throughput'
-        
-        print(f"Starting schedule optimization for {horizon_days} days with objective: {objective}")
-        
-        # Load data from database
-        crudes = load_crudes_from_db()
-        recipes = load_recipes_from_db()
-        
-        # Check if we have an existing schedule to optimize
-        current_schedule = data.get('schedule', [])
-        if not current_schedule:
-            # If no schedule provided, we need to generate one first using the scheduler
-            print("No existing schedule provided, running scheduler first...")
-            tanks = load_tanks_from_db()
-            vessels = load_vessels_from_db()
-            
-            scheduler = Scheduler(
-                tanks=tanks,
-                blending_recipes=recipes,
-                vessels=vessels,
-                crude_data=crudes,
-                max_processing_rate=100
-            )
-            
-            # Generate initial schedule
-            initial_schedule_json = scheduler.run(horizon_days, save_output=False)
-            
-            # Convert JSON schedule to DailyPlan objects for optimization
-            from scheduler.models import DailyPlan
-            schedule_objects = []
-            for day_data in initial_schedule_json:
-                plan = DailyPlan(
-                    day=day_data['day'],
-                    processing_rates=day_data.get('processing_rates', {}),
-                    blending_details=recipes, # Use all available recipes
-                    inventory=day_data.get('inventory', 0),
-                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
-                    tanks={}  # Simplified for optimization
-                )
-                schedule_objects.append(plan)
-            
-            current_schedule = schedule_objects
-        else:
-            # Convert provided schedule from JSON to DailyPlan objects
-            from scheduler.models import DailyPlan
-            schedule_objects = []
-            for day_data in current_schedule:
-                plan = DailyPlan(
-                    day=day_data['day'],
-                    processing_rates=day_data.get('processing_rates', {}),
-                    blending_details=recipes,
-                    inventory=day_data.get('inventory', 0),
-                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
-                    tanks=day_data.get('tanks', {})
-                )
-                schedule_objects.append(plan)
-            
-            current_schedule = schedule_objects
-        
-        # Create optimizer
-        optimizer = SchedulerOptimizer(
-            blending_recipes=recipes,
-            crude_data=crudes,
-            max_processing_rate=100
-        )
-        
-        # Run optimization based on objective
-        if objective == 'throughput':
-            optimized_schedule = optimizer.optimize_throughput(current_schedule)
-        else:
-            optimized_schedule = optimizer.optimize_margin(current_schedule)
-        
-        # Convert optimized schedule back to JSON format
-        result = []
-        for plan in optimized_schedule:
-            plan_json = {
-                "day": plan.day,
-                "processing_rates": plan.processing_rates,
-                "inventory": plan.inventory,
-                "inventory_by_grade": plan.inventory_by_grade,
-                "blending_details": [
-                    {
-                        "name": recipe.name,
-                        "primary_grade": recipe.primary_grade,
-                        "secondary_grade": recipe.secondary_grade,
-                        "max_rate": recipe.max_rate,
-                        "primary_fraction": recipe.primary_fraction,
-                        "margin": getattr(recipe, 'margin', 0)
-                    }
-                    for recipe in plan.blending_details
-                ],
-                "tanks": {}  # Simplified
-            }
-            result.append(plan_json)
-        
-        return jsonify({
-            'success': True,
-            'schedule': result,
-            'objective': objective,
-            'horizon_days': horizon_days,
-            'timestamp': datetime.now().isoformat(),
-            'source': 'database_optimizer'
-        })
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': f'Schedule optimization failed: {str(e)}'}), 500
 
 @app.route('/api/vessel-optimizer/optimize', methods=['POST'])
 def optimize_vessels():
@@ -522,52 +433,10 @@ def optimize_vessels():
         print(f"Starting vessel optimization for {horizon_days} days...")
         
         # Load data from database
-        feedstock_requirements = db.get_all_feedstock_requirements()
-        routes_data = db.get_all_routes()
-        
-        # Convert routes to expected format
-        routes = {}
-        for route in routes_data:
-            key = f"{route['origin']}_{route['destination']}"
-            routes[key] = type('Route', (), {
-                'origin': route['origin'],
-                'destination': route['destination'],
-                'time_travel': route['time_travel']
-            })()
-        
-        # Load vessel types (default types for now)
-        vessel_types = [
-            {"capacity": 700, "cost": 80000},
-            {"capacity": 500, "cost": 60000},
-            {"capacity": 300, "cost": 40000}
-        ]
-        
-        # Convert feedstock requirements to expected format
-        from scheduler.models import FeedstockRequirement
-        requirements = []
-        for req_data in feedstock_requirements:
-            # Convert allowed_ldr from start/end integers to dict format
-            allowed_ldr = {}
-            if 'allowed_ldr_start' in req_data and 'allowed_ldr_end' in req_data:
-                allowed_ldr = {req_data['allowed_ldr_start']: req_data['allowed_ldr_end']}
-            elif 'allowed_ldr' in req_data and req_data['allowed_ldr']:
-                allowed_ldr = req_data['allowed_ldr']
-            
-            req = FeedstockRequirement(
-                grade=req_data['grade'],
-                volume=req_data['volume'],
-                origin=req_data['origin'],
-                allowed_ldr=allowed_ldr,
-                required_arrival_by=req_data.get('required_arrival_by', 30)  # Default to 30 days
-            )
-            requirements.append(req)
+        crudes = load_crudes_from_db()
         
         # Create vessel optimizer
-        vessel_optimizer = VesselOptimizer(
-            feedstock_requirements=requirements,
-            routes=routes,
-            vessel_types=vessel_types
-        )
+        vessel_optimizer = VesselOptimizer(crude_data=crudes)
         
         # Run optimization
         optimized_vessels = vessel_optimizer.optimize_and_save(horizon_days=horizon_days)
@@ -714,4 +583,4 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)

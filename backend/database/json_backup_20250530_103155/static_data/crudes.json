@@ -1,0 +1,37 @@
+{
+  "Base": {
+    "margin": 15.85,
+    "name": "Base",
+    "origin": "Peninsular Malaysia"
+  },
+  "A": {
+    "margin": 18.47,
+    "name": "A",
+    "origin": "Peninsular Malaysia"
+  },
+  "B": {
+    "margin": 15.71,
+    "name": "B",
+    "origin": "Peninsular Malaysia"
+  },
+  "C": {
+    "margin": 19.24,
+    "name": "C",
+    "origin": "Terminal3"
+  },
+  "D": {
+    "name": "D",
+    "margin": 11.19,
+    "origin": "Sabah"
+  },
+  "E": {
+    "name": "E",
+    "margin": 9.98,
+    "origin": "Sabah"
+  },
+  "F": {
+    "name": "F",
+    "margin": 9.97,
+    "origin": "Sarawak"
+  }
+}

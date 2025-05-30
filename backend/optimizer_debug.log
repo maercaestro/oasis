@@ -5023,3 +5023,449 @@
 2025-05-30 05:08:43,495 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:08:43] "GET /api/data HTTP/1.1" 200 -
 2025-05-30 06:54:43,022 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 06:54:43] "GET /api/data HTTP/1.1" 200 -
 2025-05-30 06:54:43,073 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 06:54:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 10:18:19,931 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/__init__.py', reloading
+2025-05-30 10:18:21,153 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:18:22,624 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:18:22,636 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:19:16,460 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/db_manager.py', reloading
+2025-05-30 10:19:17,269 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:19:18,971 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:19:18,981 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:20:22,610 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 10:20:23,695 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:20:25,332 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:20:25,343 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:21:22,331 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/migration.py', reloading
+2025-05-30 10:21:23,109 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:21:24,636 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:21:24,646 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:22:40,456 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api_database.py', reloading
+2025-05-30 10:22:41,457 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:22:43,231 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:22:43,241 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:23:24,580 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/__init__.py', reloading
+2025-05-30 10:23:24,582 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/db_manager.py', reloading
+2025-05-30 10:23:24,582 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 10:23:24,582 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/migration.py', reloading
+2025-05-30 10:23:24,583 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api_database.py', reloading
+2025-05-30 10:23:24,589 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/db_manager.py', reloading
+2025-05-30 10:23:24,590 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api_database.py', reloading
+2025-05-30 10:23:24,590 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 10:23:24,590 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/migration.py', reloading
+2025-05-30 10:23:24,725 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:23:25,852 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:23:25,862 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:24:17,387 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 10:24:18,459 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:43:29,781 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 10:43:29,782 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 10:43:29,791 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:43:30,771 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:43:30,783 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:44:09,339 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:44:09] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 10:44:17,734 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:44:17] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 10:44:48,844 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:44:48] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 10:44:58,447 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:44:58] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 10:45:06,519 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:45:06] "[35m[1mPOST /api/data/tanks HTTP/1.1[0m" 500 -
+2025-05-30 10:49:50,779 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:49:50] "GET /api/data/tanks HTTP/1.1" 200 -
+2025-05-30 10:50:59,143 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:50:59] "GET /api/data/vessels HTTP/1.1" 200 -
+2025-05-30 10:52:49,136 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:52:49] "[35m[1mPOST /api/scheduler/run HTTP/1.1[0m" 500 -
+2025-05-30 10:53:21,176 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 10:53:21,915 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:55:23,603 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 10:55:23,603 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 10:55:23,613 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 10:55:24,595 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 10:55:24,608 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 10:55:33,982 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:55:33] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 10:55:44,152 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:55:44] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 10:58:21,029 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:58:21] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 10:58:26,447 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:58:26] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 10:58:32,758 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:58:32] "[33mGET /api/vessels HTTP/1.1[0m" 404 -
+2025-05-30 10:58:49,566 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:58:49] "GET /api/data/vessels HTTP/1.1" 200 -
+2025-05-30 10:58:59,608 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 10:58:59] "GET /api/data/tanks HTTP/1.1" 200 -
+2025-05-30 11:00:28,549 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:00:28] "[35m[1mPOST /api/vessel-optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 11:00:50,940 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 11:00:51,429 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 11:00:53,461 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 11:00:53,482 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 11:03:32,404 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:03:32] "[35m[1mPOST /api/vessel-optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 11:04:35,476 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 11:04:35,485 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 11:04:36,568 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 11:04:37,725 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 11:04:37,735 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 11:08:15,182 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 11:08:16,080 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 11:08:17,920 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 11:08:17,934 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 11:12:17,790 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:12:17] "[35m[1mPOST /api/vessel-optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 11:15:38,953 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:15:38] "[35m[1mPOST /api/vessel-optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 11:20:06,959 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 11:20:08,031 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 11:20:09,377 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 11:20:09,387 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 11:21:08,831 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:21:08] "[35m[1mPOST /api/vessel-optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 11:21:37,872 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 11:21:38,262 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 11:21:40,380 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 11:21:40,393 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 11:22:15,348 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:22:15] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 11:22:25,040 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:22:25] "[33mGET /api/tanks HTTP/1.1[0m" 404 -
+2025-05-30 11:22:31,727 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:22:31] "[33mGET /api/status HTTP/1.1[0m" 404 -
+2025-05-30 11:22:42,344 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:22:42] "GET /api/data/tanks HTTP/1.1" 200 -
+2025-05-30 11:22:48,255 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:22:48] "GET /api/data/vessels HTTP/1.1" 200 -
+2025-05-30 11:23:28,350 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:23:28] "GET /api/data/crudes HTTP/1.1" 200 -
+2025-05-30 11:23:35,269 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:23:35] "GET /api/data/recipes HTTP/1.1" 200 -
+2025-05-30 11:24:01,289 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:24:01] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 11:24:31,946 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:24:31] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 11:25:02,756 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:25:02] "[35m[1mPOST /api/data/tanks HTTP/1.1[0m" 500 -
+2025-05-30 11:25:31,817 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:25:31] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 11:25:51,395 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:25:51] "GET /api/database/status HTTP/1.1" 200 -
+2025-05-30 11:29:03,157 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:03] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 11:29:03,170 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:03] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 11:29:07,201 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:07] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 11:29:07,209 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:07] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 11:29:16,364 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:16] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 11:29:46,655 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:46] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 11:29:49,237 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 11:29:49] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 14:28:45,009 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:28:45] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 14:28:52,194 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:28:52] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 14:28:52,271 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:28:52] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:29:00,768 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:29:00] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:29:00,781 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:29:00] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:30:01,793 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:30:01] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 14:30:30,631 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 14:30:31,675 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:30:33,111 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 14:30:33,123 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 14:30:33,828 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/database/extended_ops.py', reloading
+2025-05-30 14:30:34,280 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:30:35,281 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 14:30:35,292 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 14:31:48,878 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:31:48] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 14:32:00,371 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:32:00] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 14:32:19,658 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:32:19] "[31m[1mGET /api/scheduler/run HTTP/1.1[0m" 405 -
+2025-05-30 14:33:01,962 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 14:33:01,963 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 14:33:01,972 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:33:02,932 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 14:33:02,945 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 14:34:54,209 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:34:54] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 14:34:57,225 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:34:57] "[33mPOST /api/optimizer/optimize HTTP/1.1[0m" 404 -
+2025-05-30 14:39:35,743 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 14:39:36,702 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:39:38,634 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 14:39:38,645 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 14:41:39,934 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 14:41:40,986 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:42:21,130 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 14:42:21,131 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 14:42:21,140 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 14:42:22,124 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 14:42:22,137 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Available crude grades: ['A', 'B', 'Base', 'C', 'D', 'E', 'F']
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Max processing rate: 100
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1.0), Secondary: None, Max rate: 87.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Starting margin optimization with 6 days of schedule
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Starting margin optimization with 6 days
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Day 0: Inventory = 750.0, Grades = {'Base': 350.0, 'B': 150.0, 'C': 150.0, 'D': 100.0}
+2025-05-30 14:42:30,364 - scheduler.optimizer - INFO - Day 1: Inventory = 655.0, Grades = {'Base': 280.65, 'B': 150.0, 'C': 124.35, 'D': 100.0}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Day 2: Inventory = 560.0, Grades = {'Base': 211.3, 'B': 150.0, 'C': 98.69999999999999, 'D': 100.0}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Day 3: Inventory = 465.0, Grades = {'Base': 141.95000000000002, 'B': 150.0, 'C': 73.04999999999998, 'D': 100.0}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Day 4: Inventory = 370.0, Grades = {'Base': 72.60000000000002, 'B': 150.0, 'C': 47.39999999999998, 'D': 100.0}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Day 5: Inventory = 275.0, Grades = {'Base': 3.2500000000000284, 'B': 150.0, 'C': 21.749999999999975, 'D': 100.0}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Initial tanks: 0
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Unique grades in schedule: {'C', 'D', 'A', 'F', 'B', 'E', 'Base'}
+2025-05-30 14:42:30,365 - scheduler.optimizer - INFO - Created optimization model
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for C: 150.0
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for D: 100.0
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for A: 0
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for F: 0
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for B: 150.0
+2025-05-30 14:42:30,366 - scheduler.optimizer - INFO - Initial inventory for E: 0
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Initial inventory for Base: 350.0
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Adding constraints to the model...
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 1: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 2: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 3: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 4: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 5: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,367 - scheduler.optimizer - INFO - Day 6: Added constraint to use exactly one recipe
+2025-05-30 14:42:30,371 - scheduler.optimizer - INFO - Setting objective function for margin optimization
+2025-05-30 14:42:30,372 - scheduler.optimizer - INFO - Objective: Maximize total margin
+2025-05-30 14:42:30,372 - scheduler.optimizer - INFO - Solving optimization model...
+2025-05-30 14:42:30,372 - scheduler.optimizer - INFO - Using solver with MIP gap=0.05 and time limit=1200 seconds
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Optimization status: Optimal
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Objective value: 9298.1095
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Creating optimized schedule...
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 1: Processing 95.0 units of 4
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 1: Total margin = 1592.7035
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 1: Total inventory = 655.0, Processing = 95.0
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 2: Processing 95.0 units of 4
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 2: Total margin = 1592.7035
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 2: Total inventory = 560.0, Processing = 95.0
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 3: Processing 95.0 units of 4
+2025-05-30 14:42:31,288 - scheduler.optimizer - INFO - Day 3: Total margin = 1592.7035
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 3: Total inventory = 465.0, Processing = 95.0
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 4: Processing 95.0 units of 4
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 4: Total margin = 1592.7035
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 4: Total inventory = 370.0, Processing = 95.0
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 5: Processing 95.0 units of 4
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 5: Total margin = 1592.7035
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 5: Total inventory = 275.0, Processing = 95.0
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 6: Processing 96.0 units of 3
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 6: Total margin = 1334.592
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Day 6: Total inventory = 179.0, Processing = 96.0
+2025-05-30 14:42:31,289 - scheduler.optimizer - INFO - Optimization complete! Created 6 days of schedule
+2025-05-30 14:42:31,290 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:42:31] "POST /api/optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 14:43:00,961 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:43:00] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:43:00,980 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:43:00] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:43:23,871 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-30 14:43:23,871 - scheduler.optimizer - INFO - Available crude grades: ['A', 'B', 'Base', 'C', 'D', 'E', 'F']
+2025-05-30 14:43:23,871 - scheduler.optimizer - INFO - Max processing rate: 100
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1.0), Secondary: None, Max rate: 87.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 14:43:23,872 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 14:43:23,873 - scheduler.optimizer - INFO - Starting margin optimization with 6 days of schedule
+2025-05-30 14:43:23,873 - scheduler.optimizer - INFO - Starting margin optimization with 6 days
+2025-05-30 14:43:23,873 - scheduler.optimizer - INFO - Day 0: Inventory = 750.0, Grades = {'Base': 350.0, 'B': 150.0, 'C': 150.0, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Day 1: Inventory = 655.0, Grades = {'Base': 280.65, 'B': 150.0, 'C': 124.35, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Day 2: Inventory = 560.0, Grades = {'Base': 211.3, 'B': 150.0, 'C': 98.69999999999999, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Day 3: Inventory = 465.0, Grades = {'Base': 141.95000000000002, 'B': 150.0, 'C': 73.04999999999998, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Day 4: Inventory = 370.0, Grades = {'Base': 72.60000000000002, 'B': 150.0, 'C': 47.39999999999998, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Day 5: Inventory = 275.0, Grades = {'Base': 3.2500000000000284, 'B': 150.0, 'C': 21.749999999999975, 'D': 100.0}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Initial tanks: 0
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Unique grades in schedule: {'C', 'D', 'A', 'F', 'B', 'E', 'Base'}
+2025-05-30 14:43:23,874 - scheduler.optimizer - INFO - Created optimization model
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for C: 150.0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for D: 100.0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for A: 0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for F: 0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for B: 150.0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for E: 0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Initial inventory for Base: 350.0
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Adding constraints to the model...
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Day 1: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,875 - scheduler.optimizer - INFO - Day 2: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,876 - scheduler.optimizer - INFO - Day 3: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,876 - scheduler.optimizer - INFO - Day 4: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,876 - scheduler.optimizer - INFO - Day 5: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,876 - scheduler.optimizer - INFO - Day 6: Added constraint to use exactly one recipe
+2025-05-30 14:43:23,881 - scheduler.optimizer - INFO - Setting objective function for margin optimization
+2025-05-30 14:43:23,881 - scheduler.optimizer - INFO - Objective: Maximize total margin
+2025-05-30 14:43:23,881 - scheduler.optimizer - INFO - Solving optimization model...
+2025-05-30 14:43:23,882 - scheduler.optimizer - INFO - Using solver with MIP gap=0.05 and time limit=1200 seconds
+2025-05-30 14:43:24,010 - scheduler.optimizer - INFO - Optimization status: Optimal
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Objective value: 9298.1095
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Creating optimized schedule...
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 1: Processing 95.0 units of 4
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 1: Total margin = 1592.7035
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 1: Total inventory = 655.0, Processing = 95.0
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 2: Processing 95.0 units of 4
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 2: Total margin = 1592.7035
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 2: Total inventory = 560.0, Processing = 95.0
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 3: Processing 95.0 units of 4
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 3: Total margin = 1592.7035
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 3: Total inventory = 465.0, Processing = 95.0
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 4: Processing 95.0 units of 4
+2025-05-30 14:43:24,011 - scheduler.optimizer - INFO - Day 4: Total margin = 1592.7035
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 4: Total inventory = 370.0, Processing = 95.0
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 5: Processing 95.0 units of 4
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 5: Total margin = 1592.7035
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 5: Total inventory = 275.0, Processing = 95.0
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 6: Processing 96.0 units of 3
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 6: Total margin = 1334.592
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Day 6: Total inventory = 179.0, Processing = 96.0
+2025-05-30 14:43:24,012 - scheduler.optimizer - INFO - Optimization complete! Created 6 days of schedule
+2025-05-30 14:43:24,013 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:43:24] "POST /api/optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 14:48:01,220 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:48:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 14:48:01,242 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 14:48:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 15:24:16,068 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 15:24:16] "[35m[1mPOST /api/optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Available crude grades: ['A', 'B', 'Base', 'C', 'D', 'E', 'F']
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Max processing rate: 100
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1.0), Secondary: None, Max rate: 87.0
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96.0
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95.0
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96.0
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95.0
+2025-05-30 15:24:36,834 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Starting margin optimization with 31 days of schedule
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Starting margin optimization with 31 days
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 0: Inventory = 750, Grades = {'B': 150, 'Base': 350, 'C': 150, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 1: Inventory = 655, Grades = {'B': 150, 'Base': 280.65, 'C': 124.35, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 2: Inventory = 560, Grades = {'B': 150, 'Base': 211.3, 'C': 98.69999999999999, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 3: Inventory = 465, Grades = {'B': 150, 'Base': 141.95000000000002, 'C': 73.04999999999998, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 4: Inventory = 370, Grades = {'B': 150, 'Base': 72.60000000000002, 'C': 47.39999999999998, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 5: Inventory = 275, Grades = {'B': 150, 'Base': 3.2500000000000284, 'C': 21.749999999999975, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 6: Inventory = 594.4444444444446, Grades = {'B': 150, 'Base': 344.44444444444457, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 7: Inventory = 648.4444444444446, Grades = {'A': 124.08, 'B': 150, 'Base': 274.36444444444453, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 8: Inventory = 702.4444444444446, Grades = {'A': 248.16, 'B': 150, 'Base': 204.28444444444455, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 9: Inventory = 606.4444444444446, Grades = {'A': 222.23999999999998, 'B': 150, 'Base': 134.20444444444456, 'D': 100}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 10: Inventory = 1080.4444444444446, Grades = {'A': 196.31999999999996, 'B': 150, 'Base': 64.12444444444456, 'D': 100, 'E': 250, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 11: Inventory = 1092.1582952815827, Grades = {'A': 172.60273972602732, 'B': 150, 'D': 100, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 12: Inventory = 996.1582952815828, Grades = {'A': 172.60273972602732, 'B': 92.4, 'D': 61.599999999999994, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 13: Inventory = 1050.1582952815827, Grades = {'A': 172.60273972602732, 'B': 184.8, 'D': 23.19999999999999, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 14: Inventory = 992.1582952815828, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 15: Inventory = 1085, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 442.3972602739726, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 16: Inventory = 990, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 347.3972602739727, 'F': 320}
+2025-05-30 15:24:36,835 - scheduler.optimizer - INFO - Day 17: Inventory = 895, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 252.39726027397268, 'F': 320}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 18: Inventory = 800, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 157.39726027397268, 'F': 320}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 19: Inventory = 705, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 62.39726027397268, 'F': 320}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 20: Inventory = 642.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 320}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 21: Inventory = 547.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 225}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 22: Inventory = 652.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 200, 'F': 130}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 23: Inventory = 757.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 35}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 24: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 220}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 25: Inventory = 847.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 125}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 26: Inventory = 1032.6027397260275, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 310}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 27: Inventory = 937.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 215}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 28: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'E': 5, 'F': 215}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 29: Inventory = 996.6027397260275, Grades = {'A': 172.60273972602732, 'B': 92.40000000000003, 'C': 400, 'D': 111.6, 'E': 5, 'F': 215}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Day 30: Inventory = 900.6027397260273, Grades = {'A': 172.60273972602732, 'B': 34.80000000000004, 'C': 400, 'D': 73.19999999999999, 'E': 5, 'F': 215}
+2025-05-30 15:24:36,836 - scheduler.optimizer - INFO - Initial tanks: 5
+2025-05-30 15:24:36,836 - scheduler.optimizer - ERROR - Failed to extract initial tanks: 'dict' object has no attribute 'content'
+2025-05-30 15:24:36,836 - scheduler.optimizer - ERROR - Schedule first day: DailyPlan(day=0, processing_rates={}, blending_details=[BlendingRecipe(name='0', primary_grade='Base', secondary_grade=None, max_rate=87.0, primary_fraction=1.0), BlendingRecipe(name='1', primary_grade='Base', secondary_grade='A', max_rate=96.0, primary_fraction=0.73), BlendingRecipe(name='2', primary_grade='Base', secondary_grade='B', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='3', primary_grade='B', secondary_grade='D', max_rate=96.0, primary_fraction=0.6), BlendingRecipe(name='4', primary_grade='Base', secondary_grade='C', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='5', primary_grade='E', secondary_grade=None, max_rate=95.0, primary_fraction=1.0), BlendingRecipe(name='6', primary_grade='F', secondary_grade=None, max_rate=95.0, primary_fraction=1.0)], inventory=750, inventory_by_grade={'B': 150, 'Base': 350, 'C': 150, 'D': 100}, tanks={'Tank1': {'capacity': 250, 'content': [{'A': 124.15829528158277}, {'C': 125.84170471841723}], 'name': 'Tank1'}, 'Tank2': {'capacity': 250, 'content': [{'C': 248}], 'name': 'Tank2'}, 'Tank3': {'capacity': 250, 'content': [{'B': 30.24170471841728}, {'A': 48.44444444444454}, {'C': 4.55829528158273}], 'name': 'Tank3'}, 'Tank4': {'capacity': 250, 'content': [{'F': 39.55829528158276}, {'C': 21.600000000000023}, {'E': 5}, {'D': 73.19999999999999}], 'name': 'Tank4'}, 'Tank5': {'capacity': 180, 'content': [{'B': 4.558295281582758}, {'F': 175.44170471841724}], 'name': 'Tank5'}}, daily_margin=0.0)
+2025-05-30 15:24:36,838 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 15:24:36] "[35m[1mPOST /api/optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 15:24:58,152 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 15:24:58] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 15:25:35,671 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 15:25:35,671 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 15:25:35,681 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 15:25:36,672 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 15:25:36,684 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 15:25:38,965 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-30 15:25:38,965 - scheduler.optimizer - INFO - Available crude grades: ['A', 'B', 'Base', 'C', 'D', 'E', 'F']
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Max processing rate: 100
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1.0), Secondary: None, Max rate: 87.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Starting margin optimization with 31 days of schedule
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Starting margin optimization with 31 days
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Day 0: Inventory = 750, Grades = {'B': 150, 'Base': 350, 'C': 150, 'D': 100}
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Day 1: Inventory = 655, Grades = {'B': 150, 'Base': 280.65, 'C': 124.35, 'D': 100}
+2025-05-30 15:25:38,966 - scheduler.optimizer - INFO - Day 2: Inventory = 560, Grades = {'B': 150, 'Base': 211.3, 'C': 98.69999999999999, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 3: Inventory = 465, Grades = {'B': 150, 'Base': 141.95000000000002, 'C': 73.04999999999998, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 4: Inventory = 370, Grades = {'B': 150, 'Base': 72.60000000000002, 'C': 47.39999999999998, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 5: Inventory = 275, Grades = {'B': 150, 'Base': 3.2500000000000284, 'C': 21.749999999999975, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 6: Inventory = 594.4444444444446, Grades = {'B': 150, 'Base': 344.44444444444457, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 7: Inventory = 648.4444444444446, Grades = {'A': 124.08, 'B': 150, 'Base': 274.36444444444453, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 8: Inventory = 702.4444444444446, Grades = {'A': 248.16, 'B': 150, 'Base': 204.28444444444455, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 9: Inventory = 606.4444444444446, Grades = {'A': 222.23999999999998, 'B': 150, 'Base': 134.20444444444456, 'D': 100}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 10: Inventory = 1080.4444444444446, Grades = {'A': 196.31999999999996, 'B': 150, 'Base': 64.12444444444456, 'D': 100, 'E': 250, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 11: Inventory = 1092.1582952815827, Grades = {'A': 172.60273972602732, 'B': 150, 'D': 100, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 12: Inventory = 996.1582952815828, Grades = {'A': 172.60273972602732, 'B': 92.4, 'D': 61.599999999999994, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 13: Inventory = 1050.1582952815827, Grades = {'A': 172.60273972602732, 'B': 184.8, 'D': 23.19999999999999, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 14: Inventory = 992.1582952815828, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 15: Inventory = 1085, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 442.3972602739726, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 16: Inventory = 990, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 347.3972602739727, 'F': 320}
+2025-05-30 15:25:38,967 - scheduler.optimizer - INFO - Day 17: Inventory = 895, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 252.39726027397268, 'F': 320}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 18: Inventory = 800, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 157.39726027397268, 'F': 320}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 19: Inventory = 705, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 62.39726027397268, 'F': 320}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 20: Inventory = 642.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 320}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 21: Inventory = 547.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 225}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 22: Inventory = 652.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 200, 'F': 130}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 23: Inventory = 757.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 35}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 24: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 220}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 25: Inventory = 847.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 125}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 26: Inventory = 1032.6027397260275, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 310}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 27: Inventory = 937.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 215}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 28: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'E': 5, 'F': 215}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 29: Inventory = 996.6027397260275, Grades = {'A': 172.60273972602732, 'B': 92.40000000000003, 'C': 400, 'D': 111.6, 'E': 5, 'F': 215}
+2025-05-30 15:25:38,968 - scheduler.optimizer - INFO - Day 30: Inventory = 900.6027397260273, Grades = {'A': 172.60273972602732, 'B': 34.80000000000004, 'C': 400, 'D': 73.19999999999999, 'E': 5, 'F': 215}
+2025-05-30 15:25:38,969 - scheduler.optimizer - INFO - Initial tanks: 5
+2025-05-30 15:25:38,969 - scheduler.optimizer - ERROR - Failed to extract initial tanks: 'dict' object has no attribute 'content'
+2025-05-30 15:25:38,969 - scheduler.optimizer - ERROR - Schedule first day: DailyPlan(day=0, processing_rates={}, blending_details=[BlendingRecipe(name='0', primary_grade='Base', secondary_grade=None, max_rate=87.0, primary_fraction=1.0), BlendingRecipe(name='1', primary_grade='Base', secondary_grade='A', max_rate=96.0, primary_fraction=0.73), BlendingRecipe(name='2', primary_grade='Base', secondary_grade='B', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='3', primary_grade='B', secondary_grade='D', max_rate=96.0, primary_fraction=0.6), BlendingRecipe(name='4', primary_grade='Base', secondary_grade='C', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='5', primary_grade='E', secondary_grade=None, max_rate=95.0, primary_fraction=1.0), BlendingRecipe(name='6', primary_grade='F', secondary_grade=None, max_rate=95.0, primary_fraction=1.0)], inventory=750, inventory_by_grade={'B': 150, 'Base': 350, 'C': 150, 'D': 100}, tanks={'Tank1': {'capacity': 250, 'content': [{'A': 124.15829528158277}, {'C': 125.84170471841723}], 'name': 'Tank1'}, 'Tank2': {'capacity': 250, 'content': [{'C': 248}], 'name': 'Tank2'}, 'Tank3': {'capacity': 250, 'content': [{'B': 30.24170471841728}, {'A': 48.44444444444454}, {'C': 4.55829528158273}], 'name': 'Tank3'}, 'Tank4': {'capacity': 250, 'content': [{'F': 39.55829528158276}, {'C': 21.600000000000023}, {'E': 5}, {'D': 73.19999999999999}], 'name': 'Tank4'}, 'Tank5': {'capacity': 180, 'content': [{'B': 4.558295281582758}, {'F': 175.44170471841724}], 'name': 'Tank5'}}, daily_margin=0.0)
+2025-05-30 15:25:38,973 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 15:25:38] "[35m[1mPOST /api/optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 16:25:05,631 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 16:25:05] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 16:25:05,685 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 16:25:05] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 16:43:36,554 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 16:43:36] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 16:43:36,570 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 16:43:36] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:54:51,009 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:54:51] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:54:51,016 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:54:51] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:54:56,494 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:54:56] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 18:54:56,504 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:54:56] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:55:02,342 - scheduler.optimizer - INFO - Initialized SchedulerOptimizer with 7 recipes
+2025-05-30 18:55:02,342 - scheduler.optimizer - INFO - Available crude grades: ['A', 'B', 'Base', 'C', 'D', 'E', 'F']
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Max processing rate: 100
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 0, Primary: Base (1.0), Secondary: None, Max rate: 87.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 1, Primary: Base (0.73), Secondary: A, Max rate: 96.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 2, Primary: Base (0.73), Secondary: B, Max rate: 95.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 3, Primary: B (0.6), Secondary: D, Max rate: 96.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 4, Primary: Base (0.73), Secondary: C, Max rate: 95.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 5, Primary: E (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Recipe: 6, Primary: F (1.0), Secondary: None, Max rate: 95.0
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Starting margin optimization with 31 days of schedule
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Starting margin optimization with 31 days
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Day 0: Inventory = 750, Grades = {'B': 150, 'Base': 350, 'C': 150, 'D': 100}
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Day 1: Inventory = 655, Grades = {'B': 150, 'Base': 280.65, 'C': 124.35, 'D': 100}
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Day 2: Inventory = 560, Grades = {'B': 150, 'Base': 211.3, 'C': 98.69999999999999, 'D': 100}
+2025-05-30 18:55:02,343 - scheduler.optimizer - INFO - Day 3: Inventory = 465, Grades = {'B': 150, 'Base': 141.95000000000002, 'C': 73.04999999999998, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 4: Inventory = 370, Grades = {'B': 150, 'Base': 72.60000000000002, 'C': 47.39999999999998, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 5: Inventory = 275, Grades = {'B': 150, 'Base': 3.2500000000000284, 'C': 21.749999999999975, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 6: Inventory = 594.4444444444446, Grades = {'B': 150, 'Base': 344.44444444444457, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 7: Inventory = 648.4444444444446, Grades = {'A': 124.08, 'B': 150, 'Base': 274.36444444444453, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 8: Inventory = 702.4444444444446, Grades = {'A': 248.16, 'B': 150, 'Base': 204.28444444444455, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 9: Inventory = 606.4444444444446, Grades = {'A': 222.23999999999998, 'B': 150, 'Base': 134.20444444444456, 'D': 100}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 10: Inventory = 1080.4444444444446, Grades = {'A': 196.31999999999996, 'B': 150, 'Base': 64.12444444444456, 'D': 100, 'E': 250, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 11: Inventory = 1092.1582952815827, Grades = {'A': 172.60273972602732, 'B': 150, 'D': 100, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 12: Inventory = 996.1582952815828, Grades = {'A': 172.60273972602732, 'B': 92.4, 'D': 61.599999999999994, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 13: Inventory = 1050.1582952815827, Grades = {'A': 172.60273972602732, 'B': 184.8, 'D': 23.19999999999999, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 14: Inventory = 992.1582952815828, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 349.55555555555543, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 15: Inventory = 1085, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 442.3972602739726, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 16: Inventory = 990, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 347.3972602739727, 'F': 320}
+2025-05-30 18:55:02,344 - scheduler.optimizer - INFO - Day 17: Inventory = 895, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 252.39726027397268, 'F': 320}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 18: Inventory = 800, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 157.39726027397268, 'F': 320}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 19: Inventory = 705, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'E': 62.39726027397268, 'F': 320}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 20: Inventory = 642.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 320}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 21: Inventory = 547.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'F': 225}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 22: Inventory = 652.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 200, 'F': 130}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 23: Inventory = 757.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 35}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 24: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 220}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 25: Inventory = 847.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 125}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 26: Inventory = 1032.6027397260275, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 310}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 27: Inventory = 937.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'F': 215}
+2025-05-30 18:55:02,345 - scheduler.optimizer - INFO - Day 28: Inventory = 942.6027397260274, Grades = {'A': 172.60273972602732, 'B': 150.00000000000003, 'C': 400, 'E': 5, 'F': 215}
+2025-05-30 18:55:02,346 - scheduler.optimizer - INFO - Day 29: Inventory = 996.6027397260275, Grades = {'A': 172.60273972602732, 'B': 92.40000000000003, 'C': 400, 'D': 111.6, 'E': 5, 'F': 215}
+2025-05-30 18:55:02,346 - scheduler.optimizer - INFO - Day 30: Inventory = 900.6027397260273, Grades = {'A': 172.60273972602732, 'B': 34.80000000000004, 'C': 400, 'D': 73.19999999999999, 'E': 5, 'F': 215}
+2025-05-30 18:55:02,346 - scheduler.optimizer - INFO - Initial tanks: 5
+2025-05-30 18:55:02,346 - scheduler.optimizer - ERROR - Failed to extract initial tanks: 'dict' object has no attribute 'content'
+2025-05-30 18:55:02,346 - scheduler.optimizer - ERROR - Schedule first day: DailyPlan(day=0, processing_rates={}, blending_details=[BlendingRecipe(name='0', primary_grade='Base', secondary_grade=None, max_rate=87.0, primary_fraction=1.0), BlendingRecipe(name='1', primary_grade='Base', secondary_grade='A', max_rate=96.0, primary_fraction=0.73), BlendingRecipe(name='2', primary_grade='Base', secondary_grade='B', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='3', primary_grade='B', secondary_grade='D', max_rate=96.0, primary_fraction=0.6), BlendingRecipe(name='4', primary_grade='Base', secondary_grade='C', max_rate=95.0, primary_fraction=0.73), BlendingRecipe(name='5', primary_grade='E', secondary_grade=None, max_rate=95.0, primary_fraction=1.0), BlendingRecipe(name='6', primary_grade='F', secondary_grade=None, max_rate=95.0, primary_fraction=1.0)], inventory=750, inventory_by_grade={'B': 150, 'Base': 350, 'C': 150, 'D': 100}, tanks={'Tank1': {'capacity': 250, 'content': [{'A': 124.15829528158277}, {'C': 125.84170471841723}], 'name': 'Tank1'}, 'Tank2': {'capacity': 250, 'content': [{'C': 248}], 'name': 'Tank2'}, 'Tank3': {'capacity': 250, 'content': [{'B': 30.24170471841728}, {'A': 48.44444444444454}, {'C': 4.55829528158273}], 'name': 'Tank3'}, 'Tank4': {'capacity': 250, 'content': [{'F': 39.55829528158276}, {'C': 21.600000000000023}, {'E': 5}, {'D': 73.19999999999999}], 'name': 'Tank4'}, 'Tank5': {'capacity': 180, 'content': [{'B': 4.558295281582758}, {'F': 175.44170471841724}], 'name': 'Tank5'}}, daily_margin=0.0)
+2025-05-30 18:55:02,349 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:55:02] "[35m[1mPOST /api/optimizer/optimize HTTP/1.1[0m" 500 -
+2025-05-30 18:55:05,900 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:55:05] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 18:55:28,477 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:55:28] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-30 18:58:20,052 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:58:20] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:58:20,167 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:58:20] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:59:11,433 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:59:11] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 18:59:11,438 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:59:11] "GET /api/data HTTP/1.1" 200 -

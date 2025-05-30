@@ -1,0 +1,109 @@
+[
+  {
+    "allowed_ldr": {
+      "1": 3
+    },
+    "grade": "Base",
+    "origin": "Peninsular Malaysia",
+    "required_arrival_by": 10,
+    "volume": 400
+  },
+  {
+    "allowed_ldr": {
+      "17": 19
+    },
+    "grade": "Base",
+    "origin": "Peninsular Malaysia",
+    "required_arrival_by": 23,
+    "volume": 360
+  },
+  {
+    "allowed_ldr": {
+      "1": 3
+    },
+    "grade": "A",
+    "origin": "Peninsular Malaysia",
+    "required_arrival_by": 10,
+    "volume": 150
+  },
+  {
+    "id": "Requirement_004",
+    "grade": "B",
+    "volume": 150,
+    "origin": "Peninsular Malaysia",
+    "allowed_ldr": {
+      "8": 10
+    },
+    "required_arrival_by": 16
+  },
+  {
+    "id": "Requirement_005",
+    "grade": "C",
+    "volume": 200,
+    "origin": "Peninsular Malaysia",
+    "allowed_ldr": {
+      "17": 19
+    },
+    "required_arrival_by": 23
+  },
+  {
+    "id": "Requirement_006",
+    "grade": "D",
+    "volume": 150,
+    "origin": "Sabah",
+    "allowed_ldr": {
+      "23": 24
+    },
+    "required_arrival_by": 30
+  },
+  {
+    "id": "Requirement_007",
+    "grade": "E",
+    "volume": 250,
+    "origin": "Sabah",
+    "allowed_ldr": {
+      "5": 7
+    },
+    "required_arrival_by": 13
+  },
+  {
+    "id": "Requirement_008",
+    "grade": "E",
+    "volume": 550,
+    "origin": "Sabah",
+    "allowed_ldr": {
+      "10": 11
+    },
+    "required_arrival_by": 16
+  },
+  {
+    "id": "Requirement_009",
+    "grade": "E",
+    "volume": 100,
+    "origin": "Sabah",
+    "allowed_ldr": {
+      "23": 24
+    },
+    "required_arrival_by": 30
+  },
+  {
+    "id": "Requirement_010",
+    "grade": "F",
+    "volume": 320,
+    "origin": "Sarawak",
+    "allowed_ldr": {
+      "5": 7
+    },
+    "required_arrival_by": 13
+  },
+  {
+    "id": "Requirement_011",
+    "grade": "F",
+    "volume": 280,
+    "origin": "Sarawak",
+    "allowed_ldr": {
+      "19": 22
+    },
+    "required_arrival_by": 26
+  }
+]
