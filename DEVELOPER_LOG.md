@@ -33,20 +33,50 @@ OASIS is a sophisticated refinery scheduling and optimization platform with:
   - Implement proper error handling for failed saves
   - Add confirmation dialogs for destructive actions
 
-#### 2. Number Input Behavior Fix
+#### 2. Number Input Behavior Fix ✅ **COMPLETED**
 **Priority**: Medium | **Estimated Days**: 1-2 days
-**Current Issue**: Weird auto-fill behavior in number inputs
+**Issue**: Number inputs displayed "0" when empty, causing poor UX where users couldn't clear fields properly
 
-**Specific Tasks**:
-- [ ] **Investigate input auto-fill** (0.5 day)
-  - Debug browser auto-complete interference
-  - Check for unintended state updates
-- [ ] **Implement controlled inputs** (0.5-1 day)
-  - Add proper input validation
-  - Prevent unwanted value changes
-  - Add input masking for specific formats
+**Completed Tasks**:
+- [x] **Fixed all number input patterns** (1 day)
+  - Changed `value={field || 0}` to `value={field || ''}` in all 18 instances
+  - Added utility functions `getNumberInputValue()` and `parseNumberInput()`
+  - Fixed inputs across all sections: vessels, plants, crudes, recipes, routes, vessel types, parcels, requirements
+- [x] **Implemented proper empty state handling** 
+  - Empty inputs now show truly empty instead of "0"
+  - Backend processing still receives valid numbers via `|| 0` fallback in onChange handlers
+  - Users can now clear fields and enter new values without "0" interference
 
-#### 3. Schedule Edit Page Separation
+#### 3. Feedstock Sections Ocean Theme Styling ✅ **COMPLETED**
+**Priority**: Low | **Estimated Days**: 1 day
+**Issue**: Feedstock parcels and requirements sections used basic slate colors instead of the ocean theme used throughout OASIS
+
+**Completed Tasks**:
+- [x] **Updated Feedstock Parcels styling** (0.5 day)
+  - Changed "Add New Parcel" button to ocean gradient styling
+  - Updated table styling with ocean theme colors: `bg-[#88BDBC]/20`, `text-[#254E58]`, `border-[#88BDBC]/30`
+  - Updated input fields with ocean border colors and focus states
+  - Added hover effects with ocean theme colors
+- [x] **Updated Feedstock Requirements styling** (0.5 day)
+  - Changed "Add New Requirement" and "Add First Requirement" buttons to ocean gradient
+  - Updated table headers and body styling to match ocean theme
+  - Updated all input fields and select dropdowns with ocean border colors
+  - Enhanced focus states with ocean theme colors
+- [x] **Updated info panels** 
+  - Changed blue info panels to ocean theme: `bg-[#88BDBC]/10`, `border-[#88BDBC]/30`, `text-[#254E58]`
+  - Updated icon colors to match ocean theme
+
+#### 4. Plant Data Section Ocean Theme Styling ✅ **COMPLETED**
+**Priority**: Low | **Estimated Days**: 0.5 day
+**Issue**: Plant data section needed ocean theme styling to match feedstock sections
+
+**Completed Tasks**:
+- [x] **Updated PlantDataEditor number inputs** (0.5 day)
+  - Fixed number input behavior: changed `value={field || 0}` to `value={field || ''}` for capacity, base_crude_capacity, and max_inventory
+  - Maintained existing ocean theme styling (already properly implemented)
+  - Ensured consistency with other sections for empty field handling
+
+#### 5. Schedule Edit Page Separation
 **Priority**: Medium | **Estimated Days**: 2-3 days
 **Current Issue**: Schedule editing is embedded in main view, needs dedicated page
 
@@ -60,7 +90,7 @@ OASIS is a sophisticated refinery scheduling and optimization platform with:
   - Add batch editing capabilities
   - Implement undo/redo functionality
 
-#### 4. Data Management Improvements
+#### 6. Data Management Improvements
 **Priority**: High | **Estimated Days**: 2-3 days
 **Current Issue**: Cookie/state synchronization problems
 
@@ -78,7 +108,7 @@ OASIS is a sophisticated refinery scheduling and optimization platform with:
 
 ### 🔧 BACKEND IMPROVEMENTS
 
-#### 5. Chat Function Implementation
+#### 7. Chat Function Implementation
 **Priority**: High | **Estimated Days**: 4-5 days
 **Current Issue**: Chat component is placeholder with mock responses
 
@@ -96,7 +126,7 @@ OASIS is a sophisticated refinery scheduling and optimization platform with:
   - GET /api/chat/history
   - WebSocket support for real-time chat
 
-#### 6. Scheduler Optimization Enhancement
+#### 8. Scheduler Optimization Enhancement
 **Priority**: Medium | **Estimated Days**: 3-4 days
 **Current Issue**: Current optimizer (401 lines) has limited optimization strategies
 
@@ -110,7 +140,7 @@ OASIS is a sophisticated refinery scheduling and optimization platform with:
   - Vessel capacity limitations
   - Route availability restrictions
 
-#### 7. Vessel Optimizer Improvements
+#### 8. Vessel Optimizer Improvements
 **Priority**: Medium | **Estimated Days**: 2-3 days
 **Current Issue**: VesselOptimizer (813 lines) needs better performance and features
 

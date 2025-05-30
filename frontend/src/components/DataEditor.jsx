@@ -996,7 +996,7 @@ function PlantDataEditor({ plants, setPlants }) {
             <input
               type="number"
               step="0.1"
-              value={plant.capacity || 0}
+              value={plant.capacity || ''}
               onChange={(e) => handlePlantChange('capacity', e.target.value)}
               className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
@@ -1009,7 +1009,7 @@ function PlantDataEditor({ plants, setPlants }) {
             <input
               type="number"
               step="0.1"
-              value={plant.base_crude_capacity || 0}
+              value={plant.base_crude_capacity || ''}
               onChange={(e) => handlePlantChange('base_crude_capacity', e.target.value)}
               className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
@@ -1022,7 +1022,7 @@ function PlantDataEditor({ plants, setPlants }) {
             <input
               type="number"
               step="0.1"
-              value={plant.max_inventory || 0}
+              value={plant.max_inventory || ''}
               onChange={(e) => handlePlantChange('max_inventory', e.target.value)}
               className="w-full px-3 py-2 border border-[#88BDBC]/30 rounded-md bg-white/90 text-[#254E58] focus:outline-none focus:ring-2 focus:ring-[#88BDBC]/50"
             />
@@ -1189,7 +1189,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         {!isAddingCrude && (
           <button
             onClick={addNewCrude}
-            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
           >
             + Add New Crude
           </button>
@@ -1252,7 +1252,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
       )}
       
       <table className="min-w-full divide-y divide-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg overflow-hidden backdrop-blur-sm">
-        <thead className="bg-[#88BDBC]/10">
+        <thead className="bg-[#88BDBC]">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Margin ($/bbl)</th>
@@ -1263,7 +1263,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         <tbody className="bg-white divide-y divide-[#88BDBC]/10">
           {Object.entries(crudesData).map(([crudeId, crude]) => (
             <tr key={crudeId}>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 {editingName === crudeId ? (
                   <div className="flex gap-2">
                     <input
@@ -1307,16 +1307,16 @@ function CrudeDataEditor({ crudes, setCrudes }) {
                   </div>
                 )}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   step="0.1"
-                  value={crude.margin || 0}
+                  value={crude.margin || ''}
                   onChange={(e) => handleCrudeChange(crudeId, 'margin', e.target.value)}
                   className="w-24 px-2 py-1 border border-slate-300 rounded"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <select
                   value={crude.origin || ''}
                   onChange={(e) => handleCrudeChange(crudeId, 'origin', e.target.value)}
@@ -1456,7 +1456,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
         {!isAddingRecipe && (
           <button
             onClick={addNewRecipe}
-            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
           >
             + Add New Recipe
           </button>
@@ -1555,14 +1555,14 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
       )}
       
       <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+        <thead className="bg-[#88BDBC]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Primary Grade</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Secondary Grade</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Max Rate (kbbl/day)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Primary Fraction</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Primary Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Secondary Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Max Rate (kbbl/day)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Primary Fraction</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-slate-100">
@@ -1571,7 +1571,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-slate-700">{recipeId}</div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <select
                   value={recipe.primary_grade || ''}
                   onChange={(e) => handleRecipeChange(recipeId, 'primary_grade', e.target.value)}
@@ -1583,7 +1583,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
                   ))}
                 </select>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <select
                   value={recipe.secondary_grade || ''}
                   onChange={(e) => handleRecipeChange(recipeId, 'secondary_grade', e.target.value === '' ? null : e.target.value)}
@@ -1598,7 +1598,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
                   }
                 </select>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   step="0.1"
@@ -1608,7 +1608,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
                   className="w-24 px-2 py-1 border border-slate-300 rounded"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   step="0.01"
@@ -1657,7 +1657,7 @@ function RouteDataEditor({ routes, setRoutes }) {
         <p className="text-slate-500 mb-4">No route data available.</p>
         <button
           onClick={() => setIsAddingRoute(true)}
-          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add First Route
         </button>
@@ -1795,7 +1795,7 @@ function RouteDataEditor({ routes, setRoutes }) {
         {!isAddingRoute && (
           <button
             onClick={addNewRoute}
-            className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+            className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
           >
             + Add New Route
           </button>
@@ -1883,19 +1883,19 @@ function RouteDataEditor({ routes, setRoutes }) {
       )}
       
       <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+        <thead className="bg-[#88BDBC]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Route ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Destination</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Travel Time (days)</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Route ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Destination</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Travel Time (days)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-slate-100">
           {Object.entries(routesData).map(([routeId, route]) => (
             <tr key={routeId}>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 {editingRouteId === routeId ? (
                   <div className="flex gap-2">
                     <input
@@ -1939,7 +1939,7 @@ function RouteDataEditor({ routes, setRoutes }) {
                   </div>
                 )}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <select
                   value={route.origin || ''}
                   onChange={(e) => handleRouteChange(routeId, 'origin', e.target.value)}
@@ -1950,7 +1950,7 @@ function RouteDataEditor({ routes, setRoutes }) {
                   ))}
                 </select>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="text"
                   value={route.destination || ''}
@@ -1958,7 +1958,7 @@ function RouteDataEditor({ routes, setRoutes }) {
                   className="px-2 py-1 border border-slate-300 rounded w-40"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   step="0.1"
@@ -1983,9 +1983,9 @@ function RouteDataEditor({ routes, setRoutes }) {
         </tbody>
       </table>
       
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+      <div className="bg-[#88BDBC]/10 border border-[#88BDBC]/30 text-white p-4 rounded text-sm mt-4">
         <div className="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
@@ -2008,7 +2008,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
         <p className="text-slate-500 mb-4">No vessel type data available.</p>
         <button
           onClick={addNewVesselType}
-          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add First Vessel Type
         </button>
@@ -2053,25 +2053,25 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={addNewVesselType}
-          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add New Vessel Type
         </button>
       </div>
       
       <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+        <thead className="bg-[#88BDBC]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Capacity (kbbl)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cost ($)</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Capacity (kbbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cost ($)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-slate-100">
           {vesselTypesData.map((vesselType, index) => (
             <tr key={index}>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="text"
                   value={vesselType.name || ''}
@@ -2079,7 +2079,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
                   className="px-2 py-1 border border-slate-300 rounded w-40"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   value={vesselType.capacity || 0}
@@ -2087,7 +2087,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
                   className="px-2 py-1 border border-slate-300 rounded w-32"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   value={vesselType.cost || 0}
@@ -2185,33 +2185,33 @@ function FeedstockParcelEditor({ parcels, setParcels }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={addNewParcel}
-          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add New Parcel
         </button>
       </div>
       
-      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+      <table className="min-w-full divide-y divide-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg overflow-hidden">
+        <thead className="bg-[#88BDBC]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Grade</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Volume (kbbl)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Available From (day)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Expiry (day)</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Volume (kbbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Available From (day)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Expiry (day)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-slate-100">
+        <tbody className="bg-white divide-y divide-[#88BDBC]/10">
           {parcelsData.map((parcel, index) => (
-            <tr key={index}>
-              <td className="px-6 py-4 whitespace-nowrap">
+            <tr key={index} className="hover:bg-[#88BDBC]/5">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="text"
                   list="grades-list"
                   value={parcel.grade || ''}
                   onChange={(e) => handleParcelChange(index, 'grade', e.target.value)}
-                  className="px-2 py-1 border border-slate-300 rounded w-40"
+                  className="px-2 py-1 border border-[#88BDBC]/30 rounded w-40 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                 />
                 <datalist id="grades-list">
                   {allGrades.map(grade => (
@@ -2219,46 +2219,46 @@ function FeedstockParcelEditor({ parcels, setParcels }) {
                   ))}
                 </datalist>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   step="0.1"
-                  value={parcel.volume || 0}
+                  value={parcel.volume || ''}
                   onChange={(e) => handleParcelChange(index, 'volume', e.target.value)}
-                  className="px-2 py-1 border border-slate-300 rounded w-32"
+                  className="px-2 py-1 border border-[#88BDBC]/30 rounded w-32 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <select
                   value={parcel.origin || ''}
                   onChange={(e) => handleParcelChange(index, 'origin', e.target.value)}
-                  className="px-2 py-1 border border-slate-300 rounded w-40"
+                  className="px-2 py-1 border border-[#88BDBC]/30 rounded w-40 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                 >
                   {origins.map(origin => (
                     <option key={origin} value={origin}>{origin}</option>
                   ))}
                 </select>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap !text-gray-700">
                 <input
                   type="number"
-                  value={parcel.available_from || 0}
+                  value={parcel.available_from || ''}
                   onChange={(e) => handleParcelChange(index, 'available_from', parseInt(e.target.value) || 0)}
-                  className="px-2 py-1 border border-slate-300 rounded w-24"
+                  className="px-2 py-1 border border-[#88BDBC]/30 rounded w-24 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   value={parcel.expiry || 30}
                   onChange={(e) => handleParcelChange(index, 'expiry', parseInt(e.target.value) || 30)}
-                  className="px-2 py-1 border border-slate-300 rounded w-24"
+                  className="px-2 py-1 border border-[#88BDBC]/30 rounded w-24 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right">
+              <td className="px-6 py-4 whitespace-nowrap text-right text-gray-700">
                 <button
                   onClick={() => deleteParcel(index)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 transition-colors duration-200"
                   title="Delete parcel"
                 >
                   Delete
@@ -2269,9 +2269,9 @@ function FeedstockParcelEditor({ parcels, setParcels }) {
         </tbody>
       </table>
       
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+      <div className="bg-[#88BDBC]/10 border border-[#88BDBC]/30 text-white p-4 rounded text-sm mt-4">
         <div className="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
@@ -2337,13 +2337,17 @@ function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
     }
   }
   
+  console.log("FeedstockRequirementEditor - requirements prop:", requirements);
+  console.log("FeedstockRequirementEditor - requirementsData:", requirementsData);
+  console.log("FeedstockRequirementEditor - requirementsData.length:", requirementsData.length);
+  
   if (requirementsData.length === 0) {
     return (
       <div className="text-center p-8">
         <p className="text-slate-500 mb-4">No feedstock requirement data available.</p>
         <button
           onClick={() => addNewRequirement()}
-          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add First Requirement
         </button>
@@ -2433,25 +2437,25 @@ function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={addNewRequirement}
-          className="px-3 py-1 !bg-emerald-600 text-white rounded text-sm hover:bg-green-600"
+          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
         >
           + Add New Requirement
         </button>
       </div>
       
-      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-        <thead className="bg-slate-50">
+      <table className="min-w-full divide-y divide-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg overflow-hidden">
+        <thead className="bg-[#88BDBC]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Grade</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Volume (kbbl)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Origin</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Allowed Loading (Start-End)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Required By (day)</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Grade</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Volume (kbbl)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Origin</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Allowed Loading (Start-End)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Required By (day)</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-slate-100">
+        <tbody className="bg-white divide-y divide-[#88BDBC]/10">
           {requirementsData.map((requirement, index) => {
             // Extract allowed_ldr values safely
             const ldrStartDay = requirement.allowed_ldr ? parseInt(Object.keys(requirement.allowed_ldr)[0]) || 0 : 0;
@@ -2459,17 +2463,17 @@ function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
             console.log(`Rendering requirement ${index}:`, requirement);
             
             return (
-              <tr key={index}>
+              <tr key={index} className="hover:bg-[#88BDBC]/5">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-[#254E58]">
                     {requirement.id || `Req_${index+1}`}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                   <select
                     value={requirement.grade || ''}
                     onChange={(e) => handleRequirementChange(index, 'grade', e.target.value)}
-                    className="px-2 py-1 border border-slate-300 rounded w-40"
+                    className="px-2 py-1 border border-[#88BDBC]/30 rounded w-40 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                     disabled={isLoading}
                   >
                     <option value="">
@@ -2484,59 +2488,59 @@ function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
                     }
                   </select>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                   <input
                     type="number"
                     step="0.1"
                     min="0"
-                    value={requirement.volume || 0}
+                    value={requirement.volume || ''}
                     onChange={(e) => handleRequirementChange(index, 'volume', e.target.value)}
-                    className="px-2 py-1 border border-slate-300 rounded w-32"
+                    className="px-2 py-1 border border-[#88BDBC]/30 rounded w-32 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                   />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                   <select
                     value={requirement.origin || ''}
                     onChange={(e) => handleRequirementChange(index, 'origin', e.target.value)}
-                    className="px-2 py-1 border border-slate-300 rounded w-40"
+                    className="px-2 py-1 border border-[#88BDBC]/30 rounded w-40 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                   >
                     {origins.map(origin => (
                       <option key={origin} value={origin}>{origin}</option>
                     ))}
                   </select>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                   <div className="flex items-center">
                     <input
                       type="number"
                       min="0"
                       value={ldrStartDay}
                       onChange={(e) => handleLdrChange(index, parseInt(e.target.value) || 0, ldrEndDay)}
-                      className="w-16 px-2 py-1.5 border border-slate-300 rounded-l"
+                      className="w-16 px-2 py-1.5 border border-[#88BDBC]/30 rounded-l focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                     />
-                    <span className="px-2 text-slate-400">-</span>
+                    <span className="px-2 !text-[#88BDBC]">-</span>
                     <input
                       type="number"
                       min="0"
                       value={ldrEndDay}
                       onChange={(e) => handleLdrChange(index, ldrStartDay, parseInt(e.target.value) || 0)}
-                      className="w-16 px-2 py-1.5 border border-slate-300 rounded-r"
+                      className="w-16 px-2 py-1.5 border border-[#88BDBC]/30 rounded-r focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                     />
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                   <input
                     type="number"
                     min="0"
-                    value={requirement.required_arrival_by || 30}
+                    value={requirement.required_arrival_by || ''}
                     onChange={(e) => handleRequirementChange(index, 'required_arrival_by', parseInt(e.target.value) || 30)}
-                    className="px-2 py-1 border border-slate-300 rounded w-24"
+                    className="px-2 py-1 border border-[#88BDBC]/30 rounded w-24 focus:border-[#254E58] focus:ring-1 focus:ring-[#254E58]"
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <button
                     onClick={() => deleteRequirement(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 transition-colors duration-200"
                     title="Delete requirement"
                   >
                     Delete
@@ -2548,9 +2552,9 @@ function FeedstockRequirementEditor({ requirements, setRequirements, crudes }) {
         </tbody>
       </table>
       
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded text-sm mt-4">
+      <div className="!bg-[#88BDBC]/10 border !border-[#88BDBC]/30 !text-white p-4 rounded text-sm mt-4">
         <div className="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 !text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>

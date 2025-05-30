@@ -217,7 +217,7 @@ function App() {
           <div className="flex items-center gap-4">
             {/* Enhanced logo container with teal glassmorphic effect */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#88BDBC] to-[#254E58] rounded-xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 !bg-gradient-to-r from-[#88BDBC] to-[#254E58] rounded-xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
               <div className="relative bg-white/10 backdrop-blur-md rounded-xl p-3 border border-[#88BDBC]/20 shadow-lg">
                 <img 
                   src={logo} 
@@ -591,7 +591,7 @@ function App() {
               <h3 className="text-xl font-semibold text-[#88BDBC]">Assistant</h3>
               <button 
                 onClick={() => setShowChat(!showChat)}
-                className="text-[#88BDBC] hover:text-white text-sm flex items-center p-1 rounded-md hover:bg-[#88BDBC]/20 transition-colors"
+                className="text-[#254E58] hover:text-gray-700 text-sm flex items-center p-1 rounded-md hover:bg-[#88BDBC]/20 transition-colors"
               >
                 {showChat ? (
                   <>

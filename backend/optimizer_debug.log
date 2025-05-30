@@ -4969,3 +4969,57 @@
 2025-05-29 12:53:34,728 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:53:34] "GET /api/data HTTP/1.1" 200 -
 2025-05-29 12:53:37,005 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:53:37] "GET /api/data HTTP/1.1" 200 -
 2025-05-29 12:53:37,014 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:53:37] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 15:12:43,633 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.110.156:5001
+2025-05-29 15:12:43,634 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-29 15:12:43,643 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-29 15:12:44,589 - werkzeug - WARNING -  * Debugger is active!
+2025-05-29 15:12:44,602 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-29 15:13:16,366 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 15:13:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 15:13:16,380 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 15:13:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 15:46:41,599 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 15:46:41] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 15:46:41,610 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 15:46:41] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:24:29,663 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:24:29] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:24:29,679 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:24:29] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:29:18,355 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:29:18] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:29:18,549 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:29:18] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:08,577 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:08] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:08,589 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:08] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:16,575 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:16,584 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:16] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:32,923 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:32] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:31:32,935 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:31:32] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:32:10,313 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:32:10] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:32:10,327 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:32:10] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:47:56,975 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:47:56] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:47:56,991 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:47:56] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:48:13,584 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:48:13] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:48:13,595 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:48:13] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:48:24,946 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:48:24] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:48:24,968 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:48:24] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:50:43,103 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:50:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:50:43,123 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:50:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:50:44,445 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:50:44] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:50:44,452 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:50:44] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:54:43,793 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:54:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:54:43,804 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:54:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:57:51,998 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:57:51] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 19:57:52,007 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 19:57:52] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:37,374 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:37] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:37,390 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:37] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:53,106 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:53] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:53,117 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:53] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:57,111 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:57] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 20:20:57,121 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 20:20:57] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 21:09:15,688 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 21:09:15] "GET /api/data HTTP/1.1" 200 -
+2025-05-29 21:09:15,751 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 21:09:15] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:01:08,896 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:01:08] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:01:08,904 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:01:08] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:08:41,840 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:08:41] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:08:41,851 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:08:41] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:08:43,490 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:08:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 05:08:43,495 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 05:08:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 06:54:43,022 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 06:54:43] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 06:54:43,073 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 06:54:43] "GET /api/data HTTP/1.1" 200 -
