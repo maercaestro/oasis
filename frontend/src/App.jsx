@@ -313,8 +313,8 @@ function App() {
 
       {/* Main content area with chat on right - enhanced dark theme */}
       <div className="flex-grow flex overflow-hidden">
-        {/* Left main content - 75% width with teal glassmorphic styling */}
-        <div className="w-3/4 p-6 overflow-y-auto flex flex-col space-y-6">
+        {/* Left main content - 70% width with teal glassmorphic styling */}
+        <div className="w-7/10 p-6 overflow-y-auto flex flex-col space-y-6" style={{width: '70%'}}>
           {/* View/Edit tabs with teal-brown theme */}
           <div className="flex gap-4">
             <button 
@@ -582,12 +582,12 @@ function App() {
           </div>
         </div>
         
-        {/* Right sidebar - Dashboard and Chat - 25% width with teal-brown theme */}
-        <div className="w-1/4 p-4 border-l border-[#88BDBC]/30 flex flex-col bg-[#254E58]/20 backdrop-blur-sm"> {/* Teal-brown bg for chat sidebar */}
+        {/* Right sidebar - Dashboard and Chat - 30% width with teal-brown theme */}
+        <div className="w-3/10 p-4 border-l border-[#88BDBC]/30 flex flex-col bg-[#254E58]/20 backdrop-blur-sm" style={{width: '30%'}}> {/* Teal-brown bg for chat sidebar */}
     
           {/* Chat section - remaining space */}
-          <div className="flex-grow flex flex-col">
-            <div className="flex items-center justify-between mb-3">
+          <div className="flex-grow flex flex-col min-h-0">
+            <div className="flex items-center justify-between mb-3 flex-shrink-0">
               <h3 className="text-xl font-semibold text-[#88BDBC]">Assistant</h3>
               <button 
                 onClick={() => setShowChat(!showChat)}
@@ -611,7 +611,11 @@ function App() {
               </button>
             </div>
             
-            {showChat && <Chatbox />}
+            {showChat && (
+              <div className="flex-1 min-h-0">
+                <Chatbox />
+              </div>
+            )}
           </div>
         </div>
       </div>

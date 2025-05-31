@@ -5469,3 +5469,176 @@
 2025-05-30 18:58:20,167 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:58:20] "GET /api/data HTTP/1.1" 200 -
 2025-05-30 18:59:11,433 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:59:11] "GET /api/data HTTP/1.1" 200 -
 2025-05-30 18:59:11,438 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 18:59:11] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:06:55,650 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:06:55] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:06:55,656 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:06:55] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:06:57,062 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:06:57] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 19:06:57,072 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:06:57] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:07:01,815 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:07:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:07:01,832 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:07:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:07:03,207 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:07:03] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-30 19:07:03,215 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:07:03] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:29:36,732 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:29:38,057 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:29:39,669 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:29:39,682 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:30:34,430 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:30:34,435 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:30:35,533 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:30:40,075 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:30:40,105 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:31:00,579 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:31:00,584 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:31:01,715 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:31:03,894 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:31:03,906 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:31:07,705 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:31:08,178 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:31:09,784 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:31:09,794 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:31:34,714 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:31:35,235 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:31:36,777 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:31:36,789 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:32:11,412 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:32:12,514 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:32:14,249 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:32:14,260 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:33:14,608 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 19:33:14,609 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 19:33:14,618 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:33:16,165 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:33:16,180 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:33:54,234 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:34:06,522 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:39:39,010 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-30 19:39:39,010 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 19:39:39,020 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:39:41,051 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:39:41,066 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:40:07,902 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:40:22,135 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:40:22,139 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:40:22] "POST /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:40:54,480 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:40:54] "OPTIONS /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:40:56,031 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:40:56,035 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:40:56] "POST /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:41:07,666 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:41:07] "OPTIONS /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:41:09,342 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:41:13,236 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:41:13,240 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:41:13] "POST /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:41:52,817 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:41:52,818 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:41:53,901 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:41:56,168 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:41:56,181 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:54:27,705 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:54:28,309 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:54:30,380 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:54:30,394 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:54:35,701 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:54:36,660 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:54:38,812 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:54:38,823 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:55:01,700 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:55:02,743 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:55:04,346 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:55:04,358 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:55:05,092 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:55:05] "OPTIONS /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:55:06,995 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:55:07,006 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:55:07] "POST /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:55:20,052 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:55:20] "OPTIONS /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:55:23,130 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:55:23,134 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:55:23] "POST /api/chat/message HTTP/1.1" 200 -
+2025-05-30 19:55:57,686 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:55:57] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-30 19:56:00,863 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:56:01,572 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:56:01,619 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:56:01] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-30 19:56:27,005 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:56:27,005 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/llm_functions.py', reloading
+2025-05-30 19:56:27,411 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:56:29,373 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:56:29,386 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:56:29,456 - werkzeug - INFO -  * Detected change in '/Users/abuhuzaifahbidin/Documents/GitHub/oasis/backend/api.py', reloading
+2025-05-30 19:56:31,409 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-30 19:56:33,789 - werkzeug - WARNING -  * Debugger is active!
+2025-05-30 19:56:33,801 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-30 19:56:37,436 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:56:37] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-30 19:56:39,265 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:56:39,277 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:56:39] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-30 19:56:40,040 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-30 19:58:06,610 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:58:06] "GET /api/data HTTP/1.1" 200 -
+2025-05-30 19:58:06,661 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 19:58:06] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 06:46:40,059 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:46:40] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-31 06:46:40,077 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:46:40] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 06:48:13,851 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:48:13] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:48:16,058 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:48:16,069 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:48:16] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:48:18,573 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:48:43,171 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:48:43] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:48:44,788 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:48:44,790 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:48:44] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:48:45,809 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:50:26,882 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:50:26] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:50:29,235 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:50:29,241 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:50:29] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:50:30,269 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:50:47,519 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:50:47] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:50:49,510 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:50:49,512 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:50:49] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:50:50,536 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:51:17,602 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:51:17] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:51:31,614 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:51:32,822 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:51:32,859 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:51:32] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:54:30,008 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:54:30] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:54:32,431 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:54:32,436 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:54:32] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:54:33,940 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:55:00,451 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:55:00] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:55:02,331 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:55:02,333 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:55:02] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:55:03,253 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:55:42,395 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:55:42] "POST /api/vessel-optimizer/optimize HTTP/1.1" 200 -
+2025-05-31 06:59:36,025 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:59:36] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:59:38,262 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 06:59:38,271 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 06:59:38] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 06:59:40,410 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:11:26,011 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:11:26] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:11:30,250 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:11:30,261 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:11:30] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:11:31,328 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:22:02,182 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:22:02] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:22:02,187 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:22:02] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:24:15,710 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:24:15] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-31 07:24:15,718 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:24:15] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:24:25,412 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:24:25] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:24:27,053 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:24:27,066 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:24:27] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:24:28,687 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:27:33,615 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:27:33] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:27:33,622 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:27:33] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:28:01,175 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:28:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:28:01,183 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:28:01] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:28:03,716 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:28:03] "POST /api/scheduler/run HTTP/1.1" 200 -
+2025-05-31 07:28:03,747 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:28:03] "GET /api/data HTTP/1.1" 200 -
+2025-05-31 07:29:58,212 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-05-31 07:29:58,212 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-31 07:29:58,218 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-05-31 07:29:59,202 - werkzeug - WARNING -  * Debugger is active!
+2025-05-31 07:29:59,215 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-05-31 07:30:03,586 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:30:03] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:30:04,970 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:30:06,505 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:30:06,543 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:30:06] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:30:20,530 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:30:20] "OPTIONS /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:30:22,378 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-31 07:30:22,383 - werkzeug - INFO - 127.0.0.1 - - [31/May/2025 07:30:22] "POST /api/chat/stream HTTP/1.1" 200 -
+2025-05-31 07:30:23,268 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

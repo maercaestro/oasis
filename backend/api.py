@@ -6,7 +6,7 @@ Provides atomic operations, concurrent access, and data consistency.
 Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import os
 import json
@@ -23,12 +23,18 @@ from scheduler.models import BlendingRecipe
 # Import new database components
 from database.extended_ops import DatabaseManagerExtended
 
+# Import OpenAI function calling system
+from llm_functions import OASISLLMFunctions
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Initialize database
 DB_PATH = os.path.join(os.path.dirname(__file__), "oasis.db")
 db = DatabaseManagerExtended(DB_PATH)
+
+# Initialize LLM functions with database
+llm_functions = OASISLLMFunctions(DB_PATH)
 
 # Migration flag file
 MIGRATION_FLAG = os.path.join(os.path.dirname(__file__), ".migration_completed")
@@ -700,6 +706,177 @@ def migrate_database():
         
     except Exception as e:
         return jsonify({'error': f'Migration failed: {str(e)}'}), 500
+
+# ==============================================================================
+# CHAT/LLM ENDPOINTS
+# ==============================================================================
+
+@app.route('/api/chat/message', methods=['POST'])
+def process_chat_message():
+    """Process a chat message through OpenAI function calling."""
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        message = data['message']
+        conversation_history = data.get('conversation_history', [])
+        
+        # Process the message through the LLM
+        result = llm_functions.process_chat_message(message, conversation_history)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Failed to process chat message: {str(e)}',
+            'response': 'I apologize, but I encountered an error while processing your request. Please try again.',
+            'function_calls': [],
+            'conversation_history': []
+        }), 500
+
+@app.route('/api/chat/stream', methods=['POST'])
+def process_chat_message_stream():
+    """Process a chat message with streaming response."""
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        message = data['message']
+        conversation_history = data.get('conversation_history', [])
+        
+        def generate():
+            """Generator function for streaming response."""
+            try:
+                for chunk in llm_functions.process_chat_message_stream(message, conversation_history):
+                    # Send each chunk as Server-Sent Events format
+                    yield f"data: {json.dumps(chunk)}\n\n"
+            except Exception as e:
+                error_chunk = {
+                    "type": "error",
+                    "error": str(e),
+                    "message": "An error occurred while processing your request."
+                }
+                yield f"data: {json.dumps(error_chunk)}\n\n"
+        
+        return Response(
+            generate(),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST'
+            }
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Failed to process streaming chat message: {str(e)}'
+        }), 500
+
+@app.route('/api/chat/functions', methods=['GET'])
+def get_available_functions():
+    """Get list of available LLM functions."""
+    try:
+        functions = [
+            {
+                'name': 'get_tank_status',
+                'description': 'Get current status of all tanks including inventory levels',
+                'category': 'inventory'
+            },
+            {
+                'name': 'update_tank_inventory',
+                'description': 'Update inventory levels for specific tanks',
+                'category': 'inventory'
+            },
+            {
+                'name': 'get_vessel_schedule',
+                'description': 'Get vessel arrival schedules and cargo information',
+                'category': 'vessels'
+            },
+            {
+                'name': 'modify_vessel_arrival',
+                'description': 'Modify vessel arrival dates and cargo details',
+                'category': 'vessels'
+            },
+            {
+                'name': 'get_production_metrics',
+                'description': 'Get production rates and efficiency metrics',
+                'category': 'production'
+            },
+            {
+                'name': 'get_crude_information',
+                'description': 'Get information about crude oil types and properties',
+                'category': 'crude'
+            },
+            {
+                'name': 'get_blending_recipes',
+                'description': 'Get blending recipes and component ratios',
+                'category': 'blending'
+            },
+            {
+                'name': 'run_schedule_optimization',
+                'description': 'Run schedule optimization for maximum throughput or margin',
+                'category': 'optimization'
+            },
+            {
+                'name': 'run_vessel_optimization',
+                'description': 'Optimize vessel arrival schedules',
+                'category': 'optimization'
+            },
+            {
+                'name': 'analyze_inventory_trends',
+                'description': 'Analyze inventory trends and predict future levels',
+                'category': 'analysis'
+            },
+            {
+                'name': 'get_feedstock_requirements',
+                'description': 'Get feedstock requirements for production planning',
+                'category': 'feedstock'
+            },
+            {
+                'name': 'generate_system_summary',
+                'description': 'Generate comprehensive system status summary',
+                'category': 'reporting'
+            }
+        ]
+        
+        return jsonify({
+            'functions': functions,
+            'total_count': len(functions),
+            'categories': ['inventory', 'vessels', 'production', 'crude', 'blending', 'optimization', 'analysis', 'feedstock', 'reporting']
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to get functions: {str(e)}'}), 500
+
+@app.route('/api/chat/health', methods=['GET'])
+def chat_health_check():
+    """Health check for chat/LLM functionality."""
+    try:
+        # Test database connection
+        db_status = db.get_all_tanks() is not None
+        
+        # Test OpenAI API key
+        import openai
+        openai_status = bool(os.getenv('OPENAI_API_KEY'))
+        
+        return jsonify({
+            'status': 'healthy' if db_status and openai_status else 'unhealthy',
+            'database_connected': db_status,
+            'openai_configured': openai_status,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 # ==============================================================================
 # ERROR HANDLERS
