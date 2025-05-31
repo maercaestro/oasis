@@ -12,13 +12,14 @@ import os
 import json
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import logging
+import traceback
 
 # Import existing scheduler components
-from scheduler import (
-    Scheduler, VesselOptimizer, SchedulerOptimizer, 
-    Tank, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement, DailyPlan
-)
-from scheduler.models import BlendingRecipe
+from scheduler.scheduler import Scheduler
+from scheduler.vessel_optimizer import VesselOptimizer
+from scheduler.optimizer import SchedulerOptimizer
+from scheduler.models import Tank, Vessel, Crude, Route, FeedstockParcel, FeedstockRequirement, DailyPlan, BlendingRecipe
 
 # Import new database components
 from database.extended_ops import DatabaseManagerExtended
@@ -28,6 +29,13 @@ from llm_functions import OASISLLMFunctions
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# Configure logging for API
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+)
+api_logger = logging.getLogger("api")
 
 # Initialize database
 DB_PATH = os.path.join(os.path.dirname(__file__), "oasis.db")
@@ -70,11 +78,24 @@ def get_all_data():
         for idx, recipe in enumerate(recipes_data):
             recipes_dict[str(idx)] = recipe
         
+        # Load schedule data if available
+        schedule_data = []
+        schedule_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+        try:
+            with open(schedule_path, 'r') as f:
+                schedule_json = json.load(f)
+                # Extract the daily_plans array from the nested structure
+                schedule_data = schedule_json.get('daily_plans', [])
+        except (FileNotFoundError, json.JSONDecodeError):
+            print(f"No schedule data found at {schedule_path}")
+            pass
+        
         return jsonify({
             'tanks': tanks_data,
             'vessels': vessels_data,
             'crudes': crudes_data,
             'recipes': recipes_dict,
+            'schedule': schedule_data,
             'timestamp': datetime.now().isoformat(),
             'source': 'database'
         })
@@ -407,103 +428,100 @@ def run_scheduler():
 def optimize_schedule():
     """Run schedule optimizer with database data."""
     try:
+        api_logger.info("/api/optimizer/optimize endpoint called")
         data = request.get_json() or {}
         horizon_days = data.get('days', 30)
         objective = data.get('objective', 'margin')  # 'margin' or 'throughput'
-        
-        print(f"Starting schedule optimization for {horizon_days} days with objective: {objective}")
-        
+        api_logger.info(f"Optimization request: days={horizon_days}, objective={objective}")
         # Load data from database
         crudes = load_crudes_from_db()
         recipes = load_recipes_from_db()
-        
         # Check if we have an existing schedule to optimize
         current_schedule = data.get('schedule', [])
+        from scheduler.models import DailyPlan
+        schedule_objects = []
+        tanks_db = load_tanks_from_db()
+        # Load vessels from database for inventory arrivals
+        vessels = load_vessels_from_db()
         if not current_schedule:
-            # If no schedule provided, we need to generate one first using the scheduler
-            print("No existing schedule provided, running scheduler first...")
-            tanks = load_tanks_from_db()
-            vessels = load_vessels_from_db()
-            
-            scheduler = Scheduler(
-                tanks=tanks,
-                blending_recipes=recipes,
-                vessels=vessels,
-                crude_data=crudes,
-                max_processing_rate=100
-            )
-            
-            # Generate initial schedule
-            initial_schedule_json = scheduler.run(horizon_days, save_output=False)
-            
-            # Convert JSON schedule to DailyPlan objects for optimization
-            from scheduler.models import DailyPlan
-            schedule_objects = []
-            for day_data in initial_schedule_json:
-                plan = DailyPlan(
-                    day=day_data['day'],
-                    processing_rates=day_data.get('processing_rates', {}),
-                    blending_details=recipes, # Use all available recipes
-                    inventory=day_data.get('inventory', 0),
-                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
-                    tanks={}  # Simplified for optimization
-                )
-                schedule_objects.append(plan)
-            
-            current_schedule = schedule_objects
+            api_logger.warning("No schedule provided in request payload")
+            return jsonify({'error': 'No schedule provided'}), 400
         else:
-            # Convert provided schedule from JSON to DailyPlan objects
-            from scheduler.models import DailyPlan
-            schedule_objects = []
-            for day_data in current_schedule:
-                plan = DailyPlan(
-                    day=day_data['day'],
-                    processing_rates=day_data.get('processing_rates', {}),
-                    blending_details=recipes,
-                    inventory=day_data.get('inventory', 0),
-                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
-                    tanks=day_data.get('tanks', {})
-                )
-                schedule_objects.append(plan)
-            
-            current_schedule = schedule_objects
-        
+            # Convert JSON schedule to DailyPlan objects, reconstructing Tank objects
+            for day in current_schedule:
+                tanks_dict = {}
+                for tank_name, tank_info in day.get('tanks', {}).items():
+                    if isinstance(tank_info, Tank):
+                        tanks_dict[tank_name] = tank_info
+                    else:
+                        tanks_dict[tank_name] = Tank(
+                            name=tank_info.get('name', tank_name),
+                            capacity=tank_info.get('capacity', 0),
+                            content=tank_info.get('content', [])
+                        )
+                schedule_objects.append(DailyPlan(
+                    day=day.get('day'),
+                    processing_rates=day.get('processing_rates', {}),
+                    blending_details=day.get('blending_details', []),
+                    inventory=day.get('inventory', 0),
+                    inventory_by_grade=day.get('inventory_by_grade', {}),
+                    daily_margin=day.get('daily_margin', 0),
+                    tanks=tanks_dict
+                ))
         # Create optimizer
         optimizer = SchedulerOptimizer(
             blending_recipes=recipes,
             crude_data=crudes,
             max_processing_rate=100
         )
-        
-        # Run optimization based on objective
+        api_logger.info(f"Starting optimization: {objective} for {len(schedule_objects)} days (with vessels)")
+        # Run optimization based on objective, now passing vessels
         if objective == 'throughput':
-            optimized_schedule = optimizer.optimize_throughput(current_schedule)
+            optimized_schedule = optimizer.optimize_throughput(schedule_objects, vessels=vessels)
         else:
-            optimized_schedule = optimizer.optimize_margin(current_schedule)
-        
+            optimized_schedule = optimizer.optimize_margin(schedule_objects, vessels=vessels)
+        api_logger.info(f"Optimization complete. Days in optimized schedule: {len(optimized_schedule)}")
         # Convert optimized schedule back to JSON format
         result = []
         for plan in optimized_schedule:
-            plan_json = {
-                "day": plan.day,
-                "processing_rates": plan.processing_rates,
-                "inventory": plan.inventory,
-                "inventory_by_grade": plan.inventory_by_grade,
-                "blending_details": [
-                    {
-                        "name": recipe.name,
-                        "primary_grade": recipe.primary_grade,
-                        "secondary_grade": recipe.secondary_grade,
-                        "max_rate": recipe.max_rate,
-                        "primary_fraction": recipe.primary_fraction,
-                        "margin": getattr(recipe, 'margin', 0)
-                    }
-                    for recipe in plan.blending_details
-                ],
-                "tanks": {}  # Simplified
-            }
-            result.append(plan_json)
-        
+            plan_dict = plan.to_dict() if hasattr(plan, 'to_dict') else dict(plan.__dict__)
+            # Always include margin as a float, fallback to 0.0 if missing
+            plan_dict['margin'] = float(getattr(plan, 'daily_margin', plan_dict.get('margin', 0.0)))
+            # --- SERIALIZE blending_details to dicts if needed ---
+            if 'blending_details' in plan_dict and plan_dict['blending_details']:
+                plan_dict['blending_details'] = [
+                    bd if isinstance(bd, dict) else {
+                        'name': bd.name,
+                        'primary_grade': bd.primary_grade,
+                        'secondary_grade': bd.secondary_grade,
+                        'primary_fraction': bd.primary_fraction,
+                        'max_rate': bd.max_rate
+                    } for bd in plan_dict['blending_details']
+                ]
+            # --- SERIALIZE tanks to dicts if needed ---
+            if 'tanks' in plan_dict and plan_dict['tanks']:
+                tanks_json = {}
+                for tank_name, tank in plan_dict['tanks'].items():
+                    if isinstance(tank, dict):
+                        tanks_json[tank_name] = tank
+                    else:
+                        tanks_json[tank_name] = {
+                            'name': tank.name,
+                            'capacity': tank.capacity,
+                            'content': tank.content
+                        }
+                plan_dict['tanks'] = tanks_json
+            result.append(plan_dict)
+        # --- AUTO-SAVE optimized schedule to schedule_results.json ---
+        try:
+            output_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump({"daily_plans": result}, f, indent=2)
+            api_logger.info(f"Auto-saved optimized schedule to {output_path} ({len(result)} days)")
+        except Exception as save_exc:
+            api_logger.error(f"Failed to auto-save optimized schedule: {save_exc}")
+        # --- END AUTO-SAVE ---
         return jsonify({
             'success': True,
             'schedule': result,
@@ -512,11 +530,10 @@ def optimize_schedule():
             'timestamp': datetime.now().isoformat(),
             'source': 'database_optimizer'
         })
-        
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': f'Schedule optimization failed: {str(e)}'}), 500
+        api_logger.error(f"Exception in /api/optimizer/optimize: {str(e)}")
+        api_logger.error(traceback.format_exc())
+        return jsonify({'error': f'Exception during optimization: {str(e)}'}), 500
 
 @app.route('/api/vessel-optimizer/optimize', methods=['POST'])
 def optimize_vessels():
@@ -885,6 +902,41 @@ def chat_health_check():
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Endpoint not found'}), 404
+
+@app.route('/api/save-schedule', methods=['POST'])
+def save_schedule():
+    """Save modified schedule data to JSON file."""
+    try:
+        data = request.get_json()
+        schedule = data.get('schedule', [])
+        
+        if not schedule:
+            return jsonify({"success": False, "error": "No schedule data provided"}), 400
+        
+        # Save to schedule_results.json (maintaining the daily_plans wrapper structure)
+        output_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Wrap the schedule in daily_plans to maintain consistency with scheduler output format
+        schedule_data = {"daily_plans": schedule}
+        
+        with open(output_path, 'w') as f:
+            json.dump(schedule_data, f, indent=2)
+        
+        print(f"Schedule saved successfully to {output_path} with {len(schedule)} days")
+        
+        return jsonify({
+            "success": True, 
+            "message": "Schedule saved successfully",
+            "days_saved": len(schedule)
+        })
+        
+    except Exception as e:
+        print(f"Error saving schedule: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to save schedule: {str(e)}"
+        }), 500
 
 @app.errorhandler(500)
 def internal_error(error):

@@ -136,7 +136,7 @@ class OASISLLMFunctions:
                 "type": "function",
                 "function": {
                     "name": "get_production_metrics",
-                    "description": "Get production metrics, throughput, and margin analysis",
+                    "description": "Get production metrics, throughput, margin analysis, and day-specific details from actual schedule data",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -148,6 +148,10 @@ class OASISLLMFunctions:
                                 "type": "string",
                                 "enum": ["throughput", "margin", "inventory", "all"],
                                 "description": "Type of metrics to retrieve"
+                            },
+                            "specific_day": {
+                                "type": "number",
+                                "description": "Optional: Get detailed analysis for a specific day (0-indexed)"
                             }
                         }
                     }
@@ -180,6 +184,27 @@ class OASISLLMFunctions:
                             "recipe_name": {
                                 "type": "string",
                                 "description": "Optional: specific recipe name to query"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "analyze_schedule_performance",
+                    "description": "Comprehensive analysis of schedule performance including multi-recipe operations and transitions",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "analysis_type": {
+                                "type": "string",
+                                "enum": ["transitions", "multi_recipe", "efficiency", "all"],
+                                "description": "Type of schedule analysis to perform"
+                            },
+                            "days": {
+                                "type": "number",
+                                "description": "Number of days to analyze (default: 30)"
                             }
                         }
                     }
@@ -308,6 +333,8 @@ class OASISLLMFunctions:
                 return self._get_crude_information(**arguments)
             elif function_name == "get_blending_recipes":
                 return self._get_blending_recipes(**arguments)
+            elif function_name == "analyze_schedule_performance":
+                return self._analyze_schedule_performance(**arguments)
             elif function_name == "run_schedule_optimization":
                 return self._run_schedule_optimization(**arguments)
             elif function_name == "run_vessel_optimization":
@@ -410,43 +437,48 @@ class OASISLLMFunctions:
         }
     
     # Production Metrics
-    def _get_production_metrics(self, days: int = 30, metric_type: str = "all") -> Dict[str, Any]:
-        """Get production metrics."""
-        # This would analyze daily plans and schedules
-        # For now, providing structured placeholder data
-        
-        metrics = {}
-        
-        if metric_type in ["throughput", "all"]:
-            metrics["throughput"] = {
-                "average_daily_throughput": 85.5,
-                "peak_throughput": 96.0,
-                "capacity_utilization": 87.2,
-                "days_analyzed": days
-            }
-        
-        if metric_type in ["margin", "all"]:
-            metrics["margin"] = {
-                "total_margin": 1245000,
-                "average_daily_margin": 41500,
-                "margin_per_barrel": 15.75,
-                "best_performing_crude": "Grade C"
-            }
-        
-        if metric_type in ["inventory", "all"]:
-            tanks = self.db.get_all_tanks()
-            total_inventory = sum(
-                sum(sum(content.values()) for content in t['content']) 
-                for t in tanks.values()
-            )
+    def _get_production_metrics(self, days: int = 30, metric_type: str = "all", specific_day: Optional[int] = None) -> Dict[str, Any]:
+        """Get production metrics from actual schedule data."""
+        try:
+            schedule_data = self._load_schedule_results()
+            if not schedule_data:
+                return {"error": "Schedule results not found"}
             
-            metrics["inventory"] = {
-                "current_total_inventory": total_inventory,
-                "days_of_supply": total_inventory / 85.5 if total_inventory > 0 else 0,
-                "inventory_by_grade": self._calculate_inventory_by_grade(tanks)
+            daily_plans = schedule_data.get('daily_plans', [])
+            
+            # If specific day requested, return detailed day analysis
+            if specific_day is not None:
+                return self._analyze_specific_day(daily_plans, specific_day)
+            
+            # Analyze the requested number of days
+            analyzed_days = daily_plans[:days] if len(daily_plans) >= days else daily_plans
+            
+            metrics = {}
+            
+            if metric_type in ["throughput", "all"]:
+                throughput_data = self._analyze_throughput(analyzed_days)
+                metrics["throughput"] = throughput_data
+            
+            if metric_type in ["margin", "all"]:
+                margin_data = self._analyze_margins(analyzed_days)
+                metrics["margin"] = margin_data
+            
+            if metric_type in ["inventory", "all"]:
+                inventory_data = self._analyze_inventory_trends(analyzed_days)
+                metrics["inventory"] = inventory_data
+            
+            if metric_type == "all":
+                metrics["multi_recipe_analysis"] = self._analyze_multi_recipe_operations(analyzed_days)
+                metrics["recipe_transitions"] = self._analyze_recipe_transitions(analyzed_days)
+            
+            return {
+                "metrics": metrics, 
+                "days_analyzed": len(analyzed_days),
+                "timestamp": datetime.now().isoformat()
             }
-        
-        return {"metrics": metrics, "timestamp": datetime.now().isoformat()}
+            
+        except Exception as e:
+            return {"error": f"Failed to analyze production metrics: {str(e)}"}
     
     def _calculate_inventory_by_grade(self, tanks: Dict) -> Dict[str, float]:
         """Calculate inventory levels by crude grade."""
@@ -767,6 +799,413 @@ class OASISLLMFunctions:
         
         return recipes
     
+    def _load_schedule_results(self) -> Optional[Dict]:
+        """Load schedule results from JSON file."""
+        try:
+            schedule_path = os.path.join(os.path.dirname(__file__), 'output', 'schedule_results.json')
+            if os.path.exists(schedule_path):
+                with open(schedule_path, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            print(f"Failed to load schedule results: {e}")
+        return None
+    
+    def _analyze_specific_day(self, daily_plans: List[Dict], day: int) -> Dict[str, Any]:
+        """Provide detailed analysis for a specific day."""
+        if day >= len(daily_plans):
+            return {"error": f"Day {day} not found in schedule data"}
+        
+        day_data = daily_plans[day]
+        
+        analysis = {
+            "day": day,
+            "processing_rates": day_data.get('processing_rates', {}),
+            "total_throughput": sum(day_data.get('processing_rates', {}).values()),
+            "inventory": {
+                "total": day_data.get('inventory', 0),
+                "by_grade": day_data.get('inventory_by_grade', {})
+            },
+            "blending_details": day_data.get('blending_details', []),
+            "tank_status": day_data.get('tanks', {}),
+            "multi_recipe_operation": len(day_data.get('processing_rates', {})) > 1
+        }
+        
+        # Add recipe analysis
+        if day_data.get('blending_details'):
+            analysis["recipe_analysis"] = []
+            for recipe in day_data.get('blending_details', []):
+                recipe_info = {
+                    "recipe_name": recipe.get('name'),
+                    "primary_grade": recipe.get('primary_grade'),
+                    "secondary_grade": recipe.get('secondary_grade'),
+                    "primary_fraction": recipe.get('primary_fraction'),
+                    "max_rate": recipe.get('max_rate'),
+                    "actual_rate": day_data.get('processing_rates', {}).get(recipe.get('name'), 0)
+                }
+                analysis["recipe_analysis"].append(recipe_info)
+        
+        # Calculate utilization
+        plant_capacity = 95.0  # From plant.json
+        analysis["capacity_utilization"] = (analysis["total_throughput"] / plant_capacity * 100) if plant_capacity > 0 else 0
+        
+        return analysis
+    
+    def _analyze_throughput(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Analyze throughput metrics from daily plans."""
+        total_throughputs = []
+        recipe_usage = {}
+        multi_recipe_days = 0
+        
+        for day_data in daily_plans:
+            processing_rates = day_data.get('processing_rates', {})
+            daily_throughput = sum(processing_rates.values())
+            total_throughputs.append(daily_throughput)
+            
+            # Track recipe usage
+            for recipe_id, rate in processing_rates.items():
+                if recipe_id not in recipe_usage:
+                    recipe_usage[recipe_id] = []
+                recipe_usage[recipe_id].append(rate)
+            
+            # Count multi-recipe days
+            if len(processing_rates) > 1:
+                multi_recipe_days += 1
+        
+        plant_capacity = 95.0  # From plant.json
+        
+        return {
+            "average_daily_throughput": sum(total_throughputs) / len(total_throughputs) if total_throughputs else 0,
+            "peak_throughput": max(total_throughputs) if total_throughputs else 0,
+            "minimum_throughput": min(total_throughputs) if total_throughputs else 0,
+            "capacity_utilization": (sum(total_throughputs) / len(total_throughputs) / plant_capacity * 100) if total_throughputs else 0,
+            "recipe_usage_summary": {recipe: {
+                "days_active": len(rates),
+                "average_rate": sum(rates) / len(rates),
+                "max_rate": max(rates),
+                "total_volume": sum(rates)
+            } for recipe, rates in recipe_usage.items()},
+            "multi_recipe_days": multi_recipe_days,
+            "multi_recipe_percentage": (multi_recipe_days / len(daily_plans) * 100) if daily_plans else 0
+        }
+    
+    def _analyze_margins(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Analyze margin data from daily plans."""
+        # For now, calculate estimated margins based on crude grades
+        # This would need actual pricing data in a real implementation
+        
+        crude_margins = {
+            "Base": 18.50,
+            "A": 22.75,
+            "B": 19.25,
+            "C": 16.80,
+            "D": 21.10
+        }
+        
+        total_margin = 0
+        daily_margins = []
+        
+        for day_data in daily_plans:
+            day_margin = 0
+            blending_details = day_data.get('blending_details', [])
+            processing_rates = day_data.get('processing_rates', {})
+            
+            for recipe in blending_details:
+                recipe_name = recipe.get('name')
+                rate = processing_rates.get(recipe_name, 0)
+                
+                # Calculate weighted margin based on blend composition
+                primary_grade = recipe.get('primary_grade')
+                secondary_grade = recipe.get('secondary_grade') 
+                primary_fraction = recipe.get('primary_fraction', 0.5)
+                
+                if primary_grade and secondary_grade:
+                    weighted_margin = (
+                        crude_margins.get(primary_grade, 0) * primary_fraction +
+                        crude_margins.get(secondary_grade, 0) * (1 - primary_fraction)
+                    )
+                    day_margin += rate * weighted_margin
+            
+            daily_margins.append(day_margin)
+            total_margin += day_margin
+        
+        return {
+            "total_margin": total_margin,
+            "average_daily_margin": total_margin / len(daily_plans) if daily_plans else 0,
+            "best_day_margin": max(daily_margins) if daily_margins else 0,
+            "worst_day_margin": min(daily_margins) if daily_margins else 0,
+            "margin_trend": "increasing" if len(daily_margins) > 1 and daily_margins[-1] > daily_margins[0] else "stable"
+        }
+    
+    def _analyze_inventory_trends(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Analyze inventory trends from daily plans."""
+        inventory_levels = []
+        grade_trends = {}
+        
+        for day_data in daily_plans:
+            total_inventory = day_data.get('inventory', 0)
+            inventory_levels.append(total_inventory)
+            
+            inventory_by_grade = day_data.get('inventory_by_grade', {})
+            for grade, volume in inventory_by_grade.items():
+                if grade not in grade_trends:
+                    grade_trends[grade] = []
+                grade_trends[grade].append(volume)
+        
+        # Calculate trends
+        grade_analysis = {}
+        for grade, levels in grade_trends.items():
+            if len(levels) > 1:
+                trend = "increasing" if levels[-1] > levels[0] else "decreasing" if levels[-1] < levels[0] else "stable"
+                consumption_rate = (levels[0] - levels[-1]) / len(levels) if levels[0] > 0 else 0
+            else:
+                trend = "stable"
+                consumption_rate = 0
+            
+            grade_analysis[grade] = {
+                "current_level": levels[-1] if levels else 0,
+                "initial_level": levels[0] if levels else 0,
+                "trend": trend,
+                "average_consumption_rate": consumption_rate,
+                "days_of_supply": levels[-1] / consumption_rate if consumption_rate > 0 else float('inf')
+            }
+        
+        return {
+            "current_total_inventory": inventory_levels[-1] if inventory_levels else 0,
+            "initial_inventory": inventory_levels[0] if inventory_levels else 0,
+            "inventory_trend": "increasing" if len(inventory_levels) > 1 and inventory_levels[-1] > inventory_levels[0] else "decreasing" if len(inventory_levels) > 1 and inventory_levels[-1] < inventory_levels[0] else "stable",
+            "average_daily_consumption": (inventory_levels[0] - inventory_levels[-1]) / len(inventory_levels) if len(inventory_levels) > 1 else 0,
+            "grade_analysis": grade_analysis
+        }
+    
+    def _analyze_multi_recipe_operations(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Analyze multi-recipe operations in the schedule."""
+        multi_recipe_days = []
+        transition_patterns = []
+        
+        for i, day_data in enumerate(daily_plans):
+            processing_rates = day_data.get('processing_rates', {})
+            
+            if len(processing_rates) > 1:
+                multi_recipe_days.append({
+                    "day": i,
+                    "recipes": list(processing_rates.keys()),
+                    "rates": processing_rates,
+                    "total_throughput": sum(processing_rates.values())
+                })
+        
+        # Analyze transition patterns
+        prev_recipes = set()
+        for i, day_data in enumerate(daily_plans):
+            current_recipes = set(day_data.get('processing_rates', {}).keys())
+            
+            if prev_recipes and current_recipes != prev_recipes:
+                transition_patterns.append({
+                    "day": i,
+                    "from_recipes": list(prev_recipes),
+                    "to_recipes": list(current_recipes),
+                    "transition_type": "addition" if current_recipes.issuperset(prev_recipes) else "switch"
+                })
+            
+            prev_recipes = current_recipes
+        
+        return {
+            "multi_recipe_days_count": len(multi_recipe_days),
+            "multi_recipe_percentage": (len(multi_recipe_days) / len(daily_plans) * 100) if daily_plans else 0,
+            "multi_recipe_details": multi_recipe_days,
+            "transition_count": len(transition_patterns),
+            "transition_patterns": transition_patterns,
+            "average_recipes_per_transition_day": sum(len(day["recipes"]) for day in multi_recipe_days) / len(multi_recipe_days) if multi_recipe_days else 0
+        }
+    
+    def _analyze_recipe_transitions(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Analyze recipe transition efficiency and patterns."""
+        recipe_changes = []
+        recipe_stability = {}
+        
+        prev_active_recipes = set()
+        
+        for i, day_data in enumerate(daily_plans):
+            current_recipes = set(day_data.get('processing_rates', {}).keys())
+            
+            if i > 0 and current_recipes != prev_active_recipes:
+                recipe_changes.append({
+                    "day": i,
+                    "added_recipes": list(current_recipes - prev_active_recipes),
+                    "removed_recipes": list(prev_active_recipes - current_recipes),
+                    "continued_recipes": list(current_recipes & prev_active_recipes)
+                })
+            
+            # Track recipe stability (consecutive days)
+            for recipe in current_recipes:
+                if recipe not in recipe_stability:
+                    recipe_stability[recipe] = {"runs": [], "current_run": 0}
+                recipe_stability[recipe]["current_run"] += 1
+            
+            # End runs for recipes not active today
+            for recipe in recipe_stability:
+                if recipe not in current_recipes and recipe_stability[recipe]["current_run"] > 0:
+                    recipe_stability[recipe]["runs"].append(recipe_stability[recipe]["current_run"])
+                    recipe_stability[recipe]["current_run"] = 0
+            
+            prev_active_recipes = current_recipes
+        
+        # Finalize current runs
+        for recipe in recipe_stability:
+            if recipe_stability[recipe]["current_run"] > 0:
+                recipe_stability[recipe]["runs"].append(recipe_stability[recipe]["current_run"])
+        
+        # Calculate stability metrics
+        stability_analysis = {}
+        for recipe, data in recipe_stability.items():
+            runs = data["runs"]
+            if runs:
+                stability_analysis[recipe] = {
+                    "total_runs": len(runs),
+                    "average_run_length": sum(runs) / len(runs),
+                    "longest_run": max(runs),
+                    "shortest_run": min(runs),
+                    "total_active_days": sum(runs)
+                }
+        
+        return {
+            "total_recipe_changes": len(recipe_changes),
+            "recipe_change_frequency": len(recipe_changes) / len(daily_plans) if daily_plans else 0,
+            "recipe_changes": recipe_changes,
+            "recipe_stability_analysis": stability_analysis,
+            "most_stable_recipe": max(stability_analysis.keys(), key=lambda r: stability_analysis[r]["average_run_length"]) if stability_analysis else None
+        }
+    
+    def _analyze_schedule_performance(self, analysis_type: str = "all", days: int = 30) -> Dict[str, Any]:
+        """Comprehensive schedule performance analysis."""
+        try:
+            schedule_data = self._load_schedule_results()
+            if not schedule_data:
+                return {"error": "Schedule results not found"}
+            
+            daily_plans = schedule_data.get('daily_plans', [])
+            analyzed_days = daily_plans[:days] if len(daily_plans) >= days else daily_plans
+            
+            analysis = {}
+            
+            if analysis_type in ["transitions", "all"]:
+                analysis["transitions"] = self._analyze_recipe_transitions(analyzed_days)
+            
+            if analysis_type in ["multi_recipe", "all"]:
+                analysis["multi_recipe"] = self._analyze_multi_recipe_operations(analyzed_days)
+            
+            if analysis_type in ["efficiency", "all"]:
+                analysis["efficiency"] = self._calculate_efficiency_metrics(analyzed_days)
+            
+            if analysis_type == "all":
+                analysis["summary"] = self._generate_performance_summary(analyzed_days)
+            
+            return {
+                "analysis": analysis,
+                "days_analyzed": len(analyzed_days),
+                "analysis_type": analysis_type,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to analyze schedule performance: {str(e)}"}
+    
+    def _calculate_efficiency_metrics(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Calculate operational efficiency metrics."""
+        plant_capacity = 95.0
+        utilization_rates = []
+        recipe_efficiency = {}
+        
+        for day_data in daily_plans:
+            processing_rates = day_data.get('processing_rates', {})
+            daily_throughput = sum(processing_rates.values())
+            utilization = (daily_throughput / plant_capacity * 100) if plant_capacity > 0 else 0
+            utilization_rates.append(utilization)
+            
+            # Track recipe efficiency
+            blending_details = day_data.get('blending_details', [])
+            for recipe in blending_details:
+                recipe_name = recipe.get('name')
+                max_rate = recipe.get('max_rate', 0)
+                actual_rate = processing_rates.get(recipe_name, 0)
+                
+                if recipe_name not in recipe_efficiency:
+                    recipe_efficiency[recipe_name] = []
+                
+                efficiency = (actual_rate / max_rate * 100) if max_rate > 0 else 0
+                recipe_efficiency[recipe_name].append(efficiency)
+        
+        # Calculate recipe efficiency summaries
+        recipe_summaries = {}
+        for recipe, efficiencies in recipe_efficiency.items():
+            recipe_summaries[recipe] = {
+                "average_efficiency": sum(efficiencies) / len(efficiencies) if efficiencies else 0,
+                "peak_efficiency": max(efficiencies) if efficiencies else 0,
+                "days_active": len(efficiencies),
+                "efficiency_variance": max(efficiencies) - min(efficiencies) if len(efficiencies) > 1 else 0
+            }
+        
+        return {
+            "plant_utilization": {
+                "average": sum(utilization_rates) / len(utilization_rates) if utilization_rates else 0,
+                "peak": max(utilization_rates) if utilization_rates else 0,
+                "minimum": min(utilization_rates) if utilization_rates else 0,
+                "days_at_full_capacity": sum(1 for u in utilization_rates if u >= 99.0)
+            },
+            "recipe_efficiency": recipe_summaries,
+            "overall_efficiency_score": sum(utilization_rates) / len(utilization_rates) if utilization_rates else 0
+        }
+    
+    def _generate_performance_summary(self, daily_plans: List[Dict]) -> Dict[str, Any]:
+        """Generate overall performance summary."""
+        total_days = len(daily_plans)
+        
+        # Count various operational patterns
+        production_days = sum(1 for day in daily_plans if day.get('processing_rates'))
+        multi_recipe_days = sum(1 for day in daily_plans if len(day.get('processing_rates', {})) > 1)
+        recipe_changes = 0
+        
+        prev_recipes = set()
+        for day_data in daily_plans:
+            current_recipes = set(day_data.get('processing_rates', {}).keys())
+            if prev_recipes and current_recipes != prev_recipes:
+                recipe_changes += 1
+            prev_recipes = current_recipes
+        
+        # Calculate total production
+        total_production = sum(
+            sum(day.get('processing_rates', {}).values()) 
+            for day in daily_plans
+        )
+        
+        # Identify most used recipes
+        recipe_usage = {}
+        for day_data in daily_plans:
+            for recipe_id, rate in day_data.get('processing_rates', {}).items():
+                recipe_usage[recipe_id] = recipe_usage.get(recipe_id, 0) + rate
+        
+        most_used_recipe = max(recipe_usage.keys(), key=recipe_usage.get) if recipe_usage else None
+        
+        return {
+            "operational_summary": {
+                "total_days_analyzed": total_days,
+                "production_days": production_days,
+                "idle_days": total_days - production_days,
+                "multi_recipe_days": multi_recipe_days,
+                "recipe_changes": recipe_changes
+            },
+            "production_summary": {
+                "total_production": total_production,
+                "average_daily_production": total_production / total_days if total_days > 0 else 0,
+                "most_used_recipe": most_used_recipe,
+                "total_volume_by_recipe": recipe_usage
+            },
+            "flexibility_metrics": {
+                "multi_recipe_capability": (multi_recipe_days / total_days * 100) if total_days > 0 else 0,
+                "recipe_change_frequency": (recipe_changes / total_days * 100) if total_days > 0 else 0,
+                "unique_recipes_used": len(recipe_usage)
+            }
+        }
+
     def process_chat_message_stream(self, message: str, conversation_history: List[Dict] = None):
         """Process a chat message using OpenAI streaming function calling."""
         import json

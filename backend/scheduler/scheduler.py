@@ -46,8 +46,12 @@ class Scheduler:
         self.blending_recipes = blending_recipes
         self.vessels = vessels
         self.crude_data = crude_data
-        self.max_processing_rate = max_processing_rate  # Keep as fallback
+        self.max_processing_rate = max_processing_rate  # Plant's daily capacity (e.g., 95 kb/day from plant.json)
         self.daily_plans = {}  # Dictionary with day (int) as key and DailyPlan as value
+        
+        # Track recipe status for transition logic
+        self.current_active_recipes = {}  # {recipe_name: days_running}
+        self.recipe_transition_threshold = 2  # Allow multi-recipe only if switching recipes within N days
         
     # Enhanced run method with better error handling and automatic output saving
     def run(self, days: int, save_output: bool = True, output_dir: str = None) -> List[Dict]:
@@ -96,24 +100,15 @@ class Scheduler:
                                 current_inventory[grade] = volume
 
                 # Pass both parameters to _select_blends
-                blend_dict = self._select_blends(day, current_inventory)
+                selected_recipes = self._select_blends(day, current_inventory)
+                if selected_recipes is None:
+                    selected_recipes = {}
 
-                # Convert dictionary to expected list of tuples format
-                optimal_blends = []
-                for recipe_id, rate in blend_dict.items():
-                    try:
-                        # Convert string ID to integer index if needed
-                        idx = int(recipe_id) if recipe_id.isdigit() else 0
-                        if idx < len(self.blending_recipes):
-                            recipe = self.blending_recipes[idx]
-                            # Estimate margin (simplified)
-                            margin = 10.0  # Default margin if not calculated
-                            optimal_blends.append((recipe, margin, rate))
-                    except Exception as e:
-                        print(f"Error converting blend {recipe_id}: {e}")
-                
                 # Create daily plan and update tank inventory
-                self._create_daily_plan(day, optimal_blends)
+                self._create_daily_plan(day, selected_recipes)
+                
+                # Update active recipes tracking for transition detection
+                self.current_active_recipes = {name: rate for name, rate in selected_recipes.items() if rate > 0.1}
                 
             # Save output if requested (default is True)
             output_files = {}
@@ -145,16 +140,7 @@ class Scheduler:
                     "inventory": plan.inventory,
                     "inventory_by_grade": plan.inventory_by_grade,
                     "tanks": tanks_json,
-                    "blending_details": [
-                        {
-                            "name": recipe.name,
-                            "primary_grade": recipe.primary_grade,
-                            "secondary_grade": recipe.secondary_grade,
-                            "primary_fraction": recipe.primary_fraction,
-                            "max_rate": recipe.max_rate
-                        }
-                        for recipe in plan.blending_details
-                    ]
+                    "blending_details": plan.blending_details
                 }
                 
                 result.append(plan_json)
@@ -189,7 +175,7 @@ class Scheduler:
                             "inventory": plan.inventory,
                             "inventory_by_grade": plan.inventory_by_grade,
                             "tanks": tanks_json,
-                            "blending_details": []  # Simplified for error case
+                            "blending_details": getattr(plan, "blending_details", [])
                         }
                         
                         partial_results.append(plan_json)
@@ -305,7 +291,17 @@ class Scheduler:
         print(current_inventory)
     
     def _select_blends(self, day_idx: int, available_inventory: Dict[str, float]) -> Dict[str, float]:
-        """Select the optimal blend for the given day based on available inventory."""
+        """
+        Select optimal blends for the given day based on available inventory.
+        Allows multiple recipes only during transition periods between different recipes.
+        
+        Args:
+            day_idx: Current day index
+            available_inventory: Available inventory by grade
+            
+        Returns:
+            Dictionary mapping recipe names to processing rates
+        """
         try:
             # Find all possible blends
             all_possible_blends = self.blending_engine.find_optimal_blends(
@@ -323,15 +319,71 @@ class Scheduler:
             # Sort by margin (highest first)
             sorted_blends = sorted(all_possible_blends, key=lambda x: x[1], reverse=True)
             
-            # Take only the best blend (highest margin)
+            # Determine best recipe based on margin
             best_recipe, best_margin, proposed_rate = sorted_blends[0]
             
-            # Limit to recipe's max_rate
-            actual_rate = min(proposed_rate, best_recipe.max_rate)
-            print(f"Day {day_idx}: Selected recipe {best_recipe.name} at rate {actual_rate} (max: {best_recipe.max_rate})")
+            # Check if we're in a transition period
+            is_transition_period = self._is_transition_period(day_idx, best_recipe.name)
             
-            # Return only the best recipe
-            return {best_recipe.name: actual_rate}
+            if is_transition_period and len(sorted_blends) > 1:
+                print(f"Day {day_idx}: Transition period detected - checking for compatible recipes")
+                
+                # Find compatible recipes that can actually be blended together
+                # Recipes are compatible if they share at least one crude grade
+                compatible_recipes = self._find_compatible_recipes_for_transition(sorted_blends)
+                
+                if len(compatible_recipes) > 1:
+                    print(f"Day {day_idx}: Found {len(compatible_recipes)} compatible recipes for transition")
+                    
+                    # During transition, simulate time-sharing within the day
+                    selected_recipes = {}
+                    
+                    # Use plant capacity (95 kb/day) instead of sum of recipe max rates
+                    daily_plant_capacity = self.max_processing_rate
+                    print(f"Day {day_idx}: Available daily plant capacity: {daily_plant_capacity} kb")
+                    
+                    # Allocate capacity between compatible recipes based on their relative margins
+                    total_margin = sum(recipe[1] for recipe in compatible_recipes)
+                    
+                    for i, (recipe, margin, max_possible_rate) in enumerate(compatible_recipes):
+                        # Calculate time allocation based on margin weight
+                        # Higher margin recipes get more time within the day
+                        if total_margin > 0:
+                            time_fraction = margin / total_margin
+                        else:
+                            time_fraction = 1.0 / len(compatible_recipes)  # Equal split if no margin data
+                        
+                        # Calculate allocated capacity for this recipe's time slice
+                        allocated_capacity = daily_plant_capacity * time_fraction
+                        
+                        # Respect recipe's max rate and inventory constraints
+                        actual_rate = min(recipe.max_rate, max_possible_rate, allocated_capacity)
+                        
+                        if actual_rate > 0.1:  # Only include if rate is significant
+                            selected_recipes[recipe.name] = actual_rate
+                            print(f"Day {day_idx}: Recipe {recipe.name} allocated {time_fraction:.2f} of day ({actual_rate:.1f} kb)")
+                    
+                    # Verify total doesn't exceed plant capacity
+                    total_allocated = sum(selected_recipes.values())
+                    if total_allocated > daily_plant_capacity:
+                        # Scale down proportionally if we somehow exceeded capacity
+                        scale_factor = daily_plant_capacity / total_allocated
+                        selected_recipes = {name: rate * scale_factor for name, rate in selected_recipes.items()}
+                        print(f"Day {day_idx}: Scaled down by {scale_factor:.3f} to respect plant capacity")
+                    
+                    print(f"Day {day_idx}: Total processing: {sum(selected_recipes.values()):.1f} kb (Plant capacity: {daily_plant_capacity} kb)")
+                    return selected_recipes
+                else:
+                    print(f"Day {day_idx}: No compatible recipes found for transition - using single best recipe")
+                    # Fall through to single recipe selection
+                
+            else:
+                # Normal operation - single recipe only
+                # Respect both recipe max rate and plant capacity
+                actual_rate = min(proposed_rate, best_recipe.max_rate, self.max_processing_rate)
+                print(f"Day {day_idx}: Selected single recipe {best_recipe.name} at rate {actual_rate:.1f} kb")
+                print(f"Day {day_idx}: Rate constraints - Recipe max: {best_recipe.max_rate}, Plant capacity: {self.max_processing_rate}, Inventory limit: {proposed_rate:.1f}")
+                return {best_recipe.name: actual_rate}
             
         except Exception as e:
             print(f"Error in blend selection: {e}")
@@ -339,34 +391,88 @@ class Scheduler:
             traceback.print_exc()
             return {}
     
-    def _create_daily_plan(self, day: int, optimal_blends: List[Tuple[BlendingRecipe, float, float]]) -> None:
+    def _is_transition_period(self, day_idx: int, best_recipe_name: str) -> bool:
         """
-        Create a daily plan for a single blend and update tank inventory.
+        Determine if we're in a transition period between recipes.
+        
+        Args:
+            day_idx: Current day index
+            best_recipe_name: Name of the best recipe for this day
+            
+        Returns:
+            True if we're in a transition period, False otherwise
+        """
+        # Check if we have any currently active recipes
+        if not self.current_active_recipes:
+            # No active recipes - not a transition
+            return False
+        
+        # Check if the best recipe is different from currently active recipes
+        active_recipe_names = set(self.current_active_recipes.keys())
+        
+        if best_recipe_name not in active_recipe_names:
+            # New recipe being introduced - this is a transition
+            print(f"Day {day_idx}: Recipe transition detected - switching from {active_recipe_names} to {best_recipe_name}")
+            return True
+        
+        # Check if any current recipe is nearing end (low inventory for its grades)
+        for active_recipe_name in active_recipe_names:
+            active_recipe = next((r for r in self.blending_recipes if r.name == active_recipe_name), None)
+            if active_recipe:
+                # Check inventory levels for this recipe's grades
+                primary_inventory = sum(
+                    content.get(active_recipe.primary_grade, 0) 
+                    for tank in self.tank_manager.tanks.values() 
+                    for content in tank.content
+                )
+                
+                # If primary inventory is low (less than 2 days of operation), consider it a transition
+                estimated_days_remaining = primary_inventory / (active_recipe.max_rate * active_recipe.primary_fraction)
+                if estimated_days_remaining < self.recipe_transition_threshold:
+                    print(f"Day {day_idx}: Recipe {active_recipe_name} running low on inventory - estimated {estimated_days_remaining:.1f} days remaining")
+                    return True
+        
+        return False
+    
+    def _create_daily_plan(self, day: int, selected_recipes: Dict[str, float]) -> None:
+        """
+        Create a daily plan for multiple recipes and update tank inventory.
         
         Args:
             day: Current day
-            optimal_blends: List containing the selected blend with rate
+            selected_recipes: Dictionary mapping recipe names to processing rates
         """
-        # Extract the single recipe and rate
-        processing_rates = {}
-        selected_recipe = None
+        if selected_recipes is None:
+            print(f"Day {day}: No recipes selected (selected_recipes is None). Skipping daily plan.")
+            selected_recipes = {}
         
-        if optimal_blends:
-            recipe, margin, rate = optimal_blends[0]  # Take only the first blend
-            
-            # Make sure we respect the recipe's max rate
-            rate = min(rate, recipe.max_rate)
-            
-            processing_rates[recipe.name] = rate
-            selected_recipe = recipe
-            
-            # Withdraw crude from tanks based on recipe
-            primary_volume = rate * recipe.primary_fraction
-            self._withdraw_crude(recipe.primary_grade, primary_volume)
-            
-            if recipe.secondary_grade:
-                secondary_volume = rate * (1.0 - recipe.primary_fraction)
-                self._withdraw_crude(recipe.secondary_grade, secondary_volume)
+        processing_rates = {}
+        selected_recipe_objects = []
+        
+        # Process each selected recipe
+        for recipe_name, rate in selected_recipes.items():
+            # Find the recipe object
+            recipe = next((r for r in self.blending_recipes if r.name == recipe_name), None)
+            if recipe and rate > 0:
+                # Make sure we respect the recipe's max rate
+                actual_rate = min(rate, recipe.max_rate)
+                processing_rates[recipe.name] = actual_rate
+                selected_recipe_objects.append({
+                    "name": recipe.name,
+                    "primary_grade": recipe.primary_grade,
+                    "secondary_grade": recipe.secondary_grade,
+                    "primary_fraction": recipe.primary_fraction,
+                    "max_rate": recipe.max_rate,
+                    "rate": actual_rate
+                })
+                
+                # Withdraw crude from tanks based on recipe
+                primary_volume = actual_rate * recipe.primary_fraction
+                self._withdraw_crude(recipe.primary_grade, primary_volume)
+                
+                if recipe.secondary_grade:
+                    secondary_volume = actual_rate * (1.0 - recipe.primary_fraction)
+                    self._withdraw_crude(recipe.secondary_grade, secondary_volume)
         
         # Calculate current inventory levels (keep this part the same)
         total_inventory = 0
@@ -385,7 +491,7 @@ class Scheduler:
         daily_plan = DailyPlan(
             day=day,
             processing_rates=processing_rates,
-            blending_details=[selected_recipe] if selected_recipe else [],
+            blending_details=selected_recipe_objects,
             inventory=total_inventory,
             inventory_by_grade=inventory_by_grade,
             tanks=self.tank_manager.tanks.copy()
@@ -452,16 +558,7 @@ class Scheduler:
                     "inventory": plan.inventory,
                     "inventory_by_grade": plan.inventory_by_grade,
                     "tanks": tanks_json,
-                    "blending_details": [
-                        {
-                            "name": recipe.name,
-                            "primary_grade": recipe.primary_grade,
-                            "secondary_grade": recipe.secondary_grade,
-                            "primary_fraction": recipe.primary_fraction,
-                            "max_rate": recipe.max_rate
-                        }
-                        for recipe in plan.blending_details
-                    ]
+                    "blending_details": plan.blending_details
                 }
                 
                 daily_plans_json.append(plan_json)
@@ -504,3 +601,51 @@ class Scheduler:
         
         self.daily_plans[0] = daily_plan
         print(f"Initial inventory registered: {total_inventory} total, {inventory_by_grade} by grade")
+    
+    def _find_compatible_recipes_for_transition(self, sorted_blends: List[Tuple]) -> List[Tuple]:
+        """
+        Find recipes that are compatible for simultaneous operation during transitions.
+        Recipes are compatible if they share at least one crude grade or can reasonably
+        operate together without conflicting resource requirements.
+        
+        Args:
+            sorted_blends: List of (recipe, margin, max_rate) tuples sorted by preference
+            
+        Returns:
+            List of compatible recipe tuples for transition operation
+        """
+        if not sorted_blends:
+            return []
+        
+        # Always include the best recipe
+        best_recipe, best_margin, best_rate = sorted_blends[0]
+        compatible_recipes = [sorted_blends[0]]
+        
+        # Get grades used by the best recipe
+        best_grades = {best_recipe.primary_grade}
+        if best_recipe.secondary_grade:
+            best_grades.add(best_recipe.secondary_grade)
+        
+        print(f"Best recipe {best_recipe.name} uses grades: {best_grades}")
+        
+        # Check each remaining recipe for compatibility
+        for recipe, margin, rate in sorted_blends[1:]:
+            recipe_grades = {recipe.primary_grade}
+            if recipe.secondary_grade:
+                recipe_grades.add(recipe.secondary_grade)
+            
+            print(f"Checking recipe {recipe.name} with grades: {recipe_grades}")
+            
+            # Recipes are compatible if they share at least one grade
+            # This allows for blending transitions (e.g., Base+A -> Base+B)
+            shared_grades = best_grades.intersection(recipe_grades)
+            
+            if shared_grades:
+                print(f"Recipe {recipe.name} is compatible - shared grades: {shared_grades}")
+                compatible_recipes.append((recipe, margin, rate))
+                # Only allow one additional recipe for transition to keep it simple
+                break
+            else:
+                print(f"Recipe {recipe.name} is NOT compatible - no shared grades with {best_recipe.name}")
+        
+        return compatible_recipes

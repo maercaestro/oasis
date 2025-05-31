@@ -48,10 +48,16 @@ export const ScheduleDashboardCards = ({ schedule, originalSchedule }) => {
         daysWithProcessing++;
       }
       
-      for (const [recipe, rate] of Object.entries(processingRates)) {
-        const recipeDetails = day.blending_details?.find(r => r.name === recipe);
-        if (recipeDetails && recipeDetails.margin) {
-          totalMargin += rate * recipeDetails.margin;
+      // Use the margin field if present
+      if (typeof day.margin === 'number') {
+        totalMargin += day.margin;
+      } else {
+        // fallback to old calculation if needed
+        for (const [recipe, rate] of Object.entries(processingRates)) {
+          const recipeDetails = day.blending_details?.find(r => r.name === recipe);
+          if (recipeDetails && recipeDetails.margin) {
+            totalMargin += rate * recipeDetails.margin;
+          }
         }
       }
     }
