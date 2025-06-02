@@ -40888,3 +40888,11 @@ ValueError: Invalid schedule format: 'dict' object has no attribute 'content'
 2025-06-02 11:30:49,425 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:30:49] "GET /api/data-stream HTTP/1.1" 200 -
 2025-06-02 11:31:22,444 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:31:22] "GET /api/data-stream HTTP/1.1" 200 -
 2025-06-02 11:31:55,465 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:31:55] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 20:29:22,135 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.4:5001
+2025-06-02 20:29:22,136 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-06-02 20:29:22,157 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
+2025-06-02 20:29:23,532 - werkzeug - WARNING -  * Debugger is active!
+2025-06-02 20:29:23,546 - werkzeug - INFO -  * Debugger PIN: 211-160-997

@@ -7,6 +7,9 @@ import axios from 'axios'
 import logo from '/oasis-new.png'
 import ScheduleDashboard from './components/ScheduleDashboard';
 
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 function App() {
   const [appMode, setAppMode] = useState('view')
   const [visualizationView, setVisualizationView] = useState('dailyPlan')
@@ -39,7 +42,7 @@ function App() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        const response = await axios.get('/api/data')
+        const response = await axios.get(`${API_BASE_URL}/api/data`)
         
         // Initialize with all data types, including dynamic data
         setData({
@@ -71,7 +74,7 @@ function App() {
     setIsOptimizingVessels(true);
     try {
       // Call the vessel optimizer API endpoint with use_file_requirements set to true
-      const response = await axios.post('/api/vessel-optimizer/optimize', {
+      const response = await axios.post(`${API_BASE_URL}/api/vessel-optimizer/optimize`, {
         horizon_days: 30,
         use_file_requirements: true  // This will make it use feedstock_requirements.json
       });
@@ -111,7 +114,7 @@ function App() {
     try {
       // Fix #1: Use correct URL
       // Fix #2: Send the current schedule data
-      const response = await axios.post('/api/optimizer/optimize', {
+      const response = await axios.post(`${API_BASE_URL}/api/optimizer/optimize`, {
         days: 30,
         schedule: data.schedule,  // Add the current schedule
         objective: 'margin'       // You can also specify the objective
@@ -153,7 +156,7 @@ function App() {
     setIsRunningScheduler(true);
     try {
       // Call the scheduler API endpoint
-      const response = await axios.post('/api/scheduler/run', {
+      const response = await axios.post(`${API_BASE_URL}/api/scheduler/run`, {
         days: 30,
         save_output: true,
       });
@@ -166,7 +169,7 @@ function App() {
         }));
         
         // ADD THIS: Refresh all data to get latest tank states
-        const refreshResponse = await axios.get('/api/data');
+        const refreshResponse = await axios.get(`${API_BASE_URL}/api/data`);
         setData(prev => ({
           ...prev,
           tanks: refreshResponse.data.tanks || prev.tanks,
@@ -194,7 +197,7 @@ function App() {
     try {
       console.log('🔄 Manual data refresh initiated...');
       setIsLoading(true);
-      const response = await axios.get(`/api/data?nocache=${Date.now()}`); // Cache-busting parameter
+      const response = await axios.get(`${API_BASE_URL}/api/data?nocache=${Date.now()}`); // Cache-busting parameter
       
       setData({
         schedule: response.data.schedule || [],
@@ -225,7 +228,7 @@ function App() {
     const connectToDataStream = () => {
       try {
         console.log('🔗 Connecting to real-time data stream...');
-        eventSource = new EventSource('/api/data-stream');
+        eventSource = new EventSource(`${API_BASE_URL}/api/data-stream`);
         
         eventSource.onopen = () => {
           console.log('✅ Connected to real-time data stream');
@@ -277,7 +280,7 @@ function App() {
   const refreshSpecificData = async (dataType) => {
     try {
       console.log(`🔄 Refreshing ${dataType} from API...`);
-      const response = await axios.get(`/api/data?t=${Date.now()}`); // Cache-busting parameter
+      const response = await axios.get(`${API_BASE_URL}/api/data?t=${Date.now()}`); // Cache-busting parameter
       
       // Update only the specific data type that changed
       setData(prevData => {

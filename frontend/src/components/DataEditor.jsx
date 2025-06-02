@@ -1,23 +1,28 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // Helper: Map dataType to RESTful endpoint
 const getApiEndpoint = (dataType) => {
   switch (dataType) {
     case 'tanks':
-      return '/api/data/tanks';
+      return `${API_BASE_URL}/api/data/tanks`;
     case 'vessels':
-      return '/api/data/vessels';
-    case 'crudes':
-      return '/api/data/crudes';
-    case 'recipes':
-      return '/api/data/recipes';
-    case 'routes':
-      return '/api/data/routes';
-    case 'vessel_types':
-      return '/api/data/vessel_types';
+      return `${API_BASE_URL}/api/data/vessels`;
+    case 'feedstock_parcels':
+      return `${API_BASE_URL}/api/data/feedstock_parcels`;
+    case 'feedstock_requirements':
+      return `${API_BASE_URL}/api/data/feedstock_requirements`;
     case 'plants':
-      return '/api/data/plants';
+      return `${API_BASE_URL}/api/data/plants`;
+    case 'crudes':
+      return `${API_BASE_URL}/api/data/crudes`;
+    case 'recipes':
+      return `${API_BASE_URL}/api/data/recipes`;
+    case 'routes':
+      return `${API_BASE_URL}/api/data/routes`;
+    case 'vessel_types':
+      return `${API_BASE_URL}/api/data/vessel_types`;
     // Add more as needed
     default:
       throw new Error(`Unknown data type: ${dataType}`);

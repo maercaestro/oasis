@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 
+// Add API_BASE_URL for environment-based backend routing
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
 function Chatbox({ schedule, tanks, vessels, compact = false }) {
   const [messages, setMessages] = useState([
     { role: 'system', content: 'Welcome to OASIS! I can help you interpret and optimize your refinery schedule.' }
@@ -51,7 +54,7 @@ function Chatbox({ schedule, tanks, vessels, compact = false }) {
       })
 
       // Use EventSource for streaming
-      const response = await fetch('http://localhost:5001/api/chat/stream', {
+      const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import axios from 'axios'
 import { DashboardCard, ScheduleDashboardCards } from './DashboardCard' // Import the dashboard cards
 
+// Add API_BASE_URL for environment-based backend routing
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null }) {
   const [viewType, setViewType] = useState('processing')
   const [showDetails, setShowDetails] = useState(false)
@@ -192,7 +195,7 @@ function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null })
     try {
       setSaveStatus('Saving...')
       
-      await axios.post('/api/save-schedule', {
+      await axios.post(`${API_BASE_URL}/api/save-schedule`, {
         schedule: editedSchedule
       })
       
