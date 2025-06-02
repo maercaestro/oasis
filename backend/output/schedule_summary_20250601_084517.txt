@@ -1,0 +1,74 @@
+=== OASIS SCHEDULER SUMMARY REPORT ===
+Generated on: 2025-06-01 08:45:17
+Schedule duration: 6 days
+
+Total volume processed: 476.00 kb
+Average daily throughput: 79.33 kb/day
+
+=== DAILY SUMMARY ===
+Day 0:
+  Total inventory: 750.00 kb
+  Inventory by grade:
+    Base: 350.00 kb
+    B: 150.00 kb
+    C: 150.00 kb
+    D: 100.00 kb
+  Total processing: 0.00 kb/day
+  Processing rates:
+
+Day 1:
+  Total inventory: 655.00 kb
+  Inventory by grade:
+    Base: 280.65 kb
+    B: 150.00 kb
+    C: 124.35 kb
+    D: 100.00 kb
+  Total processing: 95.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+
+Day 2:
+  Total inventory: 560.00 kb
+  Inventory by grade:
+    Base: 211.30 kb
+    B: 150.00 kb
+    C: 98.70 kb
+    D: 100.00 kb
+  Total processing: 95.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+
+Day 3:
+  Total inventory: 465.00 kb
+  Inventory by grade:
+    Base: 141.95 kb
+    B: 150.00 kb
+    C: 73.05 kb
+    D: 100.00 kb
+  Total processing: 95.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+
+Day 4:
+  Total inventory: 370.00 kb
+  Inventory by grade:
+    Base: 72.60 kb
+    B: 150.00 kb
+    C: 47.40 kb
+    D: 100.00 kb
+  Total processing: 95.00 kb/day
+  Processing rates:
+    4: 95.00 kb/day
+
+Day 5:
+  Total inventory: 424.00 kb
+  Inventory by grade:
+    A: 137.12 kb
+    Base: 2.52 kb
+    B: 150.00 kb
+    C: 34.36 kb
+    D: 100.00 kb
+  Total processing: 96.00 kb/day
+  Processing rates:
+    4: 48.30 kb/day
+    1: 47.70 kb/day

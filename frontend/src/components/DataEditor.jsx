@@ -1,6 +1,29 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
+// Helper: Map dataType to RESTful endpoint
+const getApiEndpoint = (dataType) => {
+  switch (dataType) {
+    case 'tanks':
+      return '/api/data/tanks';
+    case 'vessels':
+      return '/api/data/vessels';
+    case 'crudes':
+      return '/api/data/crudes';
+    case 'recipes':
+      return '/api/data/recipes';
+    case 'routes':
+      return '/api/data/routes';
+    case 'vessel_types':
+      return '/api/data/vessel_types';
+    case 'plants':
+      return '/api/data/plants';
+    // Add more as needed
+    default:
+      throw new Error(`Unknown data type: ${dataType}`);
+  }
+};
+
 function DataEditor({ dataType, data, onSave }) {
   // Initial setup with proper defensive handling
   const initialData = data || (dataType === 'tanks' || dataType === 'plants' || dataType === 'crudes' || dataType === 'recipes' ? {} : []);
@@ -19,40 +42,16 @@ function DataEditor({ dataType, data, onSave }) {
   }, [data, dataType])
   
   const handleSaveData = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    setSuccessMessage(null);
     try {
-      setIsSubmitting(true)
-      setError(null)
-      
-      // Prepare data for saving
-      let dataToSave = editableData;
-      
-      // If we're dealing with vessels that might need conversion
-      if (dataType === 'vessels' && !Array.isArray(data) && Array.isArray(editableData)) {
-        // Convert array back to object if the original data was an object
-        dataToSave = editableData.reduce((obj, vessel) => {
-          obj[vessel.vessel_id] = vessel;
-          return obj;
-        }, {});
-      }
-      
-      // Save changes via correct API endpoint
-      await axios.post('/api/save-data', {  // Changed from '/api/data' to '/api/save-data'
-        type: dataType,
-        content: dataToSave
-      })
-      
-      onSave(dataToSave)
-      setSuccessMessage(`${dataType} data updated successfully.`)
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 3000)
-      
-      setIsSubmitting(false)
+      await onSave(editableData); // Delegate save to parent
+      setSuccessMessage('Data saved successfully');
     } catch (err) {
-      setError(`Failed to save changes: ${err.message || 'Unknown error'}`)
-      setIsSubmitting(false)
+      setError(err?.response?.data?.error || err.message || 'Failed to save data');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   
@@ -1251,7 +1250,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
         </div>
       )}
       
-      <table className="min-w-full divide-y divide-[#88BDBC]/20 border border-[#88BDBC]/30 rounded-lg overflow-hidden backdrop-blur-sm">
+      <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
         <thead className="bg-[#88BDBC]">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
@@ -1260,7 +1259,7 @@ function CrudeDataEditor({ crudes, setCrudes }) {
             <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-[#88BDBC]/10">
+        <tbody className="bg-white divide-y divide-slate-100">
           {Object.entries(crudesData).map(([crudeId, crude]) => (
             <tr key={crudeId}>
               <td className="px-6 py-4 whitespace-nowrap text-gray-700">
@@ -1636,8 +1635,7 @@ function RecipeDataEditor({ recipes, setRecipes, crudes }) {
   );
 }
 
-// Replace the current RouteDataEditor function with this one:
-
+// Route Editor Component
 function RouteDataEditor({ routes, setRoutes }) {
   const routesData = routes || {};
   const [isAddingRoute, setIsAddingRoute] = useState(false);
@@ -1648,9 +1646,18 @@ function RouteDataEditor({ routes, setRoutes }) {
     time_travel: 3.5
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [editingRouteId, setEditingRouteId] = useState(null);
   const [tempRouteId, setTempRouteId] = useState('');
-  
+  const [isSaving, setIsSaving] = useState(false);
+
+  // --- API helpers ---
+  // Remove API call from here. Only update local state.
+  async function saveRoutesToApi(updatedRoutes) {
+    setRoutes(updatedRoutes);
+    setSuccess('Routes updated locally. Click "Save Changes" to persist.');
+  }
+
   if (Object.keys(routesData).length === 0 && !isAddingRoute) {
     return (
       <div className="text-center p-8">
@@ -1675,21 +1682,13 @@ function RouteDataEditor({ routes, setRoutes }) {
     }));
   }
   
-  function handleNewRouteChange(property, value) {
-    setNewRoute(prev => ({
-      ...prev,
-      [property]: property === 'time_travel' ? parseFloat(value) : value
-    }));
-  }
-  
   function addNewRoute() {
-    const suggestedRouteId = `${newRoute.origin}_${newRoute.destination}`;
     setIsAddingRoute(true);
     setNewRoute({
-      routeId: suggestedRouteId,
-      origin: 'Terminal1',
+      routeId: '',
+      origin: 'Sabah',
       destination: 'Refinery',
-      time_travel: 5.0
+      time_travel: 3.5
     });
     setError('');
   }
@@ -1699,83 +1698,50 @@ function RouteDataEditor({ routes, setRoutes }) {
       setError('Route ID is required');
       return;
     }
-    
     if (!newRoute.origin || !newRoute.destination) {
       setError('Origin and destination are required');
       return;
     }
-    
-    // Check if route already exists
     if (routesData[newRoute.routeId]) {
       setError(`A route with ID "${newRoute.routeId}" already exists`);
       return;
     }
-    
-    setRoutes(prev => ({
-      ...prev,
+    const updatedRoutes = {
+      ...routesData,
       [newRoute.routeId]: {
         origin: newRoute.origin,
         destination: newRoute.destination,
         time_travel: newRoute.time_travel
       }
-    }));
-    
-    setIsAddingRoute(false);
-    setError('');
-  }
-  
-  function cancelAddRoute() {
+    };
+    saveRoutesToApi(updatedRoutes);
     setIsAddingRoute(false);
     setError('');
   }
   
   function deleteRoute(routeId) {
     if (confirm(`Are you sure you want to delete route ${routeId}?`)) {
-      setRoutes(prev => {
-        const copy = {...prev};
-        delete copy[routeId];
-        return copy;
-      });
+      const updatedRoutes = { ...routesData };
+      delete updatedRoutes[routeId];
+      saveRoutesToApi(updatedRoutes);
     }
   }
-  
-  function startEditRouteId(routeId) {
-    setEditingRouteId(routeId);
-    setTempRouteId(routeId);
-    setError('');
-  }
-  
-  function cancelEditRouteId() {
-    setEditingRouteId(null);
-    setTempRouteId('');
-    setError('');
-  }
-  
+
   function saveEditRouteId(oldRouteId) {
-    // Check if route ID is empty
     if (!tempRouteId.trim()) {
       setError('Route ID cannot be empty');
       return;
     }
-    
-    // Check if new ID already exists and is not the same as the current one
     if (tempRouteId !== oldRouteId && routesData[tempRouteId]) {
       setError(`A route with ID "${tempRouteId}" already exists`);
       return;
     }
-    
-    // Create new object with updated key
     const updatedRoutes = { ...routesData };
-    updatedRoutes[tempRouteId] = { 
-      ...updatedRoutes[oldRouteId]
-    };
-    
-    // Delete old key if ID changed
+    updatedRoutes[tempRouteId] = { ...updatedRoutes[oldRouteId] };
     if (tempRouteId !== oldRouteId) {
       delete updatedRoutes[oldRouteId];
     }
-    
-    setRoutes(updatedRoutes);
+    saveRoutesToApi(updatedRoutes);
     setEditingRouteId(null);
     setTempRouteId('');
     setError('');
@@ -1786,9 +1752,10 @@ function RouteDataEditor({ routes, setRoutes }) {
   return (
     <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">{error}</div>
+      )}
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">{success}</div>
       )}
       
       <div className="flex justify-end mb-4">
@@ -1983,9 +1950,9 @@ function RouteDataEditor({ routes, setRoutes }) {
         </tbody>
       </table>
       
-      <div className="bg-[#88BDBC]/10 border border-[#88BDBC]/30 text-white p-4 rounded text-sm mt-4">
+      <div className="bg-[#88BDBC]/10 border !border-[#88BDBC]/30 !text-white p-4 rounded text-sm mt-4">
         <div className="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 !text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
@@ -2008,7 +1975,7 @@ function VesselTypeDataEditor({ vesselTypes, setVesselTypes }) {
         <p className="text-slate-500 mb-4">No vessel type data available.</p>
         <button
           onClick={addNewVesselType}
-          className="px-3 py-1 bg-gradient-to-r from-[#88BDBC] to-[#254E58] text-white rounded text-sm hover:from-[#254E58] hover:to-[#88BDBC] transition-all duration-200 shadow-md"
+          className="px-4 py-2 !bg-emerald-600 text-white rounded hover:bg-green-600"
         >
           + Add First Vessel Type
         </button>
@@ -2239,7 +2206,7 @@ function FeedstockParcelEditor({ parcels, setParcels }) {
                   ))}
                 </select>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap !text-gray-700">
+              <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                 <input
                   type="number"
                   value={parcel.available_from || ''}

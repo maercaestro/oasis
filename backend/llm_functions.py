@@ -29,6 +29,9 @@ class OASISLLMFunctions:
     def __init__(self, db_path: str):
         self.db = DatabaseManagerExtended(db_path)
         self.client = openai.OpenAI()
+        self._cached_data = {}
+        self._last_refresh_time = None
+        self._refresh_interval = 5  # Refresh data every 5 seconds minimum
         
     def get_function_schemas(self) -> List[Dict]:
         """Get all available function schemas for OpenAI."""
@@ -216,7 +219,7 @@ class OASISLLMFunctions:
                 "type": "function", 
                 "function": {
                     "name": "run_schedule_optimization",
-                    "description": "Run schedule optimization to maximize throughput or margin",
+                    "description": "Run schedule optimization to maximize throughput or margin using optimizer.py.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -238,13 +241,21 @@ class OASISLLMFunctions:
                 "type": "function",
                 "function": {
                     "name": "run_vessel_optimization",
-                    "description": "Optimize vessel routing and scheduling",
+                    "description": "Run vessel scheduling and feedstock delivery optimization using vessel_optimizer.py.",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "horizon_days": {
                                 "type": "number",
                                 "description": "Optimization horizon in days (default: 30)"
+                            },
+                            "cost_per_deployed_vessel": {
+                                "type": "number",
+                                "description": "Cost per deployed vessel (default: 1000)"
+                            },
+                            "penalty_per_unmet_requirement": {
+                                "type": "number",
+                                "description": "Penalty for each unmet requirement (default: 100000)"
                             }
                         }
                     }
@@ -318,6 +329,9 @@ class OASISLLMFunctions:
     def execute_function(self, function_name: str, arguments: Dict) -> Dict[str, Any]:
         """Execute a function call and return the result."""
         try:
+            # AUTOMATIC DATA REFRESH: Refresh all data before executing any function
+            refresh_result = self._refresh_system_data()
+            
             # Route to appropriate function
             if function_name == "get_tank_status":
                 return self._get_tank_status(**arguments)
@@ -350,6 +364,110 @@ class OASISLLMFunctions:
                 
         except Exception as e:
             return {"error": f"Function execution failed: {str(e)}"}
+    
+    def _refresh_system_data(self) -> Dict[str, Any]:
+        """
+        Refresh all system data from database and file sources.
+        This ensures we always have the latest data when executing functions.
+        
+        Returns:
+            Dictionary with refresh status and timing information
+        """
+        current_time = datetime.now()
+        
+        # Check if we need to refresh based on time interval
+        if (self._last_refresh_time and 
+            (current_time - self._last_refresh_time).total_seconds() < self._refresh_interval):
+            return {
+                "status": "skipped", 
+                "reason": "Recent refresh within interval",
+                "last_refresh": self._last_refresh_time.isoformat()
+            }
+        
+        try:
+            print(f"🔄 Refreshing system data at {current_time.strftime('%H:%M:%S')}")
+            
+            # Clear cached data
+            self._cached_data.clear()
+            
+            # Refresh database connection if needed
+            # The database manager should handle connection pooling
+            
+            # Refresh key data sources
+            refresh_results = {}
+            
+            # 1. Refresh tank data
+            try:
+                tanks = self.db.get_all_tanks()
+                self._cached_data['tanks'] = tanks
+                refresh_results['tanks'] = f"✅ {len(tanks)} tanks refreshed"
+            except Exception as e:
+                refresh_results['tanks'] = f"❌ Tank refresh failed: {str(e)}"
+            
+            # 2. Refresh vessel data
+            try:
+                vessels = self.db.get_all_vessels()
+                self._cached_data['vessels'] = vessels
+                refresh_results['vessels'] = f"✅ {len(vessels)} vessels refreshed"
+            except Exception as e:
+                refresh_results['vessels'] = f"❌ Vessel refresh failed: {str(e)}"
+            
+            # 3. Refresh recipes data
+            try:
+                recipes = self.db.get_all_blending_recipes()
+                self._cached_data['recipes'] = recipes
+                refresh_results['recipes'] = f"✅ {len(recipes)} recipes refreshed"
+            except Exception as e:
+                refresh_results['recipes'] = f"❌ Recipe refresh failed: {str(e)}"
+            
+            # 4. Refresh feedstock requirements
+            try:
+                requirements = self.db.get_all_feedstock_requirements()
+                self._cached_data['feedstock_requirements'] = requirements
+                refresh_results['feedstock_requirements'] = f"✅ {len(requirements)} requirements refreshed"
+            except Exception as e:
+                refresh_results['feedstock_requirements'] = f"❌ Requirements refresh failed: {str(e)}"
+            
+            # 5. Refresh routes data
+            try:
+                routes = self.db.get_all_routes()
+                self._cached_data['routes'] = routes
+                refresh_results['routes'] = f"✅ {len(routes)} routes refreshed"
+            except Exception as e:
+                refresh_results['routes'] = f"❌ Routes refresh failed: {str(e)}"
+            
+            # 6. Refresh latest schedule results if available
+            try:
+                schedule_results = self._load_schedule_results()
+                if schedule_results:
+                    self._cached_data['schedule_results'] = schedule_results
+                    refresh_results['schedule_results'] = "✅ Latest schedule results loaded"
+                else:
+                    refresh_results['schedule_results'] = "⚠️ No schedule results available"
+            except Exception as e:
+                refresh_results['schedule_results'] = f"❌ Schedule results refresh failed: {str(e)}"
+            
+            # Update refresh timestamp
+            self._last_refresh_time = current_time
+            
+            # Print refresh summary
+            print("📊 Data Refresh Summary:")
+            for component, status in refresh_results.items():
+                print(f"   {component}: {status}")
+            
+            return {
+                "status": "completed",
+                "timestamp": current_time.isoformat(),
+                "refresh_results": refresh_results,
+                "cached_components": list(self._cached_data.keys())
+            }
+            
+        except Exception as e:
+            return {
+                "status": "failed",
+                "error": str(e),
+                "timestamp": current_time.isoformat()
+            }
     
     # Tank Operations
     def _get_tank_status(self, tank_name: Optional[str] = None) -> Dict[str, Any]:
@@ -541,7 +659,7 @@ class OASISLLMFunctions:
             }
     
     # Optimization Operations
-    def _run_schedule_optimization(self, optimization_type: str, horizon_days: int = 30) -> Dict[str, Any]:
+    def _run_schedule_optimization(self, optimization_type: str, horizon_days: int = 30, max_processing_rate: float = None) -> Dict[str, Any]:
         """Run schedule optimization."""
         try:
             # Load data from database
@@ -549,27 +667,146 @@ class OASISLLMFunctions:
             vessels = self._load_vessels_from_db()
             crudes = self._load_crudes_from_db()
             recipes = self._load_recipes_from_db()
+
+            # Determine max_processing_rate from recipes if not provided
+            if max_processing_rate is None:
+                if recipes:
+                    max_processing_rate = max(r.max_rate for r in recipes)
+                else:
+                    max_processing_rate = 95.0  # fallback default
+
+            # Debug: Ensure all recipes are BlendingRecipe objects
+            assert all(isinstance(r, BlendingRecipe) for r in recipes), f"Non-recipe in recipes: {[type(r) for r in recipes]}"
+
+            # Create scheduler - correct argument order: tanks, recipes, vessels, crudes, max_processing_rate
+            scheduler = Scheduler(tanks, recipes, vessels, crudes, max_processing_rate)
+            schedule = scheduler.run(horizon_days)
+
+            # Convert schedule dictionaries to DailyPlan objects for optimizer
+            from scheduler.models import DailyPlan, Tank
+            schedule_objects = []
+            for day_data in schedule:
+                # Convert tank dictionaries to Tank objects
+                tanks_dict = {}
+                for tank_name, tank_info in day_data.get('tanks', {}).items():
+                    if isinstance(tank_info, Tank):
+                        tanks_dict[tank_name] = tank_info
+                    else:
+                        tanks_dict[tank_name] = Tank(
+                            name=tank_info.get('name', tank_name),
+                            capacity=tank_info.get('capacity', 0),
+                            content=tank_info.get('content', [])
+                        )
+                
+                # Create DailyPlan object
+                daily_plan = DailyPlan(
+                    day=day_data.get('day'),
+                    processing_rates=day_data.get('processing_rates', {}),
+                    blending_details=day_data.get('blending_details', []),
+                    inventory=day_data.get('inventory', 0),
+                    inventory_by_grade=day_data.get('inventory_by_grade', {}),
+                    tanks=tanks_dict,
+                    daily_margin=day_data.get('daily_margin', 0.0)
+                )
+                schedule_objects.append(daily_plan)
+
+            # Run optimization with insights - NEW: Using optimize_with_insights method
+            optimizer = SchedulerOptimizer(recipes, crudes, max_processing_rate)
+
+            # Use the new insights-enabled optimization
+            optimization_result = optimizer.optimize_with_insights(schedule_objects, vessels=vessels, objective=optimization_type)
             
-            # Create scheduler
-            scheduler = Scheduler(tanks, vessels, crudes, recipes)
-            schedule = scheduler.run_schedule(horizon_days)
-            
-            # Run optimization
-            optimizer = SchedulerOptimizer(tanks, vessels, crudes, recipes)
-            
-            if optimization_type == "margin":
-                optimized_schedule = optimizer.optimize_for_margin(schedule, horizon_days)
-            else:
-                optimized_schedule = optimizer.optimize_for_throughput(schedule, horizon_days)
-            
+            optimized_schedule = optimization_result.optimized_schedule
+            insights = optimization_result.insights
+            performance_metrics = optimization_result.performance_metrics
+            bottlenecks = optimization_result.bottlenecks
+            opportunities = optimization_result.opportunities
+
             # Calculate metrics
-            original_margin = sum(day.total_margin for day in schedule)
-            optimized_margin = sum(day.total_margin for day in optimized_schedule)
+            original_margin = sum(day.daily_margin for day in schedule_objects)
+            optimized_margin = sum(day.daily_margin for day in optimized_schedule)
+
+            # Save optimized schedule to schedule_results.json
+            output_dir = os.path.join(os.path.dirname(__file__), "output")
+            os.makedirs(output_dir, exist_ok=True)
             
+            # Convert optimized schedule to JSON-serializable format
+            optimized_schedule_json = {"daily_plans": []}
+            for day_plan in optimized_schedule:
+                # Convert blending_details (BlendingRecipe objects) to dictionaries
+                blending_details_json = []
+                if hasattr(day_plan, 'blending_details') and day_plan.blending_details:
+                    for recipe in day_plan.blending_details:
+                        if hasattr(recipe, '__dict__'):
+                            # Convert BlendingRecipe object to dictionary
+                            recipe_dict = {
+                                "name": recipe.name,
+                                "primary_grade": recipe.primary_grade,
+                                "secondary_grade": recipe.secondary_grade,
+                                "max_rate": recipe.max_rate,
+                                "primary_fraction": recipe.primary_fraction
+                            }
+                            # Include margin info if it exists
+                            if hasattr(recipe, 'margin'):
+                                recipe_dict["margin"] = recipe.margin
+                            if hasattr(recipe, 'total_margin'):
+                                recipe_dict["total_margin"] = recipe.total_margin
+                            blending_details_json.append(recipe_dict)
+                        else:
+                            # Already a dictionary
+                            blending_details_json.append(recipe)
+                
+                day_dict = {
+                    "day": day_plan.day,
+                    "processing_rates": day_plan.processing_rates,
+                    "inventory": day_plan.inventory,
+                    "inventory_by_grade": day_plan.inventory_by_grade,
+                    "tanks": {},
+                    "blending_details": blending_details_json,
+                    "daily_margin": getattr(day_plan, 'daily_margin', 0.0)
+                }
+                
+                # Convert tank objects to dictionaries
+                if hasattr(day_plan, 'tanks') and day_plan.tanks:
+                    for tank_name, tank in day_plan.tanks.items():
+                        if hasattr(tank, '__dict__'):
+                            day_dict["tanks"][tank_name] = {
+                                "name": tank.name,
+                                "capacity": tank.capacity,
+                                "content": tank.content if hasattr(tank, 'content') else []
+                            }
+                        else:
+                            day_dict["tanks"][tank_name] = tank
+                
+                optimized_schedule_json["daily_plans"].append(day_dict)
+            
+            # Save to schedule_results.json
+            json_path = os.path.join(output_dir, "schedule_results.json")
+            with open(json_path, 'w') as f:
+                json.dump(optimized_schedule_json, f, indent=2)
+            
+            print(f"Optimized schedule saved to {json_path}")
+
+            # Convert insights to serializable format
+            insights_json = []
+            for insight in insights:
+                insights_json.append({
+                    "type": insight.type,
+                    "category": insight.category,
+                    "day": insight.day,
+                    "severity": insight.severity,
+                    "title": insight.title,
+                    "description": insight.description,
+                    "impact": insight.impact,
+                    "suggested_action": insight.suggested_action,
+                    "data": insight.data
+                })
+
             return {
                 "success": True,
                 "optimization_type": optimization_type,
                 "horizon_days": horizon_days,
+                "max_processing_rate": max_processing_rate,
                 "results": {
                     "original_margin": original_margin,
                     "optimized_margin": optimized_margin,
@@ -577,9 +814,14 @@ class OASISLLMFunctions:
                     "improvement_percentage": ((optimized_margin - original_margin) / original_margin * 100) if original_margin > 0 else 0
                 },
                 "schedule_days": len(optimized_schedule),
-                "timestamp": datetime.now().isoformat()
+                "performance_metrics": performance_metrics,
+                "insights": insights_json,
+                "bottlenecks": bottlenecks,
+                "opportunities": opportunities,
+                "timestamp": datetime.now().isoformat(),
+                "saved_to": json_path
             }
-            
+
         except Exception as e:
             return {"error": f"Optimization failed: {str(e)}"}
     
@@ -711,30 +953,35 @@ class OASISLLMFunctions:
     
     # Helper methods to load data from database
     def _load_tanks_from_db(self) -> Dict[str, Tank]:
-        """Load tanks from database."""
-        tanks_data = self.db.get_all_tanks()
+        """Load tanks from database or cached data."""
+        # Use cached data if available, otherwise fetch from database
+        if 'tanks' in self._cached_data:
+            tanks_data = self._cached_data['tanks']
+        else:
+            tanks_data = self.db.get_all_tanks()
+        
         tanks = {}
         
         for tank_name, tank_info in tanks_data.items():
-            # Create Tank object
+            # Create Tank object with proper content structure
             tank = Tank(
                 name=tank_name,
                 capacity=tank_info['capacity'],
-                content={}
+                content=tank_info.get('content', [])  # Use the list of dicts from database directly
             )
-            
-            # Set content
-            for content_item in tank_info.get('content', []):
-                for crude_name, volume in content_item.items():
-                    tank.content[crude_name] = volume
             
             tanks[tank_name] = tank
         
         return tanks
     
     def _load_vessels_from_db(self) -> List[Vessel]:
-        """Load vessels from database."""
-        vessels_data = self.db.get_all_vessels()
+        """Load vessels from database or cached data."""
+        # Use cached data if available, otherwise fetch from database
+        if 'vessels' in self._cached_data:
+            vessels_data = self._cached_data['vessels']
+        else:
+            vessels_data = self.db.get_all_vessels()
+        
         vessels = []
         
         for vessel_id, vessel_info in vessels_data.items():
@@ -769,25 +1016,63 @@ class OASISLLMFunctions:
         return vessels
     
     def _load_crudes_from_db(self) -> Dict[str, Crude]:
-        """Load crudes from database."""
-        # This would need to be implemented in the database manager
-        # For now, return placeholder data
-        return {
-            "Base": Crude(name="Base", margin=15.85, origin="Peninsular Malaysia"),
-            "A": Crude(name="A", margin=18.47, origin="Peninsular Malaysia"),
-            "B": Crude(name="B", margin=15.71, origin="Peninsular Malaysia"),
-            "C": Crude(name="C", margin=19.24, origin="Terminal3"),
-            "D": Crude(name="D", margin=11.19, origin="Sabah"),
-            "E": Crude(name="E", margin=9.98, origin="Sabah"),
-            "F": Crude(name="F", margin=9.97, origin="Sarawak")
-        }
+        """Load crudes from database or cached data."""
+        # Use cached data if available, otherwise use placeholder data
+        # TODO: Implement crude loading from database when DatabaseManagerExtended supports it
+        if 'crudes' in self._cached_data:
+            crudes_data = self._cached_data['crudes']
+            # Convert cached data to Crude objects if needed
+            crudes = {}
+            for name, data in crudes_data.items():
+                if isinstance(data, Crude):
+                    crudes[name] = data
+                else:
+                    crudes[name] = Crude(
+                        name=data.get('name', name),
+                        margin=data.get('margin', 0.0),
+                        origin=data.get('origin', 'Unknown')
+                    )
+            return crudes
+        else:
+            # Fallback to placeholder data
+            return {
+                "Base": Crude(name="Base", margin=15.85, origin="Peninsular Malaysia"),
+                "A": Crude(name="A", margin=18.47, origin="Peninsular Malaysia"),
+                "B": Crude(name="B", margin=15.71, origin="Peninsular Malaysia"),
+                "C": Crude(name="C", margin=19.24, origin="Terminal3"),
+                "D": Crude(name="D", margin=11.19, origin="Sabah"),
+                "E": Crude(name="E", margin=9.98, origin="Sabah"),
+                "F": Crude(name="F", margin=9.97, origin="Sarawak")
+            }
     
     def _load_recipes_from_db(self) -> List[BlendingRecipe]:
-        """Load recipes from database."""
-        recipes_data = self.db.get_all_blending_recipes()
-        recipes = []
+        """Load recipes from database or cached data, with JSON fallback."""
+        # Use cached data if available, otherwise fetch from database
+        if 'recipes' in self._cached_data:
+            recipes_data = self._cached_data['recipes']
+        else:
+            recipes_data = self.db.get_all_blending_recipes()
         
+        # If database is empty, load from JSON file as fallback
+        if not recipes_data:
+            try:
+                recipes_path = os.path.join(os.path.dirname(__file__), 'static_data', 'recipes.json')
+                if os.path.exists(recipes_path):
+                    with open(recipes_path, 'r') as f:
+                        recipes_json = json.load(f)
+                        # Convert from dict format to list format
+                        recipes_data = list(recipes_json.values())
+                        print(f"Loaded {len(recipes_data)} recipes from JSON fallback")
+            except Exception as e:
+                print(f"Failed to load recipes from JSON: {e}")
+                recipes_data = []
+        
+        recipes = []
         for recipe_data in recipes_data:
+            # Only include dicts with required keys
+            if not (isinstance(recipe_data, dict) and 'name' in recipe_data and 'primary_grade' in recipe_data and 'max_rate' in recipe_data and 'primary_fraction' in recipe_data):
+                print(f"Skipping invalid recipe entry: {recipe_data}")
+                continue
             recipe = BlendingRecipe(
                 name=recipe_data['name'],
                 primary_grade=recipe_data['primary_grade'],
@@ -796,7 +1081,7 @@ class OASISLLMFunctions:
                 primary_fraction=recipe_data['primary_fraction']
             )
             recipes.append(recipe)
-        
+        print(f"Loaded recipes: {[type(r) for r in recipes]}")
         return recipes
     
     def _load_schedule_results(self) -> Optional[Dict]:

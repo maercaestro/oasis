@@ -6,6 +6,7 @@ Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 """
 
 from typing import Dict, List, Any, Optional, Tuple
+import logging
 try:
     from .db_manager import DatabaseManager
 except ImportError:
@@ -215,30 +216,38 @@ class DatabaseManagerExtended(DatabaseManager):
     def create_blending_recipe(self, name: str, primary_grade: str, secondary_grade: Optional[str], 
                               max_rate: float, primary_fraction: float) -> int:
         """Create a new blending recipe."""
-        with self.transaction() as conn:
+        logger = logging.getLogger("oasis.data")
+        try:
+            # Use existing connection (assume already in transaction)
+            conn = self._get_connection()
+            logger.info(f"Creating blending recipe: name={name}, primary_grade={primary_grade}, secondary_grade={secondary_grade}, max_rate={max_rate}, primary_fraction={primary_fraction}")
             # Get primary grade ID
             cursor = conn.execute("SELECT id FROM crudes WHERE name = ?", (primary_grade,))
             primary_row = cursor.fetchone()
             if not primary_row:
+                logger.error(f"Primary grade '{primary_grade}' not found in crudes table.")
                 raise ValueError(f"Primary grade '{primary_grade}' not found")
             primary_grade_id = primary_row['id']
-            
             # Get secondary grade ID if provided
             secondary_grade_id = None
             if secondary_grade:
                 cursor = conn.execute("SELECT id FROM crudes WHERE name = ?", (secondary_grade,))
                 secondary_row = cursor.fetchone()
                 if not secondary_row:
+                    logger.error(f"Secondary grade '{secondary_grade}' not found in crudes table.")
                     raise ValueError(f"Secondary grade '{secondary_grade}' not found")
                 secondary_grade_id = secondary_row['id']
-            
             cursor = conn.execute("""
                 INSERT INTO blending_recipes 
                 (name, primary_grade_id, secondary_grade_id, max_rate, primary_fraction) 
                 VALUES (?, ?, ?, ?, ?)
             """, (name, primary_grade_id, secondary_grade_id, max_rate, primary_fraction))
-            
+            logger.info(f"Inserted blending recipe '{name}' successfully.")
             return cursor.lastrowid
+        except Exception as e:
+            logger.error(f"Error creating blending recipe '{name}': {e}")
+            logger.error(f"Recipe data: name={name}, primary_grade={primary_grade}, secondary_grade={secondary_grade}, max_rate={max_rate}, primary_fraction={primary_fraction}")
+            raise
     
     def get_all_blending_recipes(self) -> List[Dict[str, Any]]:
         """Get all blending recipes with grade names."""
@@ -269,20 +278,30 @@ class DatabaseManagerExtended(DatabaseManager):
     
     def save_blending_recipes(self, recipes: List[Dict[str, Any]]) -> bool:
         """Save complete blending recipes data."""
-        with self.transaction() as conn:
-            # Clear existing recipes
-            conn.execute("DELETE FROM blending_recipes")
-            
-            for recipe in recipes:
-                self.create_blending_recipe(
-                    name=recipe['name'],
-                    primary_grade=recipe['primary_grade'],
-                    secondary_grade=recipe.get('secondary_grade'),
-                    max_rate=recipe['max_rate'],
-                    primary_fraction=recipe['primary_fraction']
-                )
-            
+        logger = logging.getLogger("oasis.data")
+        try:
+            with self.transaction() as conn:
+                logger.info(f"Clearing all blending_recipes before saving new ones. Incoming count: {len(recipes)}")
+                conn.execute("DELETE FROM blending_recipes")
+                for idx, recipe in enumerate(recipes):
+                    # Defensive: skip dicts that are not valid recipes
+                    if not (isinstance(recipe, dict) and 'name' in recipe and 'primary_grade' in recipe and 'max_rate' in recipe and 'primary_fraction' in recipe):
+                        logger.warning(f"Skipping invalid recipe at index {idx}: {recipe}")
+                        continue
+                    logger.info(f"Saving recipe {idx}: {recipe}")
+                    self.create_blending_recipe(
+                        name=recipe['name'],
+                        primary_grade=recipe['primary_grade'],
+                        secondary_grade=recipe.get('secondary_grade'),
+                        max_rate=recipe['max_rate'],
+                        primary_fraction=recipe['primary_fraction']
+                    )
+                logger.info("All recipes saved successfully.")
             return True
+        except Exception as e:
+            logger.error(f"Error saving blending recipes: {e}")
+            logger.error(f"Recipes data: {recipes}")
+            raise
     
     # CRUD Operations for Vessels
     def create_vessel(self, vessel_id: str, arrival_day: int, capacity: float, 
@@ -511,6 +530,24 @@ class DatabaseManagerExtended(DatabaseManager):
         cursor = conn.execute("SELECT * FROM routes ORDER BY origin, destination")
         return [dict(row) for row in cursor.fetchall()]
 
+    # CRUD Operations for Vessel Types
+    def get_all_vessel_types(self) -> list:
+        """Get all vessel types from the database."""
+        conn = self._get_connection()
+        cursor = conn.execute("SELECT name, capacity, cost FROM vessel_types ORDER BY capacity DESC")
+        return [dict(row) for row in cursor.fetchall()]
+
+    def save_vessel_types(self, vessel_types: list) -> bool:
+        """Replace all vessel types in the database."""
+        with self.transaction() as conn:
+            conn.execute("DELETE FROM vessel_types")
+            for vt in vessel_types:
+                conn.execute(
+                    "INSERT INTO vessel_types (name, capacity, cost) VALUES (?, ?, ?)",
+                    (vt.get('name', 'Unnamed'), vt.get('capacity', 0), vt.get('cost', 0))
+                )
+        return True
+    
     def close(self):
         """Close database connections."""
         if hasattr(self._local, 'connection'):

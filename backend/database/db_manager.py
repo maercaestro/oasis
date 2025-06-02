@@ -234,6 +234,16 @@ class DatabaseManager:
             UNIQUE(daily_plan_id, crude_id)
         );
         
+        -- Vessel types table
+        CREATE TABLE IF NOT EXISTS vessel_types (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            capacity REAL NOT NULL,
+            cost REAL NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
         -- Create indexes for performance
         CREATE INDEX IF NOT EXISTS idx_tank_contents_tank_id ON tank_contents(tank_id);
         CREATE INDEX IF NOT EXISTS idx_tank_contents_crude_id ON tank_contents(crude_id);

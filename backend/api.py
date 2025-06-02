@@ -6,7 +6,7 @@ Provides atomic operations, concurrent access, and data consistency.
 Copyright (c) by Abu Huzaifah Bidin with help from Github Copilot
 """
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 import os
 import json
@@ -14,6 +14,9 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import logging
 import traceback
+import queue
+import threading
+import time
 
 # Import existing scheduler components
 from scheduler.scheduler import Scheduler
@@ -26,6 +29,7 @@ from database.extended_ops import DatabaseManagerExtended
 
 # Import OpenAI function calling system
 from llm_functions import OASISLLMFunctions
+from data_services import DataService
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -40,6 +44,7 @@ api_logger = logging.getLogger("api")
 # Initialize database
 DB_PATH = os.path.join(os.path.dirname(__file__), "oasis.db")
 db = DatabaseManagerExtended(DB_PATH)
+data_service = DataService(db)
 
 # Initialize LLM functions with database
 llm_functions = OASISLLMFunctions(DB_PATH)
@@ -59,6 +64,64 @@ def ensure_migration():
 if not ensure_migration():
     print("Warning: Database migration not completed. Some features may not work.")
 
+# Global event queue for SSE notifications
+data_change_queue = queue.Queue()
+sse_connections = []
+
+# Data change notification system
+def notify_data_change(change_type: str, data_type: str = None, details: dict = None):
+    """Notify all connected clients about data changes."""
+    event_data = {
+        'type': change_type,
+        'data_type': data_type,
+        'timestamp': datetime.now().isoformat(),
+        'details': details or {}
+    }
+    
+    # Add to queue for SSE connections
+    try:
+        data_change_queue.put(event_data, block=False)
+        print(f"📡 Data change notification: {change_type} - {data_type}")
+    except queue.Full:
+        print("⚠️  SSE queue is full, dropping notification")
+
+@app.route('/api/data-stream')
+def data_stream():
+    """Server-Sent Events endpoint for real-time data updates."""
+    def event_generator():
+        # Send initial connection event
+        yield f"data: {json.dumps({'type': 'connected', 'timestamp': datetime.now().isoformat()})}\n\n"
+        
+        last_heartbeat = time.time()
+        
+        while True:
+            try:
+                # Send heartbeat every 30 seconds
+                current_time = time.time()
+                if current_time - last_heartbeat > 30:
+                    yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.now().isoformat()})}\n\n"
+                    last_heartbeat = current_time
+                
+                # Check for data change notifications
+                try:
+                    event_data = data_change_queue.get(timeout=1)
+                    yield f"data: {json.dumps(event_data)}\n\n"
+                except queue.Empty:
+                    continue
+                    
+            except GeneratorExit:
+                print("[SSE] Client disconnected from data stream.")
+                break
+            except Exception as e:
+                print(f"[SSE] Exception in event_generator: {e}")
+                break
+    
+    response = Response(event_generator(), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Connection'] = 'keep-alive'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 # ==============================================================================
 # DATABASE-POWERED DATA ENDPOINTS
 # ==============================================================================
@@ -67,16 +130,62 @@ if not ensure_migration():
 def get_all_data():
     """Get all system data from database."""
     try:
+        print("[get_all_data] Starting to load all system data...")
+        
         # Get all data from database
         tanks_data = db.get_all_tanks()
+        print(f"[get_all_data] Loaded {len(tanks_data)} tanks")
+        
         vessels_data = db.get_all_vessels()
+        print(f"[get_all_data] Loaded {len(vessels_data)} vessels")
+        
         crudes_data = {crude['name']: crude for crude in db.get_all_crudes()}
+        print(f"[get_all_data] Loaded {len(crudes_data)} crudes")
+        
         recipes_data = db.get_all_blending_recipes()
+        print(f"[get_all_data] Loaded {len(recipes_data)} recipes")
         
         # Convert recipes to dictionary format for compatibility
         recipes_dict = {}
         for idx, recipe in enumerate(recipes_data):
             recipes_dict[str(idx)] = recipe
+        
+        # Get feedstock requirements
+        feedstock_requirements = db.get_all_feedstock_requirements()
+        print(f"[get_all_data] Loaded {len(feedstock_requirements)} feedstock requirements")
+        
+        # Get routes
+        routes_data = db.get_all_routes()
+        print(f"[get_all_data] Loaded {len(routes_data)} routes")
+        
+        # Get plants
+        plants_data = db.get_all_plants()
+        print(f"[get_all_data] Loaded {len(plants_data)} plants")
+        
+        # Get vessel types from database
+        vessel_types = db.get_all_vessel_types()
+        if not vessel_types:
+            # Fallback to default if DB is empty
+            vessel_types = [
+                {"name": "Large Vessel", "capacity": 700, "cost": 80000},
+                {"name": "Medium Vessel", "capacity": 500, "cost": 60000},
+                {"name": "Small Vessel", "capacity": 300, "cost": 40000}
+            ]
+        print(f"[get_all_data] Loaded {len(vessel_types)} vessel types")
+        
+        # Extract feedstock parcels from vessel cargo
+        feedstock_parcels = []
+        for vessel_id, vessel_info in vessels_data.items():
+            for cargo_item in vessel_info.get('cargo', []):
+                feedstock_parcels.append({
+                    'grade': cargo_item.get('grade', ''),
+                    'volume': cargo_item.get('volume', 0),
+                    'origin': cargo_item.get('origin', ''),
+                    'available_from': cargo_item.get('loading_start_day', 0),
+                    'expiry': cargo_item.get('loading_end_day', 30),
+                    'vessel_id': vessel_id
+                })
+        print(f"[get_all_data] Extracted {len(feedstock_parcels)} feedstock parcels from vessels")
         
         # Load schedule data if available
         schedule_data = []
@@ -86,28 +195,40 @@ def get_all_data():
                 schedule_json = json.load(f)
                 # Extract the daily_plans array from the nested structure
                 schedule_data = schedule_json.get('daily_plans', [])
+                print(f"[get_all_data] Loaded schedule data with {len(schedule_data)} daily plans")
         except (FileNotFoundError, json.JSONDecodeError):
-            print(f"No schedule data found at {schedule_path}")
+            print(f"[get_all_data] No schedule data found at {schedule_path}")
             pass
         
-        return jsonify({
+        response_data = {
             'tanks': tanks_data,
             'vessels': vessels_data,
             'crudes': crudes_data,
             'recipes': recipes_dict,
+            'feedstock_requirements': feedstock_requirements,
+            'feedstock_parcels': feedstock_parcels,
+            'routes': routes_data,
+            'plants': plants_data,
+            'vessel_types': vessel_types,
             'schedule': schedule_data,
             'timestamp': datetime.now().isoformat(),
             'source': 'database'
-        })
+        }
+        
+        print(f"[get_all_data] Successfully loaded all data types: {list(response_data.keys())}")
+        return jsonify(response_data)
         
     except Exception as e:
+        print(f"[get_all_data] Error loading data: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'Failed to load data: {str(e)}'}), 500
 
 @app.route('/api/data/tanks', methods=['GET'])
 def get_tanks():
     """Get tanks data from database."""
     try:
-        tanks_data = db.get_all_tanks()
+        tanks_data = data_service.get_all_tanks()
         return jsonify(tanks_data)
     except Exception as e:
         return jsonify({'error': f'Failed to load tanks: {str(e)}'}), 500
@@ -117,28 +238,30 @@ def save_tanks():
     """Save tanks data to database with atomic transaction."""
     try:
         tanks_data = request.get_json()
+        print(f"[save_tanks] Received tanks_data: {tanks_data}")  # Log incoming data
         if not tanks_data:
+            print("[save_tanks] No tanks data provided!")
             return jsonify({'error': 'No tanks data provided'}), 400
-        
-        success = db.save_tanks_data(tanks_data)
-        
+        success = data_service.save_tanks(tanks_data)
+        print(f"[save_tanks] Save result: {success}")
         if success:
-            return jsonify({
-                'message': 'Tanks saved successfully',
-                'timestamp': datetime.now().isoformat(),
-                'tanks_count': len(tanks_data)
-            })
+            # Notify about tank data change
+            notify_data_change('update', 'tanks', {'count': len(tanks_data)})
+            return jsonify({'message': 'Tanks saved successfully', 'timestamp': datetime.now().isoformat(), 'tanks_count': len(tanks_data)})
         else:
+            print("[save_tanks] Failed to save tanks (service returned False)")
             return jsonify({'error': 'Failed to save tanks'}), 500
-            
     except Exception as e:
+        import traceback
+        print(f"[save_tanks] Exception: {e}")
+        traceback.print_exc()
         return jsonify({'error': f'Failed to save tanks: {str(e)}'}), 500
 
 @app.route('/api/data/tanks/<tank_name>', methods=['GET'])
 def get_tank(tank_name):
     """Get specific tank data."""
     try:
-        tank_data = db.get_tank(name=tank_name)
+        tank_data = data_service.get_tank(tank_name)
         if tank_data:
             return jsonify(tank_data)
         else:
@@ -153,17 +276,13 @@ def update_tank(tank_name):
         update_data = request.get_json()
         if not update_data:
             return jsonify({'error': 'No update data provided'}), 400
-        
-        success = db.update_tank(name=tank_name, **update_data)
-        
+        success = data_service.update_tank(tank_name, update_data)
         if success:
-            return jsonify({
-                'message': f'Tank {tank_name} updated successfully',
-                'timestamp': datetime.now().isoformat()
-            })
+            # Notify about tank data change
+            notify_data_change('update', 'tanks', {'name': tank_name})
+            return jsonify({'message': f'Tank {tank_name} updated successfully', 'timestamp': datetime.now().isoformat()})
         else:
             return jsonify({'error': 'Tank not found or update failed'}), 404
-            
     except Exception as e:
         return jsonify({'error': f'Failed to update tank: {str(e)}'}), 500
 
@@ -171,16 +290,13 @@ def update_tank(tank_name):
 def delete_tank(tank_name):
     """Delete specific tank."""
     try:
-        success = db.delete_tank(name=tank_name)
-        
+        success = data_service.delete_tank(tank_name)
         if success:
-            return jsonify({
-                'message': f'Tank {tank_name} deleted successfully',
-                'timestamp': datetime.now().isoformat()
-            })
+            # Notify about tank data change
+            notify_data_change('delete', 'tanks', {'name': tank_name})
+            return jsonify({'message': f'Tank {tank_name} deleted successfully', 'timestamp': datetime.now().isoformat()})
         else:
             return jsonify({'error': 'Tank not found'}), 404
-            
     except Exception as e:
         return jsonify({'error': f'Failed to delete tank: {str(e)}'}), 500
 
@@ -188,7 +304,7 @@ def delete_tank(tank_name):
 def get_vessels():
     """Get vessels data from database."""
     try:
-        vessels_data = db.get_all_vessels()
+        vessels_data = data_service.get_all_vessels()
         return jsonify(vessels_data)
     except Exception as e:
         return jsonify({'error': f'Failed to load vessels: {str(e)}'}), 500
@@ -200,18 +316,13 @@ def save_vessels():
         vessels_data = request.get_json()
         if not vessels_data:
             return jsonify({'error': 'No vessels data provided'}), 400
-        
-        success = db.save_vessels_data(vessels_data)
-        
+        success = data_service.save_vessels(vessels_data)
         if success:
-            return jsonify({
-                'message': 'Vessels saved successfully',
-                'timestamp': datetime.now().isoformat(),
-                'vessels_count': len(vessels_data)
-            })
+            # Notify about vessel data change
+            notify_data_change('update', 'vessels', {'count': len(vessels_data)})
+            return jsonify({'message': 'Vessels saved successfully', 'timestamp': datetime.now().isoformat(), 'vessels_count': len(vessels_data)})
         else:
             return jsonify({'error': 'Failed to save vessels'}), 500
-            
     except Exception as e:
         return jsonify({'error': f'Failed to save vessels: {str(e)}'}), 500
 
@@ -219,7 +330,7 @@ def save_vessels():
 def get_crudes():
     """Get crudes data from database."""
     try:
-        crudes_list = db.get_all_crudes()
+        crudes_list = data_service.get_all_crudes()
         # Convert to dictionary format for compatibility
         crudes_data = {crude['name']: crude for crude in crudes_list}
         return jsonify(crudes_data)
@@ -233,24 +344,10 @@ def save_crudes():
         crudes_data = request.get_json()
         if not crudes_data:
             return jsonify({'error': 'No crudes data provided'}), 400
-        
-        # Clear existing crudes and add new ones
-        with db.transaction() as conn:
-            conn.execute("DELETE FROM crudes")
-            
-            for crude_name, crude_info in crudes_data.items():
-                db.create_crude(
-                    name=crude_name,
-                    margin=crude_info.get('margin', 15.0),
-                    origin=crude_info.get('origin', 'Unknown')
-                )
-        
-        return jsonify({
-            'message': 'Crudes saved successfully',
-            'timestamp': datetime.now().isoformat(),
-            'crudes_count': len(crudes_data)
-        })
-        
+        data_service.save_crudes(crudes_data)
+        # Notify about crude data change
+        notify_data_change('update', 'crudes', {'count': len(crudes_data)})
+        return jsonify({'message': 'Crudes saved successfully', 'timestamp': datetime.now().isoformat(), 'crudes_count': len(crudes_data)})
     except Exception as e:
         return jsonify({'error': f'Failed to save crudes: {str(e)}'}), 500
 
@@ -258,11 +355,9 @@ def save_crudes():
 def get_recipes():
     """Get recipes data from database."""
     try:
-        recipes_list = db.get_all_blending_recipes()
+        recipes_list = data_service.get_all_recipes()
         # Convert to dictionary format for compatibility
-        recipes_data = {}
-        for idx, recipe in enumerate(recipes_list):
-            recipes_data[str(idx)] = recipe
+        recipes_data = {str(idx): recipe for idx, recipe in enumerate(recipes_list)}
         return jsonify(recipes_data)
     except Exception as e:
         return jsonify({'error': f'Failed to load recipes: {str(e)}'}), 500
@@ -274,25 +369,152 @@ def save_recipes():
         recipes_data = request.get_json()
         if not recipes_data:
             return jsonify({'error': 'No recipes data provided'}), 400
-        
-        # Convert to list format
-        recipes_list = []
-        for recipe_id, recipe_info in recipes_data.items():
-            recipes_list.append(recipe_info)
-        
-        success = db.save_blending_recipes(recipes_list)
-        
+        success = data_service.save_recipes(recipes_data)
         if success:
-            return jsonify({
-                'message': 'Recipes saved successfully',
-                'timestamp': datetime.now().isoformat(),
-                'recipes_count': len(recipes_list)
-            })
+            # Notify about recipe data change
+            notify_data_change('update', 'recipes', {'count': len(recipes_data)})
+            return jsonify({'message': 'Recipes saved successfully', 'timestamp': datetime.now().isoformat(), 'recipes_count': len(recipes_data)})
         else:
             return jsonify({'error': 'Failed to save recipes'}), 500
-            
     except Exception as e:
         return jsonify({'error': f'Failed to save recipes: {str(e)}'}), 500
+
+@app.route('/api/data/feedstock_parcels', methods=['GET'])
+def get_feedstock_parcels():
+    """Get feedstock parcels data extracted from vessel cargo."""
+    try:
+        print("[get_feedstock_parcels] Loading feedstock parcels from vessel cargo...")
+        vessels_data = db.get_all_vessels()
+        
+        feedstock_parcels = []
+        for vessel_id, vessel_info in vessels_data.items():
+            for cargo_item in vessel_info.get('cargo', []):
+                feedstock_parcels.append({
+                    'grade': cargo_item.get('grade', ''),
+                    'volume': cargo_item.get('volume', 0),
+                    'origin': cargo_item.get('origin', ''),
+                    'available_from': cargo_item.get('loading_start_day', 0),
+                    'expiry': cargo_item.get('loading_end_day', 30),
+                    'vessel_id': vessel_id
+                })
+        
+        print(f"[get_feedstock_parcels] Extracted {len(feedstock_parcels)} feedstock parcels")
+        return jsonify(feedstock_parcels)
+    except Exception as e:
+        print(f"[get_feedstock_parcels] Error: {str(e)}")
+        return jsonify({'error': f'Failed to load feedstock parcels: {str(e)}'}), 500
+
+@app.route('/api/data/feedstock_parcels', methods=['POST'])
+def save_feedstock_parcels():
+    """Save feedstock parcels data (updates vessel cargo)."""
+    try:
+        parcels_data = request.get_json()
+        if not parcels_data:
+            return jsonify({'error': 'No feedstock parcels data provided'}), 400
+        
+        print(f"[save_feedstock_parcels] Received {len(parcels_data)} feedstock parcels")
+        
+        # For now, just acknowledge the save - implementing vessel cargo update would require more complex logic
+        # Notify about parcel data change
+        notify_data_change('update', 'feedstock_parcels', {'count': len(parcels_data)})
+        return jsonify({
+            'message': 'Feedstock parcels received successfully', 
+            'timestamp': datetime.now().isoformat(), 
+            'parcels_count': len(parcels_data),
+            'note': 'Feedstock parcels are derived from vessel cargo. Use vessel endpoints to modify cargo.'
+        })
+    except Exception as e:
+        print(f"[save_feedstock_parcels] Error: {str(e)}")
+        return jsonify({'error': f'Failed to save feedstock parcels: {str(e)}'}), 500
+
+@app.route('/api/data/feedstock_requirements', methods=['GET'])
+def get_feedstock_requirements():
+    """Get feedstock requirements data from database."""
+    try:
+        print("[get_feedstock_requirements] Loading feedstock requirements...")
+        requirements = db.get_all_feedstock_requirements()
+        print(f"[get_feedstock_requirements] Loaded {len(requirements)} requirements")
+        return jsonify(requirements)
+    except Exception as e:
+        print(f"[get_feedstock_requirements] Error: {str(e)}")
+        return jsonify({'error': f'Failed to load feedstock requirements: {str(e)}'}), 500
+
+@app.route('/api/data/routes', methods=['GET'])
+def get_routes():
+    """Get routes data from database."""
+    try:
+        print("[get_routes] Loading routes...")
+        routes = db.get_all_routes()
+        print(f"[get_routes] Loaded {len(routes)} routes")
+        return jsonify(routes)
+    except Exception as e:
+        print(f"[get_routes] Error: {str(e)}")
+        return jsonify({'error': f'Failed to load routes: {str(e)}'}), 500
+
+@app.route('/api/data/plants', methods=['GET'])
+def get_plants():
+    """Get plants data from database."""
+    try:
+        print("[get_plants] Loading plants...")
+        plants = db.get_all_plants()
+        print(f"[get_plants] Loaded {len(plants)} plants")
+        return jsonify(plants)
+    except Exception as e:
+        print(f"[get_plants] Error: {str(e)}")
+        return jsonify({'error': f'Failed to load plants: {str(e)}'}), 500
+
+@app.route('/api/data/vessel_types', methods=['GET'])
+def get_vessel_types():
+    """Get vessel types data from database."""
+    try:
+        print("[get_vessel_types] Loading vessel types from DB...")
+        vessel_types = db.get_all_vessel_types()
+        if not vessel_types:
+            # Fallback to default if DB is empty
+            vessel_types = [
+                {"name": "Large Vessel", "capacity": 700, "cost": 80000},
+                {"name": "Medium Vessel", "capacity": 500, "cost": 60000},
+                {"name": "Small Vessel", "capacity": 300, "cost": 40000}
+            ]
+        print(f"[get_vessel_types] Loaded {len(vessel_types)} vessel types")
+        return jsonify(vessel_types)
+    except Exception as e:
+        print(f"[get_vessel_types] Error: {str(e)}")
+        return jsonify({'error': f'Failed to load vessel types: {str(e)}'}), 500
+
+@app.route('/api/data/vessel_types', methods=['POST'])
+def save_vessel_types():
+    """Save vessel types data to database."""
+    try:
+        vessel_types = request.get_json()
+        if not vessel_types:
+            return jsonify({'error': 'No vessel types data provided'}), 400
+        db.save_vessel_types(vessel_types)
+        print(f"[save_vessel_types] Saved {len(vessel_types)} vessel types to DB")
+        notify_data_change('update', 'vessel_types', {'count': len(vessel_types)})
+        return jsonify({
+            'message': 'Vessel types saved successfully',
+            'timestamp': datetime.now().isoformat(),
+            'vessel_types_count': len(vessel_types)
+        })
+    except Exception as e:
+        print(f"[save_vessel_types] Error: {str(e)}")
+        return jsonify({'error': f'Failed to save vessel types: {str(e)}'}), 500
+
+@app.route('/api/save-schedule', methods=['POST'])
+def save_schedule():
+    """Save modified schedule data to JSON file."""
+    try:
+        data = request.get_json()
+        schedule = data.get('schedule', [])
+        if not schedule:
+            return jsonify({"success": False, "error": "No schedule data provided"}), 400
+        data_service.save_schedule(schedule)
+        # Notify about schedule data change
+        notify_data_change('update', 'schedule', {'saved_days': len(schedule)})
+        return jsonify({"success": True, "message": "Schedule saved successfully", "days_saved": len(schedule)})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to save schedule: {str(e)}"}), 500
 
 # ==============================================================================
 # DATABASE-AWARE SCHEDULER ENDPOINTS
@@ -412,6 +634,9 @@ def run_scheduler():
         # Run scheduling
         result = scheduler.run(horizon_days, save_output=True)
         
+        # Notify about schedule data change
+        notify_data_change('update', 'schedule', {'days': len(result), 'horizon': horizon_days})
+        
         # The run method returns a list of daily plans in JSON format
         return jsonify({
             'success': True,
@@ -522,6 +747,10 @@ def optimize_schedule():
         except Exception as save_exc:
             api_logger.error(f"Failed to auto-save optimized schedule: {save_exc}")
         # --- END AUTO-SAVE ---
+        
+        # Notify about schedule optimization completion
+        notify_data_change('update', 'schedule', {'optimized_days': len(result), 'objective': objective})
+        
         return jsonify({
             'success': True,
             'schedule': result,
@@ -623,6 +852,9 @@ def optimize_vessels():
         
         # Save to database
         db.save_vessels_data(vessels_dict)
+        
+        # Notify about vessel optimization completion
+        notify_data_change('update', 'vessels', {'optimized_count': len(optimized_vessels), 'horizon': horizon_days})
         
         return jsonify({
             'message': 'Vessel optimization completed',
@@ -903,44 +1135,15 @@ def chat_health_check():
 def not_found(error):
     return jsonify({'error': 'Endpoint not found'}), 404
 
-@app.route('/api/save-schedule', methods=['POST'])
-def save_schedule():
-    """Save modified schedule data to JSON file."""
-    try:
-        data = request.get_json()
-        schedule = data.get('schedule', [])
-        
-        if not schedule:
-            return jsonify({"success": False, "error": "No schedule data provided"}), 400
-        
-        # Save to schedule_results.json (maintaining the daily_plans wrapper structure)
-        output_path = os.path.join(os.path.dirname(__file__), "output", "schedule_results.json")
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Wrap the schedule in daily_plans to maintain consistency with scheduler output format
-        schedule_data = {"daily_plans": schedule}
-        
-        with open(output_path, 'w') as f:
-            json.dump(schedule_data, f, indent=2)
-        
-        print(f"Schedule saved successfully to {output_path} with {len(schedule)} days")
-        
-        return jsonify({
-            "success": True, 
-            "message": "Schedule saved successfully",
-            "days_saved": len(schedule)
-        })
-        
-    except Exception as e:
-        print(f"Error saving schedule: {str(e)}")
-        return jsonify({
-            "success": False,
-            "error": f"Failed to save schedule: {str(e)}"
-        }), 500
-
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
+# ==============================================================================
+# MAIN
+# ==============================================================================
+
 if __name__ == '__main__':
+    print("Starting OASIS Database-Powered API Server...")
+    print("Database initialized and API server ready")
     app.run(debug=True, host='0.0.0.0', port=5001)

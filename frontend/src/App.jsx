@@ -189,25 +189,166 @@ function App() {
     }
   };
 
-  // Add this function in your App component
+  // Enhanced refresh function with better cache-busting and complete data refresh
   const refreshData = async () => {
     try {
+      console.log('🔄 Manual data refresh initiated...');
       setIsLoading(true);
-      const response = await axios.get('/api/data?nocache=' + Date.now()); // Add cache-busting parameter
+      const response = await axios.get(`/api/data?nocache=${Date.now()}`); // Cache-busting parameter
       
       setData({
         schedule: response.data.schedule || [],
         tanks: response.data.tanks || {},
         vessels: response.data.vessels || [],
-        // ...other data
+        crudes: response.data.crudes || {},
+        recipes: response.data.recipes || {},
+        plants: response.data.plants || {},
+        routes: response.data.routes || {},
+        vessel_types: response.data.vessel_types || [],
+        feedstock_parcels: response.data.feedstock_parcels || [],
+        feedstock_requirements: response.data.feedstock_requirements || []
       });
       
+      console.log('✅ Manual data refresh completed');
       setIsLoading(false);
     } catch (err) {
-      console.error("Error refreshing data:", err);
+      console.error("❌ Error refreshing data:", err);
+      setError('Failed to refresh data from API');
       setIsLoading(false);
     }
   };
+
+  // Real-time data updates using Server-Sent Events (SSE)
+  useEffect(() => {
+    let eventSource = null;
+    
+    const connectToDataStream = () => {
+      try {
+        console.log('🔗 Connecting to real-time data stream...');
+        eventSource = new EventSource('/api/data-stream');
+        
+        eventSource.onopen = () => {
+          console.log('✅ Connected to real-time data stream');
+        };
+        
+        eventSource.onmessage = (event) => {
+          try {
+            const eventData = JSON.parse(event.data);
+            console.log('📡 Received data update:', eventData);
+            
+            // Handle different types of data change notifications
+            if (eventData.type === 'update' && eventData.data_type) {
+              console.log(`🔄 Refreshing ${eventData.data_type} data...`);
+              refreshSpecificData(eventData.data_type);
+            }
+          } catch (parseError) {
+            console.error('Error parsing SSE data:', parseError);
+          }
+        };
+        
+        eventSource.onerror = (error) => {
+          console.error('❌ SSE connection error:', error);
+          if (eventSource.readyState === EventSource.CLOSED) {
+            console.log('🔄 SSE connection closed, attempting to reconnect in 5 seconds...');
+            setTimeout(connectToDataStream, 5000);
+          }
+        };
+        
+      } catch (error) {
+        console.error('Error setting up SSE connection:', error);
+      }
+    };
+    
+    // Connect to data stream after initial data load
+    if (!isLoading) {
+      connectToDataStream();
+    }
+    
+    // Cleanup function
+    return () => {
+      if (eventSource) {
+        console.log('🔌 Closing SSE connection');
+        eventSource.close();
+      }
+    };
+  }, [isLoading]); // Dependency on isLoading to connect after initial data fetch
+
+  // Function to refresh specific data types
+  const refreshSpecificData = async (dataType) => {
+    try {
+      console.log(`🔄 Refreshing ${dataType} from API...`);
+      const response = await axios.get(`/api/data?t=${Date.now()}`); // Cache-busting parameter
+      
+      // Update only the specific data type that changed
+      setData(prevData => {
+        const newData = { ...prevData };
+        
+        switch (dataType) {
+          case 'tanks':
+            newData.tanks = response.data.tanks || {};
+            break;
+          case 'vessels':
+            newData.vessels = response.data.vessels || [];
+            break;
+          case 'crudes':
+            newData.crudes = response.data.crudes || {};
+            break;
+          case 'recipes':
+            newData.recipes = response.data.recipes || {};
+            break;
+          case 'schedule':
+            newData.schedule = response.data.schedule || [];
+            break;
+          default:
+            // For unknown types, refresh all data
+            return {
+              schedule: response.data.schedule || [],
+              tanks: response.data.tanks || {},
+              vessels: response.data.vessels || [],
+              crudes: response.data.crudes || {},
+              recipes: response.data.recipes || {},
+              plants: response.data.plants || {},
+              routes: response.data.routes || {},
+              vessel_types: response.data.vessel_types || [],
+              feedstock_parcels: response.data.feedstock_parcels || [],
+              feedstock_requirements: response.data.feedstock_requirements || []
+            };
+        }
+        
+        console.log(`✅ ${dataType} data refreshed successfully`);
+        return newData;
+      });
+      
+    } catch (error) {
+      console.error(`❌ Error refreshing ${dataType} data:`, error);
+    }
+  };
+
+  // Helper to map data type to RESTful API endpoint
+  function getApiEndpoint(dataType) {
+    switch (dataType) {
+      case 'tanks':
+        return '/api/data/tanks';
+      case 'vessels':
+        return '/api/data/vessels';
+      case 'feedstock_parcels':
+        return '/api/data/feedstock_parcels';
+      case 'feedstock_requirements':
+        return '/api/data/feedstock_requirements';
+      case 'plants':
+        return '/api/data/plants';
+      case 'crudes':
+        return '/api/data/crudes';
+      case 'recipes':
+        return '/api/data/recipes';
+      case 'routes':
+        return '/api/data/routes';
+      case 'vessel_types':
+        return '/api/data/vessel_types';
+      default:
+        throw new Error(`Unknown data type: ${dataType}`);
+    }
+  }
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gradient-to-br from-[#112D32] via-[#254E58] to-[#4F4A41] text-white">
@@ -510,32 +651,32 @@ function App() {
                     {visualizationView === 'vessels' && (
                       <VesselSchedule 
                         vessels={data.vessels} 
-                        onVesselUpdate={(vesselId, updatedVessel) => {
+                        onVesselUpdate={async (vesselId, updatedVessel) => {
                           // Update local state
                           setData(prev => {
-                            // Make a deep copy of vessels to avoid reference issues
                             const newVessels = {...prev.vessels}
-                            // Update the specific vessel
                             newVessels[vesselId] = updatedVessel
                             return {
                               ...prev,
                               vessels: newVessels
                             }
                           })
-                          
-                          // Show success message
                           setOptimizationMessage({ 
                             type: 'success', 
                             text: `Vessel ${updatedVessel.vessel_id} schedule updated successfully!` 
                           })
-                          
-                          // Save to backend
-                          axios.post('/api/save-data', {
-                            type: 'vessels',
-                            content: updatedVessel
-                          })
-                            .then(response => console.log('Saved to server'))
-                            .catch(error => console.error('Error saving to server', error))
+                          // Save to backend using RESTful endpoint
+                          try {
+                            const endpoint = getApiEndpoint('vessels');
+                            await axios.post(endpoint, updatedVessel, {
+                              headers: { 'Content-Type': 'application/json' }
+                            });
+                          } catch (error) {
+                            setOptimizationMessage({
+                              type: 'error',
+                              text: 'Failed to save vessel data.'
+                            });
+                          }
                         }}
                       />
                     )}
@@ -551,29 +692,37 @@ function App() {
                         ? { ...data[activeEditor], crudes: data.crudes }  // Pass crudes data for recipe editor
                         : data[activeEditor]
                     }
-                    onSave={(updatedData) => {
-                      // Save to backend first
-                      axios.post('/api/save-data', {
-                        type: activeEditor,
-                        content: updatedData
-                      })
-                      .then(() => {
-                        // Then refresh all data
+                    onSave={async (updatedData) => {
+                      try {
+                        const endpoint = getApiEndpoint(activeEditor);
+                        if (activeEditor === 'recipes') {
+                          // Log outgoing recipes data
+                          console.log('[DEBUG] Outgoing recipes data to', endpoint, JSON.stringify(updatedData, null, 2));
+                        }
+                        const response = await axios.post(endpoint, updatedData, {
+                          headers: { 'Content-Type': 'application/json' }
+                        });
+                        if (activeEditor === 'recipes') {
+                          // Log API response
+                          console.log('[DEBUG] API response for recipes:', response);
+                        }
                         refreshData();
-                        
-                        // Show success message
                         setOptimizationMessage({ 
                           type: 'success', 
                           text: `${activeEditor.charAt(0).toUpperCase() + activeEditor.slice(1).replace('_', ' ')} data updated successfully!` 
                         });
-                      })
-                      .catch(error => {
-                        console.error(`Error saving ${activeEditor} data`, error);
+                      } catch (error) {
+                        if (activeEditor === 'recipes') {
+                          // Log API error
+                          console.error('[DEBUG] Error saving recipes data', error, error?.response?.data);
+                        } else {
+                          console.error(`Error saving ${activeEditor} data`, error);
+                        }
                         setOptimizationMessage({ 
                           type: 'error', 
                           text: `Failed to save ${activeEditor} data.` 
                         });
-                      });
+                      }
                     }}
                   />
                 )}
