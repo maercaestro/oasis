@@ -40863,3 +40863,22 @@ ValueError: Invalid schedule format: 'dict' object has no attribute 'content'
 2025-06-02 11:18:39,278 - werkzeug - INFO -  * Restarting with watchdog (fsevents)
 2025-06-02 11:18:40,561 - werkzeug - WARNING -  * Debugger is active!
 2025-06-02 11:18:40,569 - werkzeug - INFO -  * Debugger PIN: 211-160-997
+2025-06-02 11:19:01,219 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:19:01] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:19:34,237 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:19:34] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:20:07,263 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:20:07] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:20:40,281 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:20:40] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:21:13,304 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:21:13] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:21:46,319 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:21:46] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:22:19,340 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:22:19] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:22:52,363 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:22:52] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:23:25,385 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:23:25] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:23:58,399 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:23:58] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:24:31,416 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:24:31] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:25:04,445 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:25:04] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:25:37,468 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:25:37] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:26:10,490 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:26:10] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:26:43,509 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:26:43] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:27:16,539 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:27:16] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:27:49,557 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:27:49] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:28:22,580 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:28:22] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:28:37,336 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:28:37] "GET /api/data-stream HTTP/1.1" 200 -
