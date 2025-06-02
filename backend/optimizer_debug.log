@@ -40882,3 +40882,9 @@ ValueError: Invalid schedule format: 'dict' object has no attribute 'content'
 2025-06-02 11:27:49,557 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:27:49] "GET /api/data-stream HTTP/1.1" 200 -
 2025-06-02 11:28:22,580 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:28:22] "GET /api/data-stream HTTP/1.1" 200 -
 2025-06-02 11:28:37,336 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:28:37] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:29:10,359 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:29:10] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:29:43,383 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:29:43] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:30:16,408 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:30:16] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:30:49,425 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:30:49] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:31:22,444 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:31:22] "GET /api/data-stream HTTP/1.1" 200 -
+2025-06-02 11:31:55,465 - werkzeug - INFO - 127.0.0.1 - - [02/Jun/2025 11:31:55] "GET /api/data-stream HTTP/1.1" 200 -

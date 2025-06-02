@@ -1,0 +1,38 @@
+# OASIS Backend Python Dependencies
+# Generated on June 2, 2025
+# 
+# Core web framework and API
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Optimization and mathematical programming
+pulp>=2.7.0
+
+# Data manipulation and analysis
+pandas>=2.0.0
+
+# AI/LLM integration
+openai>=1.0.0
+
+# Environment variables management
+python-dotenv>=1.0.0
+
+# Excel export functionality
+xlsxwriter>=3.1.0
+
+# Database (SQLite3 is built-in to Python, no installation needed)
+# Built-in modules (no installation required):
+# - sqlite3
+# - json
+# - os
+# - datetime
+# - logging
+# - threading
+# - queue
+# - time
+# - traceback
+# - pathlib
+# - typing
+# - dataclasses
+# - contextlib
+# - sys
