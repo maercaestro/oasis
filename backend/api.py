@@ -657,7 +657,9 @@ def optimize_schedule():
         data = request.get_json() or {}
         horizon_days = data.get('days', 30)
         objective = data.get('objective', 'margin')  # 'margin' or 'throughput'
-        api_logger.info(f"Optimization request: days={horizon_days}, objective={objective}")
+        multi_recipe = data.get('multi_recipe', False)  # Enable multi-recipe optimization
+        max_recipes_per_day = data.get('max_recipes_per_day', 2)  # Max recipes per day
+        api_logger.info(f"Optimization request: days={horizon_days}, objective={objective}, multi_recipe={multi_recipe}")
         # Load data from database
         crudes = load_crudes_from_db()
         recipes = load_recipes_from_db()
@@ -700,11 +702,19 @@ def optimize_schedule():
             max_processing_rate=100
         )
         api_logger.info(f"Starting optimization: {objective} for {len(schedule_objects)} days (with vessels)")
-        # Run optimization based on objective, now passing vessels
-        if objective == 'throughput':
-            optimized_schedule = optimizer.optimize_throughput(schedule_objects, vessels=vessels)
+        # Run optimization based on objective and multi-recipe setting
+        if multi_recipe:
+            api_logger.info(f"Using multi-recipe optimization (max {max_recipes_per_day} recipes/day)")
+            if objective == 'throughput':
+                optimized_schedule = optimizer.optimize_throughput_multi_recipe(schedule_objects, vessels=vessels, max_recipes_per_day=max_recipes_per_day)
+            else:
+                optimized_schedule = optimizer.optimize_margin_multi_recipe(schedule_objects, vessels=vessels, max_recipes_per_day=max_recipes_per_day)
         else:
-            optimized_schedule = optimizer.optimize_margin(schedule_objects, vessels=vessels)
+            api_logger.info("Using single-recipe optimization")
+            if objective == 'throughput':
+                optimized_schedule = optimizer.optimize_throughput(schedule_objects, vessels=vessels)
+            else:
+                optimized_schedule = optimizer.optimize_margin(schedule_objects, vessels=vessels)
         api_logger.info(f"Optimization complete. Days in optimized schedule: {len(optimized_schedule)}")
         # Convert optimized schedule back to JSON format
         result = []
@@ -749,12 +759,14 @@ def optimize_schedule():
         # --- END AUTO-SAVE ---
         
         # Notify about schedule optimization completion
-        notify_data_change('update', 'schedule', {'optimized_days': len(result), 'objective': objective})
+        notify_data_change('update', 'schedule', {'optimized_days': len(result), 'objective': objective, 'multi_recipe': multi_recipe})
         
         return jsonify({
             'success': True,
             'schedule': result,
             'objective': objective,
+            'multi_recipe': multi_recipe,
+            'max_recipes_per_day': max_recipes_per_day if multi_recipe else 1,
             'horizon_days': horizon_days,
             'timestamp': datetime.now().isoformat(),
             'source': 'database_optimizer'

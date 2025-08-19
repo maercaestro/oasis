@@ -4,7 +4,7 @@ import axios from 'axios'
 import { DashboardCard, ScheduleDashboardCards } from './DashboardCard' // Import the dashboard cards
 
 // Add API_BASE_URL for environment-based backend routing
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 function DailyPlanChart({ schedule, onScheduleChange, originalSchedule = null }) {
   const [viewType, setViewType] = useState('processing')

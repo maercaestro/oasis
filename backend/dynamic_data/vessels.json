@@ -233,32 +233,6 @@
       }
     ]
   },
-  "Vessel_14": {
-    "vessel_id": "Vessel_14",
-    "arrival_day": 28.5,
-    "capacity": 700,
-    "cost": 80000,
-    "days_held": 0,
-    "cargo": [
-      {
-        "grade": "E",
-        "volume": 100.0,
-        "origin": "Sabah",
-        "loading_start_day": 23,
-        "loading_end_day": 24
-      }
-    ],
-    "route": [
-      {
-        "from": "Sabah",
-        "to": "Refinery",
-        "day_start_travel": 23,
-        "day_end_travel": 28.5,
-        "travel_days": 5.5,
-        "action": "requirement_flow"
-      }
-    ]
-  },
   "Vessel_15": {
     "vessel_id": "Vessel_15",
     "arrival_day": 29.5,
@@ -294,7 +268,7 @@
     "cargo": [
       {
         "grade": "F",
-        "volume": 320.0,
+        "volume": 300.0,
         "origin": "Sarawak",
         "loading_start_day": 5,
         "loading_end_day": 6

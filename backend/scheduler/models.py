@@ -96,15 +96,75 @@ class Route:
         self.cost = cost if cost is not None else 10000.0
 
 
-@dataclass
 class DailyPlan:
     """
     A class representing a daily plan in the OASIS system.
+    Enhanced to support hourly scheduling for more realistic operations.
     """
     day: int
-    processing_rates: Dict[str, float] 
+    processing_rates: Dict[str, float]  # Daily totals by recipe
     blending_details: List[BlendingRecipe]
     inventory: float
     inventory_by_grade: Dict[str, float]
     tanks: Dict[str, Tank]
     daily_margin: float = 0.0  # Add margin calculation as an optional field with default 0
+    hourly_schedule: List['HourlyPlan'] = field(default_factory=list)  # 24 hourly plans
+    
+    def get_hourly_production(self) -> float:
+        """Calculate total production from hourly schedule"""
+        return sum(hour.get_effective_rate() for hour in self.hourly_schedule)
+    
+    def get_changeover_count(self) -> int:
+        """Count number of changeover hours in this day"""
+        return sum(1 for hour in self.hourly_schedule if hour.is_changeover)
+    
+    def get_recipe_hours(self, recipe_name: str) -> List[int]:
+        """Get list of hours when a specific recipe is active"""
+        return [hour.hour for hour in self.hourly_schedule 
+                if hour.recipe_name == recipe_name and hour.is_productive()]
+    
+    def validate_hourly_consistency(self) -> bool:
+        """Validate that hourly schedule matches daily totals"""
+        if not self.hourly_schedule:
+            return True  # No hourly data to validate
+            
+        hourly_totals = {}
+        for hour in self.hourly_schedule:
+            if hour.is_productive():
+                recipe = hour.recipe_name
+                if recipe not in hourly_totals:
+                    hourly_totals[recipe] = 0.0
+                hourly_totals[recipe] += hour.processing_rate
+        
+        # Allow small numerical differences
+        tolerance = 0.01
+        for recipe, daily_rate in self.processing_rates.items():
+            hourly_rate = hourly_totals.get(recipe, 0.0)
+            if abs(daily_rate - hourly_rate) > tolerance:
+                return False
+        
+        return True
+
+@dataclass
+class HourlyPlan:
+    """
+    A class representing an hourly plan in the OASIS system.
+    This provides hourly granularity for more realistic refinery operations.
+    """
+    hour: int  # 0-23
+    recipe_name: Optional[str] = None
+    processing_rate: float = 0.0  # kb for this hour
+    is_changeover: bool = False
+    changeover_from: Optional[str] = None
+    changeover_to: Optional[str] = None
+    changeover_progress: float = 0.0  # 0.0 to 1.0 for multi-hour changeovers
+    
+    def is_productive(self) -> bool:
+        """Returns True if this hour produces output (not changeover)"""
+        return not self.is_changeover and self.recipe_name is not None
+    
+    def get_effective_rate(self) -> float:
+        """Get the effective processing rate for this hour"""
+        if self.is_productive():
+            return self.processing_rate
+        return 0.0

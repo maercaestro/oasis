@@ -8,7 +8,7 @@ import logo from '/oasis-new.png'
 import ScheduleDashboard from './components/ScheduleDashboard';
 
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 function App() {
   const [appMode, setAppMode] = useState('view')
@@ -21,6 +21,11 @@ function App() {
   const [isOptimizingSchedule, setIsOptimizingSchedule] = useState(false)
   const [optimizationMessage, setOptimizationMessage] = useState(null)
   const [isRunningScheduler, setIsRunningScheduler] = useState(false);
+  
+  // Multi-recipe optimization controls
+  const [optimizationObjective, setOptimizationObjective] = useState('margin') // 'margin' or 'throughput'
+  const [enableMultiRecipe, setEnableMultiRecipe] = useState(false)
+  const [maxRecipesPerDay, setMaxRecipesPerDay] = useState(2)
   
   const [data, setData] = useState({
     schedule: [],
@@ -117,7 +122,9 @@ function App() {
       const response = await axios.post(`${API_BASE_URL}/api/optimizer/optimize`, {
         days: 30,
         schedule: data.schedule,  // Add the current schedule
-        objective: 'margin'       // You can also specify the objective
+        objective: optimizationObjective,  // Use state variable for objective
+        multi_recipe: enableMultiRecipe,   // Enable multi-recipe optimization
+        max_recipes_per_day: maxRecipesPerDay  // Max recipes per day
       });
       
       if (response.data.success) {
@@ -129,7 +136,7 @@ function App() {
         
         setOptimizationMessage({ 
           type: 'success', 
-          text: 'Schedule optimized successfully!' 
+          text: `Schedule optimized successfully! (${response.data.objective}${response.data.multi_recipe ? ', multi-recipe' : ', single-recipe'})` 
         });
         
         // Switch to view mode to show the optimized schedule
@@ -378,6 +385,48 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {/* Optimization Controls */}
+            <div className="flex items-center gap-3 px-3 py-2 bg-white/10 backdrop-blur-md border border-[#88BDBC]/20 rounded-lg">
+              {/* Objective Selection */}
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-white/90">Objective:</label>
+                <select 
+                  value={optimizationObjective} 
+                  onChange={(e) => setOptimizationObjective(e.target.value)}
+                  className="px-2 py-1 text-xs bg-[#254E58] border border-[#88BDBC]/30 rounded text-white focus:outline-none focus:ring-1 focus:ring-[#88BDBC]"
+                >
+                  <option value="margin">Margin</option>
+                  <option value="throughput">Throughput</option>
+                </select>
+              </div>
+              
+              {/* Multi-Recipe Toggle */}
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-white/90">Multi-Recipe:</label>
+                <input 
+                  type="checkbox" 
+                  checked={enableMultiRecipe} 
+                  onChange={(e) => setEnableMultiRecipe(e.target.checked)}
+                  className="w-3 h-3 text-[#88BDBC] bg-[#254E58] border-[#88BDBC]/30 rounded focus:ring-[#88BDBC] focus:ring-1"
+                />
+              </div>
+              
+              {/* Max Recipes Per Day (only show when multi-recipe is enabled) */}
+              {enableMultiRecipe && (
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium text-white/90">Max/Day:</label>
+                  <input 
+                    type="number" 
+                    min="2" 
+                    max="5" 
+                    value={maxRecipesPerDay} 
+                    onChange={(e) => setMaxRecipesPerDay(parseInt(e.target.value))}
+                    className="w-12 px-1 py-1 text-xs bg-[#254E58] border border-[#88BDBC]/30 rounded text-white focus:outline-none focus:ring-1 focus:ring-[#88BDBC]"
+                  />
+                </div>
+              )}
+            </div>
+            
             {/* Enhanced optimization buttons with teal-brown glassmorphic design */}
             <button
               onClick={handleOptimizeVessels}
