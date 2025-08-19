@@ -1,0 +1,37 @@
+{
+  "email_config": {
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "sender_email": "maercaestro@gmail.com",
+    "recipient_email": "maercaestro@gmail.com",
+    "enable_email": true
+  },
+  "instructions": {
+    "note": "Password is loaded from EMAIL_PASSWORD environment variable",
+    "setup_env_file": [
+      "1. Create a .env file in the same directory as the script",
+      "2. Add: EMAIL_PASSWORD=your_gmail_app_password",
+      "3. Optionally override other settings with environment variables:",
+      "   EMAIL_SENDER=your_email@gmail.com",
+      "   EMAIL_RECIPIENT=recipient@gmail.com",
+      "   SMTP_SERVER=smtp.gmail.com",
+      "   SMTP_PORT=587"
+    ],
+    "setup_gmail": [
+      "1. Enable 2-factor authentication on your Gmail account",
+      "2. Go to Google Account settings > Security > App passwords",
+      "3. Generate an app password for this script",
+      "4. Add the app password to .env file as EMAIL_PASSWORD"
+    ],
+    "alternative_smtp": {
+      "outlook": {
+        "smtp_server": "smtp-mail.outlook.com",
+        "smtp_port": 587
+      },
+      "yahoo": {
+        "smtp_server": "smtp.mail.yahoo.com",
+        "smtp_port": 587
+      }
+    }
+  }
+}

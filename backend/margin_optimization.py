@@ -17,13 +17,70 @@ import ast
 import pickle
 import pandas as pd
 import mlflow
+import smtplib
+import traceback
+from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from pyomo.environ import *
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ Environment variables loaded from .env file")
+except ImportError:
+    print("⚠️ python-dotenv not installed. Install with: pip install python-dotenv")
+    print("   Using system environment variables only.")
+
 # Configuration parameters - modify these as needed for testing
-SCENARIO = "Scenario Abu"
+SCENARIO = "test_data"  # Changed to use direct test_data folder
 VESSEL_COUNT = 6
 OPTIMIZATION_TYPE = "throughput"  # "margin" or "throughput"
 MAX_DEMURRAGE_LIMIT = 10
+
+# Data paths - using local data directory
+DATA_BASE_PATH = "."  # Current directory
+
+# Load email configuration
+def load_email_config():
+    """Load email configuration from file and environment variables"""
+    try:
+        with open("email_config.json", "r") as f:
+            config = json.load(f)
+        
+        email_config = config["email_config"].copy()
+        
+        # Override sensitive data with environment variables
+        email_config["sender_password"] = os.getenv("EMAIL_PASSWORD", "")
+        
+        # Optional: Allow overriding other settings via environment variables
+        if os.getenv("EMAIL_SENDER"):
+            email_config["sender_email"] = os.getenv("EMAIL_SENDER")
+        if os.getenv("EMAIL_RECIPIENT"):
+            email_config["recipient_email"] = os.getenv("EMAIL_RECIPIENT")
+        if os.getenv("SMTP_SERVER"):
+            email_config["smtp_server"] = os.getenv("SMTP_SERVER")
+        if os.getenv("SMTP_PORT"):
+            email_config["smtp_port"] = int(os.getenv("SMTP_PORT"))
+        
+        # Check if password is available
+        if not email_config["sender_password"]:
+            print("⚠️ EMAIL_PASSWORD not found in environment variables. Email notifications disabled.")
+            email_config["enable_email"] = False
+        
+        return email_config
+        
+    except FileNotFoundError:
+        print("⚠️ email_config.json not found. Email notifications disabled.")
+        return {"enable_email": False}
+    except Exception as e:
+        print(f"⚠️ Error loading email config: {e}. Email notifications disabled.")
+        return {"enable_email": False}
+
+EMAIL_CONFIG = load_email_config()
 
 def install_dependencies():
     """Install required packages - uncomment if needed"""
@@ -31,9 +88,122 @@ def install_dependencies():
     # os.system("pip install PySCIPOpt pyomo highspy mlflow")
     pass
 
-def load_all_scenario_data(scenario):
+def send_email_notification(subject, body, attachment_paths=None, is_success=True):
+    """Send email notification about optimization completion"""
+    if not EMAIL_CONFIG.get("enable_email", False):
+        print("Email notifications disabled")
+        return
+    
+    try:
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_CONFIG["sender_email"]
+        msg['To'] = EMAIL_CONFIG["recipient_email"]
+        msg['Subject'] = subject
+        
+        # Add body
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Add attachments if provided
+        if attachment_paths:
+            for file_path in attachment_paths:
+                if os.path.exists(file_path):
+                    with open(file_path, "rb") as attachment:
+                        part = MIMEBase('application', 'octet-stream')
+                        part.set_payload(attachment.read())
+                    
+                    encoders.encode_base64(part)
+                    part.add_header(
+                        'Content-Disposition',
+                        f'attachment; filename= {os.path.basename(file_path)}'
+                    )
+                    msg.attach(part)
+        
+        # Connect to server and send email
+        server = smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"])
+        server.starttls()
+        server.login(EMAIL_CONFIG["sender_email"], EMAIL_CONFIG["sender_password"])
+        text = msg.as_string()
+        server.sendmail(EMAIL_CONFIG["sender_email"], EMAIL_CONFIG["recipient_email"], text)
+        server.quit()
+        
+        print(f"✅ Email notification sent successfully to {EMAIL_CONFIG['recipient_email']}")
+        
+    except Exception as e:
+        print(f"❌ Failed to send email notification: {str(e)}")
+
+def create_success_email_body(scenario, vessel_count, optimization_type, total_throughput, 
+                             total_margin, average_throughput, average_margin, execution_time):
+    """Create email body for successful optimization"""
+    return f"""
+🎉 OASIS Margin Optimization Completed Successfully! 🎉
+
+Optimization Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Scenario: {scenario}
+Vessels: {vessel_count}
+Optimization Type: {optimization_type}
+Execution Time: {execution_time:.2f} minutes
+
+Results Summary:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 Total Throughput: {total_throughput:,.0f} kb
+💰 Total Margin: ${total_margin:,.0f}
+📈 Average Daily Throughput: {average_throughput:,.0f} kb
+💵 Average Daily Margin: ${average_margin:,.0f}
+
+The optimization has generated:
+✅ Vessel routing schedule
+✅ Crude blending plan
+✅ Inventory management plan
+
+Files have been saved and are attached to this email.
+
+System Information:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Host: {os.uname().nodename if hasattr(os, 'uname') else 'Unknown'}
+
+Best regards,
+OASIS Optimization System
+"""
+
+def create_failure_email_body(scenario, vessel_count, optimization_type, error_message, execution_time):
+    """Create email body for failed optimization"""
+    return f"""
+❌ OASIS Margin Optimization Failed ❌
+
+Optimization Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Scenario: {scenario}
+Vessels: {vessel_count}
+Optimization Type: {optimization_type}
+Execution Time: {execution_time:.2f} minutes
+
+Error Information:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{error_message}
+
+System Information:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Host: {os.uname().nodename if hasattr(os, 'uname') else 'Unknown'}
+
+Please check the logs and retry the optimization.
+
+Best regards,
+OASIS Optimization System
+"""
+
+def load_all_scenario_data(scenario, base_data_path=DATA_BASE_PATH):
     """Load all scenario data from CSV files"""
-    base_path = f"/lakehouse/default/Files/{scenario}/"
+    base_path = f"{base_data_path}/{scenario}/"
     
     with open(f"{base_path}/config.json", "r") as f:
         config = json.load(f)
@@ -501,7 +671,7 @@ def solve_model(model, config, scenario, vessel_count, optimization_type, max_de
     solver = get_enabled_solver(config)
     
     # Create output directory
-    dir_path = f"/lakehouse/default/Files/Dev/{scenario}/"
+    dir_path = f"{DATA_BASE_PATH}/output/{scenario}/"
     os.makedirs(dir_path, exist_ok=True)
     
     # Set up logging
@@ -510,12 +680,37 @@ def solve_model(model, config, scenario, vessel_count, optimization_type, max_de
     else:
         model_log_file_path = f'{dir_path}{optimization_type}_Optimization_log_{vessel_count}_vessels_{config["DAYS"]["end"]}_days_{config["MaxTransitions"]}_transitions.txt'
     
+    print(f"📝 Solver log will be saved to: {model_log_file_path}")
+    print(f"🔧 Using solver: {solver}")
+    print(f"⏱️ Starting optimization (this may take several hours)...")
+    
     # Solve model
     with open(model_log_file_path, "w") as f:
         sys_stdout = sys.stdout
         sys.stdout = f
+        
+        # Print progress header to console and log
+        print(f"=== OASIS Margin Optimization Started ===")
+        print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Scenario: {scenario}")
+        print(f"Vessels: {vessel_count}")
+        print(f"Optimization Type: {optimization_type}")
+        print(f"Days: {config['DAYS']['end']}")
+        print(f"Max Transitions: {config['MaxTransitions']}")
+        print(f"Solver: {solver}")
+        print("=" * 50)
+        
         result = solver.solve(model, tee=True)
+        
+        print("=" * 50)
+        print(f"=== Optimization Completed ===")
+        print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Status: {result.solver.termination_condition}")
+        
         sys.stdout = sys_stdout
+    
+    print(f"✅ Optimization solver completed!")
+    print(f"📊 Status: {result.solver.termination_condition}")
     
     return result
 
@@ -730,7 +925,7 @@ def extract_results(model, config, scenario, vessel_count, optimization_type, ma
 def save_results(model, combined_df_reduced, vessel_df, config, scenario, vessel_count, optimization_type, max_demurrage_limit, 
                 total_throughput, total_margin, average_throughput, average_margin):
     """Save results to files"""
-    base_path = f"/lakehouse/default/Files/Dev/{scenario}/"
+    base_path = f"{DATA_BASE_PATH}/output/{scenario}/"
     os.makedirs(base_path, exist_ok=True)
     
     # Generate filenames
@@ -789,48 +984,91 @@ def run_mlflow_experiment(scenario, vessel_count, optimization_type, max_demurra
         print(f"MLflow logging failed: {e}")
 
 def main():
-    """Main execution function"""
+    """Main execution function with error handling and email notifications"""
+    start_time = datetime.now()
     print("Starting Margin Optimization Script")
     print("=" * 50)
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     
-    # Load data
-    print("Loading scenario data...")
-    config, crudes, locations, time_of_travel, crude_availability, source_location, products_info, crude_margins, opening_inventory_dict = load_all_scenario_data(SCENARIO)
-    
-    # Create model
-    print("Creating optimization model...")
-    model, parcel_size = create_pyomo_model(
-        config, crudes, locations, source_location, products_info, crude_availability,
-        time_of_travel, crude_margins, opening_inventory_dict, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT
-    )
-    
-    # Solve model
-    print("Solving optimization model...")
-    result = solve_model(model, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT)
-    
-    # Extract results
-    print("Extracting results...")
-    combined_df_reduced, vessel_df, total_throughput, total_margin, average_throughput, average_margin = extract_results(
-        model, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT, parcel_size
-    )
-    
-    # Save results
-    print("Saving results...")
-    crude_blending_file, vessel_routing_file = save_results(
-        model, combined_df_reduced, vessel_df, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT,
-        total_throughput, total_margin, average_throughput, average_margin
-    )
-    
-    # MLflow tracking
-    print("Running MLflow experiment...")
-    run_mlflow_experiment(
-        SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT,
-        total_throughput, total_margin, average_throughput, average_margin,
-        crude_blending_file, vessel_routing_file
-    )
-    
-    print("\nOptimization completed successfully!")
-    return model, combined_df_reduced, vessel_df
+    try:
+        # Load data
+        print("Loading scenario data...")
+        config, crudes, locations, time_of_travel, crude_availability, source_location, products_info, crude_margins, opening_inventory_dict = load_all_scenario_data(SCENARIO)
+        
+        # Create model
+        print("Creating optimization model...")
+        model, parcel_size = create_pyomo_model(
+            config, crudes, locations, source_location, products_info, crude_availability,
+            time_of_travel, crude_margins, opening_inventory_dict, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT
+        )
+        
+        # Solve model
+        print("Solving optimization model...")
+        result = solve_model(model, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT)
+        
+        # Extract results
+        print("Extracting results...")
+        combined_df_reduced, vessel_df, total_throughput, total_margin, average_throughput, average_margin = extract_results(
+            model, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT, parcel_size
+        )
+        
+        # Save results
+        print("Saving results...")
+        crude_blending_file, vessel_routing_file = save_results(
+            model, combined_df_reduced, vessel_df, config, SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT,
+            total_throughput, total_margin, average_throughput, average_margin
+        )
+        
+        # MLflow tracking
+        print("Running MLflow experiment...")
+        run_mlflow_experiment(
+            SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, MAX_DEMURRAGE_LIMIT,
+            total_throughput, total_margin, average_throughput, average_margin,
+            crude_blending_file, vessel_routing_file
+        )
+        
+        # Calculate execution time
+        end_time = datetime.now()
+        execution_time = (end_time - start_time).total_seconds() / 60  # in minutes
+        
+        print(f"\n🎉 Optimization completed successfully!")
+        print(f"Execution time: {execution_time:.2f} minutes")
+        
+        # Send success email
+        subject = f"✅ OASIS Optimization Completed Successfully - {SCENARIO}"
+        body = create_success_email_body(
+            SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, total_throughput, 
+            total_margin, average_throughput, average_margin, execution_time
+        )
+        
+        # Attach result files
+        attachments = [crude_blending_file, vessel_routing_file]
+        send_email_notification(subject, body, attachments, is_success=True)
+        
+        return model, combined_df_reduced, vessel_df
+        
+    except Exception as e:
+        # Calculate execution time for failed run
+        end_time = datetime.now()
+        execution_time = (end_time - start_time).total_seconds() / 60  # in minutes
+        
+        # Get full error traceback
+        error_traceback = traceback.format_exc()
+        error_message = f"Error: {str(e)}\n\nFull Traceback:\n{error_traceback}"
+        
+        print(f"\n❌ Optimization failed!")
+        print(f"Execution time: {execution_time:.2f} minutes")
+        print(f"Error: {str(e)}")
+        
+        # Send failure email
+        subject = f"❌ OASIS Optimization Failed - {SCENARIO}"
+        body = create_failure_email_body(
+            SCENARIO, VESSEL_COUNT, OPTIMIZATION_TYPE, error_message, execution_time
+        )
+        send_email_notification(subject, body, is_success=False)
+        
+        # Re-raise the exception so the script exits with error code
+        raise
 
 if __name__ == "__main__":
     # You can modify these parameters for testing
